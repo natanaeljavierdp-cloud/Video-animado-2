@@ -74,7 +74,7 @@
       "id": 7, "start": 45, "end": 50,
       "image": "assets/07_familia_feliz.png",
       "motion": { "type": "zoomOut", "from": 1.15, "to": 1.0 },
-      "text": [{ "value": "Su tierra es su historia.", "style": "title", "color": "gold", "position": "lowerThird" }],
+      "text": [{ "value": "Su tierra es su historia.", "style": "title", "color": "gold", "position": "center" }],
       "voiceover": "Su tierra es su historia. No deje que otro la escriba.",
       "transitionOut": "fadeToNavy"
     },
@@ -86,7 +86,7 @@
         { "value": "Sandoval Legal", "style": "title", "color": "cream" },
         { "value": "Abogados en Puerto Plata", "style": "body", "color": "gold" },
         { "value": "Escríbanos: revisamos su caso", "style": "body", "color": "cream" },
-        { "value": "[WhatsApp] · [@usuario]", "style": "body", "color": "cream" }
+        { "value": "Instagram: @sanfoval-legal", "style": "body", "color": "cream" }
       ],
       "voiceover": "Sandoval Legal, abogados en Puerto Plata. Escríbanos y revisamos su caso."
     }

@@ -185,13 +185,14 @@ def subtitle_lines(timed, max_chars=34):
 
 
 def main():
-    segs, dur = speech_segments(VOICE)
     manual = os.path.join(ROOT, "assets/voz_alineacion.json")
     if os.path.exists(manual):
         # Hand-checked alignment (edit this file to fix any subtitle timing).
         timed = json.load(open(manual, encoding="utf-8"))
+        dur = speech_segments(VOICE)[1] if os.path.exists(VOICE) else timed[-1]["end"] + 0.3
         print(f"Voz: {dur:.2f}s · usando {os.path.relpath(manual, ROOT)}")
     else:
+        segs, dur = speech_segments(VOICE)
         timed, rate = align(segs, phrases())
         print(f"Voz: {dur:.2f}s · {len(segs)} tramos de habla · {rate:.2f} sílabas/s")
     for u in timed:
@@ -204,7 +205,7 @@ def main():
     spec_path = os.path.join(ROOT, "video_spec.json")
     spec = json.load(open(spec_path, encoding="utf-8"))
     lead = 0.25  # cut a little before the words
-    total = round(math.ceil((dur + 1.2) * 10) / 10, 1)
+    total = round(math.ceil((dur + 2.0) * 10) / 10, 1)  # hold the closing ~2 s
 
     def cut(key, fallback):
         return round(max(0.0, first.get(key, fallback) - lead), 2)

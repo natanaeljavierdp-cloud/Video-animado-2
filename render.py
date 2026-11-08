@@ -47,7 +47,7 @@ FOCUS = {
     "06a_registro_titulos": 0.42,
     "06b_familia_firmando": 0.50,
     "06c_lupa_contrato": 0.52,
-    "07_familia_feliz": 0.50,
+    "07_familia_feliz": 0.46,
 }
 TRANSITION = {"crossfade": 0.6, "wipe": 0.5, "fadeToNavy": 0.6}
 
@@ -483,24 +483,29 @@ def render_cta_scene(sc, t):
     canvas = navy_bg().copy()
     lt = t - sc["start"]
     logo = sc.get("logo")
+    texts = list(sc["text"])
     has_logo = logo and os.path.exists(os.path.join(ROOT, logo["file"]))
-    top = 900 if has_logo else 760
     if has_logo:
+        # The logo already carries the firm's name: show it big, skip the name line.
         li = Image.open(os.path.join(ROOT, logo["file"])).convert("RGBA")
-        li.thumbnail((380, 380), Image.LANCZOS)
-        paste_layer(canvas, li, W / 2, top - 270, clamp(lt / 0.8))
-    # name, tagline, divider, call to action, contact
-    rows = [(0, 118, 0), (1, 58, 118), (2, 60, 290), (3, 50, 380)]
-    for i, size, dy in rows:
-        if i >= len(sc["text"]):
+        li.thumbnail((560, 560), Image.LANCZOS)
+        p = clamp(lt / 0.8)
+        paste_layer(canvas, li, W / 2, 620, p, 0.92 + 0.08 * ease_out_cubic(p))
+        texts = texts[1:]
+        top, rows = 1010, [(58, 0), (60, 150), (50, 235)]
+    else:
+        top, rows = 760, [(118, 0), (58, 118), (60, 290), (50, 380)]
+    for i, (size, dy) in enumerate(rows):
+        if i >= len(texts):
             continue
-        tx = sc["text"][i]
+        tx = texts[i]
         layer = text_layer(tx["value"], tx["style"], size, color(tx["color"]), max_w=960)
-        a, off = title_anim(t, sc["start"], delay=0.3 + 0.3 * i)
+        a, off = title_anim(t, sc["start"], delay=0.5 + 0.3 * i)
         paste_layer(canvas, layer, W / 2, top + dy + off, a)
+    line_y = top + (75 if has_logo else 200)
     w = 260 * ease_out_cubic(clamp((lt - 0.9) / 0.5))
     if w > 1:
-        ImageDraw.Draw(canvas).line([(W / 2 - w / 2, top + 200), (W / 2 + w / 2, top + 200)],
+        ImageDraw.Draw(canvas).line([(W / 2 - w / 2, line_y), (W / 2 + w / 2, line_y)],
                                     fill=color("gold"), width=4)
     return canvas
 
