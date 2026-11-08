@@ -21,7 +21,7 @@ python3 render.py --stills  # una imagen por escena en out/stills/ (revisión r�
 
 | Archivo | Qué es |
 |---|---|
-| `video_spec.json` | Escenas, textos, movimientos y tiempos (ya ajustados a la voz: 56,8 s) |
+| `video_spec.json` | Escenas, textos, movimientos y tiempos (ya ajustados a la voz: 57,1 s) |
 | `assets/voz_alineacion.json` | Momento exacto de cada frase de la voz. **Si un subtítulo sale adelantado o atrasado, se corrige aquí** y se vuelve a correr `sync_voice.py` + `render.py` |
 | `assets/musica.mp3`, `assets/golpe.mp3` | Música y golpe del sello, compuestos por `make_music.py` a la medida de las escenas |
 | `assets/subtitles_timed.json` | Subtítulos generados (no editar a mano) |
