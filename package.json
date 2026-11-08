@@ -1,0 +1,40 @@
+{
+  "name": "granja-integrada-video",
+  "version": "1.0.0",
+  "description": "Video animado 3D: Granja Integrada — Tres Producciones, Un Solo Negocio",
+  "scripts": {
+    "audio": "python3 scripts/build_audio.py",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts GranjaIntegrada out/granja-integrada.mp4",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/natanaeljavierdp-cloud/Video-animado-2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/natanaeljavierdp-cloud/Video-animado-2/issues"
+  },
+  "homepage": "https://github.com/natanaeljavierdp-cloud/Video-animado-2#readme",
+  "dependencies": {
+    "@fontsource/montserrat": "^5.3.0",
+    "@react-three/fiber": "^8.18.0",
+    "@remotion/cli": "^4.0.541",
+    "@remotion/renderer": "^4.0.541",
+    "@remotion/three": "^4.0.541",
+    "@remotion/transitions": "^4.0.541",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.541",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@types/three": "^0.187.0",
+    "typescript": "^7.0.2"
+  }
+}

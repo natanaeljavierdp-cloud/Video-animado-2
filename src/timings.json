@@ -1,0 +1,131 @@
+{
+ "fps": 30,
+ "transition": 15,
+ "durationInFrames": 1915,
+ "endCardFrames": 105,
+ "scenes": [
+  {
+   "from": 0,
+   "duration": 300,
+   "narrationFrom": 18,
+   "narrationDuration": 210,
+   "subtitles": [
+    {
+     "text": "¿Y si pudiéramos transformar una granja en tres fuentes de producción,",
+     "from": 18,
+     "duration": 120
+    },
+    {
+     "text": "trabajando juntas para construir un negocio rentable?",
+     "from": 138,
+     "duration": 91
+    }
+   ]
+  },
+  {
+   "from": 285,
+   "duration": 348,
+   "narrationFrom": 303,
+   "narrationDuration": 294,
+   "subtitles": [
+    {
+     "text": "Las gallinas ponedoras ofrecen ingresos frecuentes una vez iniciada su producción.",
+     "from": 303,
+     "duration": 144
+    },
+    {
+     "text": "Su misión es ayudar a financiar la alimentación,",
+     "from": 447,
+     "duration": 84
+    },
+    {
+     "text": "el personal y los gastos de la granja.",
+     "from": 531,
+     "duration": 67
+    }
+   ]
+  },
+  {
+   "from": 618,
+   "duration": 309,
+   "narrationFrom": 636,
+   "narrationDuration": 255,
+   "subtitles": [
+    {
+     "text": "Mientras tanto, nuestras cerdas reproductoras producen los lechones",
+     "from": 636,
+     "duration": 112
+    },
+    {
+     "text": "que abastecerán el área de engorde,",
+     "from": 748,
+     "duration": 59
+    },
+    {
+     "text": "reduciendo la dependencia de proveedores externos.",
+     "from": 807,
+     "duration": 84
+    }
+   ]
+  },
+  {
+   "from": 912,
+   "duration": 306,
+   "narrationFrom": 930,
+   "narrationDuration": 252,
+   "subtitles": [
+    {
+     "text": "Los cerdos de engorde representan otra fuente de ingresos.",
+     "from": 930,
+     "duration": 103
+    },
+    {
+     "text": "Nuestro objetivo es comercializarlos cuando",
+     "from": 1033,
+     "duration": 76
+    },
+    {
+     "text": "alcancen aproximadamente cien kilogramos.",
+     "from": 1109,
+     "duration": 73
+    }
+   ]
+  },
+  {
+   "from": 1203,
+   "duration": 318,
+   "narrationFrom": 1221,
+   "narrationDuration": 264,
+   "subtitles": [
+    {
+     "text": "Con instalaciones disponibles y una inversión proyectada de cinco millones de pesos,",
+     "from": 1221,
+     "duration": 139
+    },
+    {
+     "text": "buscamos desarrollar un modelo productivo integrado, eficiente y sostenible.",
+     "from": 1360,
+     "duration": 125
+    }
+   ]
+  },
+  {
+   "from": 1506,
+   "duration": 409,
+   "narrationFrom": 1524,
+   "narrationDuration": 250,
+   "subtitles": [
+    {
+     "text": "Tres actividades, una misma visión: producir alimentos,",
+     "from": 1524,
+     "duration": 100
+    },
+    {
+     "text": "generar empleos y construir una empresa agropecuaria con potencial de crecimiento.",
+     "from": 1624,
+     "duration": 150
+    }
+   ]
+  }
+ ]
+}
