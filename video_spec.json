@@ -4,7 +4,7 @@
     "width": 1080,
     "height": 1920,
     "fps": 30,
-    "durationSec": 65.1
+    "durationSec": 57.1
   },
   "brand": {
     "colors": {
@@ -29,7 +29,7 @@
     "sfx": [
       {
         "file": "assets/golpe.mp3",
-        "at": 9.87
+        "at": 8.95
       }
     ]
   },
@@ -37,7 +37,7 @@
     {
       "id": 1,
       "start": 0.0,
-      "end": 6.21,
+      "end": 5.81,
       "image": "assets/01_familia_cerca.png",
       "motion": {
         "type": "zoomIn",
@@ -57,8 +57,8 @@
     },
     {
       "id": 2,
-      "start": 6.21,
-      "end": 9.87,
+      "start": 5.81,
+      "end": 8.95,
       "image": "assets/02_arbol_genealogico.png",
       "motion": {
         "type": "panDown",
@@ -77,8 +77,8 @@
     },
     {
       "id": 3,
-      "start": 9.87,
-      "end": 19.32,
+      "start": 8.95,
+      "end": 17.01,
       "image": "assets/03_sello_titulo.png",
       "motion": {
         "type": "zoomIn",
@@ -105,15 +105,15 @@
           }
         ],
         "color": "gold",
-        "appearAt": 12.95
+        "appearAt": 11.64
       },
       "voiceover": "…deslindes irregulares, títulos que aparecen de la nada. Desde Punta Rucia hasta Luperón, esto no es un rumor. Está en los tribunales.",
       "transitionOut": "cut"
     },
     {
       "id": 4,
-      "start": 19.32,
-      "end": 29.88,
+      "start": 17.01,
+      "end": 26.06,
       "image": "assets/04_casa_mecedora.png",
       "motion": {
         "type": "zoomIn",
@@ -133,8 +133,8 @@
     },
     {
       "id": 5,
-      "start": 29.88,
-      "end": 33.3,
+      "start": 26.06,
+      "end": 29.42,
       "image": "assets/05_terreno_se_vende.png",
       "motion": {
         "type": "panRight",
@@ -153,30 +153,30 @@
     },
     {
       "id": 6,
-      "start": 33.3,
-      "end": 51.29,
+      "start": 29.42,
+      "end": 45.48,
       "background": "navy",
       "steps": [
         {
           "n": 1,
-          "start": 33.3,
-          "end": 41.59,
+          "start": 29.42,
+          "end": 36.79,
           "image": "assets/06a_registro_titulos.png",
           "title": "Verifique su título",
           "subtitle": "en el Registro de Títulos"
         },
         {
           "n": 2,
-          "start": 41.59,
-          "end": 45.62,
+          "start": 36.79,
+          "end": 40.42,
           "image": "assets/06b_familia_firmando.png",
           "title": "Haga la sucesión",
           "subtitle": "determinación de herederos y partición"
         },
         {
           "n": 3,
-          "start": 45.62,
-          "end": 51.29,
+          "start": 40.42,
+          "end": 45.48,
           "image": "assets/06c_lupa_contrato.png",
           "title": "¿Va a comprar?",
           "subtitle": "revisión legal antes de pagar"
@@ -192,8 +192,8 @@
     },
     {
       "id": 7,
-      "start": 51.29,
-      "end": 56.39,
+      "start": 45.48,
+      "end": 49.51,
       "image": "assets/07_familia_feliz.png",
       "motion": {
         "type": "zoomOut",
@@ -213,8 +213,8 @@
     },
     {
       "id": 8,
-      "start": 56.39,
-      "end": 65.1,
+      "start": 49.51,
+      "end": 57.1,
       "background": "navy",
       "logo": {
         "file": "assets/08_logo.png",
