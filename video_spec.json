@@ -1,0 +1,256 @@
+{
+  "project": "su-tierra-es-su-historia",
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationSec": 68.6
+  },
+  "brand": {
+    "colors": {
+      "navy": "#0B1F3A",
+      "gold": "#C9A227",
+      "cream": "#F5F1E8",
+      "alert": "#A23B2A"
+    },
+    "fonts": {
+      "title": "Playfair Display Bold",
+      "body": "Montserrat SemiBold"
+    },
+    "safeArea": {
+      "top": 250,
+      "bottom": 350
+    }
+  },
+  "audio": {
+    "voiceover": "assets/voz.mp3",
+    "music": "assets/musica.mp3",
+    "musicVolume": 0.18,
+    "sfx": [
+      {
+        "file": "assets/golpe.mp3",
+        "at": 11.13
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "start": 0.0,
+      "end": 6.72,
+      "image": "assets/01_familia_cerca.png",
+      "motion": {
+        "type": "zoomIn",
+        "from": 1.0,
+        "to": 1.12
+      },
+      "text": [
+        {
+          "value": "Perdieron su tierra… sin vender nada.",
+          "style": "title",
+          "color": "cream",
+          "position": "center"
+        }
+      ],
+      "voiceover": "En Puerto Plata hay familias que perdieron su tierra… sin haber vendido nada.",
+      "transitionOut": "cut"
+    },
+    {
+      "id": 2,
+      "start": 6.72,
+      "end": 11.13,
+      "image": "assets/02_arbol_genealogico.png",
+      "motion": {
+        "type": "panDown",
+        "distance": 120
+      },
+      "text": [
+        {
+          "value": "Herederos falsos",
+          "style": "title",
+          "color": "alert",
+          "position": "center"
+        }
+      ],
+      "voiceover": "Herederos falsos…",
+      "transitionOut": "cut"
+    },
+    {
+      "id": 3,
+      "start": 11.13,
+      "end": 22.25,
+      "image": "assets/03_sello_titulo.png",
+      "motion": {
+        "type": "zoomIn",
+        "from": 1.0,
+        "to": 1.25,
+        "easing": "easeOutExpo"
+      },
+      "text": [
+        {
+          "value": "Deslindes irregulares · Títulos dudosos",
+          "style": "body",
+          "color": "cream",
+          "position": "center"
+        }
+      ],
+      "overlay": {
+        "type": "map",
+        "points": [
+          {
+            "label": "Punta Rucia"
+          },
+          {
+            "label": "Luperón"
+          }
+        ],
+        "color": "gold",
+        "appearAt": 13.67
+      },
+      "voiceover": "…deslindes irregulares, títulos que aparecen de la nada. Desde Punta Rucia hasta Luperón, esto no es un rumor. Está en los tribunales.",
+      "transitionOut": "cut"
+    },
+    {
+      "id": 4,
+      "start": 22.25,
+      "end": 33.36,
+      "image": "assets/04_casa_mecedora.png",
+      "motion": {
+        "type": "zoomIn",
+        "from": 1.0,
+        "to": 1.15
+      },
+      "text": [
+        {
+          "value": "La herencia 'pa' después'…",
+          "style": "title",
+          "color": "cream",
+          "position": "center"
+        }
+      ],
+      "voiceover": "¿Y sabe por qué pasa? Porque muchas familias dejan la herencia 'pa' después'. El abuelo muere, nadie hace la sucesión, nadie deslinda…",
+      "transitionOut": "crossfade"
+    },
+    {
+      "id": 5,
+      "start": 33.36,
+      "end": 38.71,
+      "image": "assets/05_terreno_se_vende.png",
+      "motion": {
+        "type": "panRight",
+        "distance": 80
+      },
+      "text": [
+        {
+          "value": "…y otro llega con papeles.",
+          "style": "title",
+          "color": "cream",
+          "position": "center"
+        }
+      ],
+      "voiceover": "…y esa tierra queda servida para el que llegue con papeles.",
+      "transitionOut": "wipe"
+    },
+    {
+      "id": 6,
+      "start": 38.71,
+      "end": 57.03,
+      "background": "navy",
+      "steps": [
+        {
+          "n": 1,
+          "start": 38.71,
+          "end": 45.88,
+          "image": "assets/06a_registro_titulos.png",
+          "title": "Verifique su título",
+          "subtitle": "en el Registro de Títulos"
+        },
+        {
+          "n": 2,
+          "start": 45.88,
+          "end": 51.03,
+          "image": "assets/06b_familia_firmando.png",
+          "title": "Haga la sucesión",
+          "subtitle": "determinación de herederos y partición"
+        },
+        {
+          "n": 3,
+          "start": 51.03,
+          "end": 57.03,
+          "image": "assets/06c_lupa_contrato.png",
+          "title": "¿Va a comprar?",
+          "subtitle": "revisión legal antes de pagar"
+        }
+      ],
+      "stepStyle": {
+        "numberColor": "gold",
+        "imageOpacity": 0.35,
+        "numberAnimation": "popIn"
+      },
+      "voiceover": "Tres cosas que usted puede hacer hoy. Uno: verifique en el Registro de Títulos a nombre de quién está su terreno. Dos: si hay herederos, formalice la sucesión. Tres: si va a comprar, no compre con una simple constancia sin revisión legal.",
+      "transitionOut": "crossfade"
+    },
+    {
+      "id": 7,
+      "start": 57.03,
+      "end": 61.24,
+      "image": "assets/07_familia_feliz.png",
+      "motion": {
+        "type": "zoomOut",
+        "from": 1.15,
+        "to": 1.0
+      },
+      "text": [
+        {
+          "value": "Su tierra es su historia.",
+          "style": "title",
+          "color": "gold",
+          "position": "lowerThird"
+        }
+      ],
+      "voiceover": "Su tierra es su historia. No deje que otro la escriba.",
+      "transitionOut": "fadeToNavy"
+    },
+    {
+      "id": 8,
+      "start": 61.24,
+      "end": 68.6,
+      "background": "navy",
+      "logo": {
+        "file": "assets/08_logo.png",
+        "animation": "fadeIn"
+      },
+      "text": [
+        {
+          "value": "Sandoval Legal",
+          "style": "title",
+          "color": "cream"
+        },
+        {
+          "value": "Abogados en Puerto Plata",
+          "style": "body",
+          "color": "gold"
+        },
+        {
+          "value": "Escríbanos: revisamos su caso",
+          "style": "body",
+          "color": "cream"
+        },
+        {
+          "value": "[WhatsApp] · [@usuario]",
+          "style": "body",
+          "color": "cream"
+        }
+      ],
+      "voiceover": "Sandoval Legal, abogados en Puerto Plata. Escríbanos y revisamos su caso."
+    }
+  ],
+  "subtitles": {
+    "enabled": true,
+    "mode": "phrase",
+    "style": "body",
+    "color": "cream",
+    "background": "rgba(11,31,58,0.7)",
+    "position": "bottomSafe"
+  }
+}
