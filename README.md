@@ -57,17 +57,44 @@ El render usa WebGL por software (`swangle`), por lo que funciona en servidores 
 GPU. Si Remotion no puede descargar su navegador, indique uno local con
 `REMOTION_BROWSER=/ruta/a/chrome-headless-shell npm run render`.
 
-## Mejorar la voz (recomendado para la versión final)
+## Versión con audio mejorado
 
-La narración incluida se sintetiza **sin conexión** con espeak‑ng + MBROLA (voz
-masculina mexicana `mx2`). Es inteligible pero suena robótica. Para una voz
-profesional en español latino neutro:
+`video/Granja_Integrada_Audio_Mejorado.mp4` usa **el mismo video** (imagen idéntica
+bit a bit al original) con una banda sonora nueva:
+
+- Narración **neural** masculina en español (Kokoro‑82M, voz `em_alex`, licencia
+  Apache‑2.0, gratuita y generada localmente), con cadena de locutor (filtro de graves,
+  EQ de presencia, compresión suave, de‑esser) y nivel igualado entre escenas (±0,3 dB).
+- Cada frase se corta en sus pausas naturales y se coloca en el instante exacto en que
+  aparece su subtítulo (verificado con Whisper: 15/15 bloques sincronizados).
+- Música instrumental estéreo con reverberación; baja 11 dB cuando habla el narrador
+  (relación voz/fondo ≈ 17–22 dB).
+- Ambiente de granja suave (viento, aves, gallinas, cerdos, camión) atenuado 6 dB bajo la voz.
+- Sonoridad normalizada a **−16 LUFS**, pico real ≤ −1,4 dBFS, sin saturación.
+  Audio AAC estéreo 48 kHz a 256 kbps.
+
+Regenerar (sin volver a renderizar el video):
+
+```bash
+pip install kokoro-onnx soundfile scipy numpy
+mkdir -p models && cd models
+curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx
+curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
+cd ..
+python3 scripts/build_audio_pro.py            # -> public/audio/mix_pro.wav
+ffmpeg -i video/granja-integrada.mp4 -i public/audio/mix_pro.wav -map 0:v -map 1:a \
+  -c:v copy -c:a aac -b:a 256k -shortest -movflags +faststart video/Granja_Integrada_Audio_Mejorado.mp4
+python3 scripts/verify_audio.py video/Granja_Integrada_Audio_Mejorado.mp4 <carpeta-whisper>  # opcional
+```
+
+## Usar una voz de estudio (opcional)
+
+Si prefiere una locución humana o de un servicio comercial:
 
 1. Genere o grabe un archivo WAV por escena con el texto de `scripts/narracion.json`
    (por ejemplo con **ElevenLabs**, **Azure Speech** — voces `es-MX-JorgeNeural` o
    `es-US-AlonsoNeural` — o **Google Cloud TTS**, o un locutor humano).
 2. Guárdelos como `public/audio/voz/escena1.wav` … `escena6.wav`.
-3. Ejecute `npm run audio && npm run render`.
+3. Ejecute `python3 scripts/build_audio_pro.py` y el comando `ffmpeg` de arriba.
 
-El script detecta esos archivos automáticamente, recalcula la duración de cada
-escena y la sincronización de subtítulos, y vuelve a mezclar música y efectos.
+El script detecta esos archivos automáticamente y los procesa, nivela y mezcla igual.
