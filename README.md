@@ -12,6 +12,7 @@ Los tiempos de esa toma ya están en `assets/voz_alineacion.json` (transcripció
 ```bash
 pip install pillow          # ffmpeg también debe estar instalado
 python3 sync_voice.py       # sincroniza escenas y subtítulos con la voz
+python3 make_music.py       # música (suspenso -> tranquila en la familia feliz) y golpe
 python3 render.py           # -> out/su-tierra-es-su-historia.mp4  (~1–2 min)
 python3 render.py --stills  # una imagen por escena en out/stills/ (revisión rápida)
 ```
@@ -22,6 +23,7 @@ python3 render.py --stills  # una imagen por escena en out/stills/ (revisión r�
 |---|---|
 | `video_spec.json` | Escenas, textos, movimientos y tiempos (ya ajustados a la voz: 51,9 s) |
 | `assets/voz_alineacion.json` | Momento exacto de cada frase de la voz. **Si un subtítulo sale adelantado o atrasado, se corrige aquí** y se vuelve a correr `sync_voice.py` + `render.py` |
+| `assets/musica.mp3`, `assets/golpe.mp3` | Música y golpe del sello, compuestos por `make_music.py` a la medida de las escenas |
 | `assets/subtitles_timed.json` | Subtítulos generados (no editar a mano) |
 | `docs/storyboard.md`, `docs/guion_locutor.md` | Storyboard y guion originales |
 | `docs/muestra_voz/` | Muestra de voz enviada como referencia (no se usa en el video) |
@@ -31,8 +33,6 @@ python3 render.py --stills  # una imagen por escena en out/stills/ (revisión r�
 
 - `assets/voz.mp3` (toma 1 de Eddy M). Sin ella el video sale mudo.
 - Imagen `04_casa_mecedora.png` (hoy sale como “FALTA LA IMAGEN”).
-- Confirmar el usuario de Instagram del cierre (`@sanfoval-legal`).
-- Música `assets/musica.mp3` y golpe `assets/golpe.mp3` (opcionales: si faltan, se omiten).
 
 Las imágenes son 16:9; el video las muestra en una franja central con movimiento
 (Ken Burns) sobre una copia desenfocada. Si se generan en 9:16 se verán a pantalla completa
