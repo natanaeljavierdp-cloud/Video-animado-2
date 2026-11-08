@@ -3,7 +3,7 @@
 Video vertical (1080×1920, 30 fps) para TikTok / Reels, generado por código a partir de
 `video_spec.json`, las imágenes de `assets/` y la voz `assets/voz.mp3`.
 
-**Voz:** Javier Rojas - Cultural Narration (ElevenLabs, modelo eleven_v4), nodo "VOZ FINAL Javier Rojas (toma 1)" (54,6 s) del flow
+**Voz:** Jaider - Narration Spanish (ElevenLabs, modelo eleven_v4), nodo "VOZ FINAL Jaider (toma 1)" (51,4 s) del flow
 `DNgxnLvGOTuQ8lL0DgXp`. Descárguela de ElevenLabs y guárdela como `assets/voz.mp3`.
 Los tiempos de esa toma ya están en `assets/voz_alineacion.json` (transcripción de ElevenLabs).
 
@@ -21,7 +21,7 @@ python3 render.py --stills  # una imagen por escena en out/stills/ (revisión r�
 
 | Archivo | Qué es |
 |---|---|
-| `video_spec.json` | Escenas, textos, movimientos y tiempos (ya ajustados a la voz: 57,1 s) |
+| `video_spec.json` | Escenas, textos, movimientos y tiempos (ya ajustados a la voz: 53,7 s) |
 | `assets/voz_alineacion.json` | Momento exacto de cada frase de la voz. **Si un subtítulo sale adelantado o atrasado, se corrige aquí** y se vuelve a correr `sync_voice.py` + `render.py` |
 | `assets/musica.mp3`, `assets/golpe.mp3` | Música y golpe del sello, compuestos por `make_music.py` a la medida de las escenas |
 | `assets/subtitles_timed.json` | Subtítulos generados (no editar a mano) |
@@ -31,8 +31,7 @@ python3 render.py --stills  # una imagen por escena en out/stills/ (revisión r�
 
 ## Pendiente
 
-- `assets/voz.mp3` (toma 1 de Javier Rojas). Sin ella el video sale mudo.
-- Imagen `04_casa_mecedora.png` (hoy sale como “FALTA LA IMAGEN”).
+- `assets/voz.mp3` (toma 1 de Jaider). Sin ella el video sale mudo.
 
 Las imágenes son 16:9; el video las muestra en una franja central con movimiento
 (Ken Burns) sobre una copia desenfocada. Si se generan en 9:16 se verán a pantalla completa

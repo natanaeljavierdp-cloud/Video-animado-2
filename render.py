@@ -42,7 +42,7 @@ FOCUS = {
     "01_familia_cerca": 0.40,
     "02_arbol_genealogico": 0.50,
     "03_sello_titulo": 0.55,
-    "04_casa_mecedora": 0.50,
+    "04_casa_mecedora": 0.64,
     "05_terreno_se_vende": 0.34,
     "06a_registro_titulos": 0.42,
     "06b_familia_firmando": 0.50,
