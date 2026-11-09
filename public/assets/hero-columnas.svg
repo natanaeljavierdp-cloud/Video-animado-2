@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 720" fill="none" stroke="#C9A45C" stroke-opacity=".22" stroke-width="1.2">
+  <!-- Frontón -->
+  <path d="M40 210 L320 70 L600 210 Z"/>
+  <path d="M90 196 L320 88 L550 196"/>
+  <path d="M30 210 H610 V232 H30 Z"/>
+  <path d="M40 232 H600 V246 H40 Z"/>
+  <!-- Columnas -->
+  <g>
+    <path d="M70 246 h60 v14 h-60z M76 260 h48 v8 h-48z M80 268 v370 M120 268 v370 M90 268 v370 M100 268 v370 M110 268 v370 M74 638 h52 v10 h-52z M66 648 h68 v12 h-68z"/>
+    <path d="M200 246 h60 v14 h-60z M206 260 h48 v8 h-48z M210 268 v370 M250 268 v370 M220 268 v370 M230 268 v370 M240 268 v370 M204 638 h52 v10 h-52z M196 648 h68 v12 h-68z"/>
+    <path d="M380 246 h60 v14 h-60z M386 260 h48 v8 h-48z M390 268 v370 M430 268 v370 M400 268 v370 M410 268 v370 M420 268 v370 M384 638 h52 v10 h-52z M376 648 h68 v12 h-68z"/>
+    <path d="M510 246 h60 v14 h-60z M516 260 h48 v8 h-48z M520 268 v370 M560 268 v370 M530 268 v370 M540 268 v370 M550 268 v370 M514 638 h52 v10 h-52z M506 648 h68 v12 h-68z"/>
+  </g>
+  <!-- Escalinata -->
+  <path d="M20 660 H620 V676 H20 Z M0 676 H640 V694 H0 Z M-20 694 H660 V720 H-20 Z"/>
+  <!-- Balanza en el frontón -->
+  <g stroke-opacity=".35">
+    <path d="M320 112 V176 M296 128 H344 M300 176 H340"/>
+    <path d="M296 128 l-10 22 a10 6 0 0 0 20 0 z M344 128 l-10 22 a10 6 0 0 0 20 0 z"/>
+    <circle cx="320" cy="108" r="3"/>
+  </g>
+</svg>
