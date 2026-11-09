@@ -4,7 +4,7 @@ Video vertical (1080×1920, 30 fps) para TikTok / Reels, generado por código a 
 `video_spec.json`, las imágenes de `assets/` y la voz `assets/voz.mp3`.
 
 **Voz:** Salvatore - Conversations & Storyteller (ElevenLabs, modelo eleven_v4), toma 2 (57,0 s; historyItemId wWuPu9T9JhQURyRXrVYj) del flow
-`DNgxnLvGOTuQ8lL0DgXp`. Descárguela de ElevenLabs y guárdela como `assets/voz.mp3`.
+`DNgxnLvGOTuQ8lL0DgXp`. Ya está en `assets/voz.mp3`.
 Los tiempos de esa toma ya están en `assets/voz_alineacion.json` (transcripción de ElevenLabs).
 
 ## Generar el video
@@ -21,7 +21,7 @@ python3 render.py --stills  # una imagen por escena en out/stills/ (revisión r�
 
 | Archivo | Qué es |
 |---|---|
-| `video_spec.json` | Escenas, textos, movimientos y tiempos (ya ajustados a la voz: 59,5 s) |
+| `video_spec.json` | Escenas, textos, movimientos y tiempos (ya ajustados a la voz: 59,1 s) |
 | `assets/voz_alineacion.json` | Momento exacto de cada frase de la voz. **Si un subtítulo sale adelantado o atrasado, se corrige aquí** y se vuelve a correr `sync_voice.py` + `render.py` |
 | `assets/musica.mp3`, `assets/golpe.mp3` | Música y golpe del sello, compuestos por `make_music.py` a la medida de las escenas |
 | `assets/subtitles_timed.json` | Subtítulos generados (no editar a mano) |
@@ -29,9 +29,9 @@ python3 render.py --stills  # una imagen por escena en out/stills/ (revisión r�
 | `docs/muestra_voz/` | Muestra de voz enviada como referencia (no se usa en el video) |
 | `docs/video_spec_original_55s.json` | Spec original de 55 s, antes de ajustarla a la voz |
 
-## Pendiente
+## Estado
 
-- `assets/voz.mp3` (toma 2 de Salvatore). Sin ella el video sale mudo.
+Video completo: 9 imágenes, logo, voz, música, golpe y subtítulos. Audio normalizado a ~-14 LUFS para redes.
 
 Las imágenes son 16:9; el video las muestra en una franja central con movimiento
 (Ken Burns) sobre una copia desenfocada. Si se generan en 9:16 se verán a pantalla completa

@@ -580,7 +580,7 @@ def audio_args():
     if not labels:
         return inputs, []
     filters.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=longest,"
-                   f"apad,atrim=0:{DUR}[aout]")
+                   f"apad,atrim=0:{DUR},loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[aout]")
     return inputs, ["-filter_complex", ";".join(filters), "-map", "0:v", "-map", "[aout]",
                     "-c:a", "aac", "-b:a", "192k"]
 

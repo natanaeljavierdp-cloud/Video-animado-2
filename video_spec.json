@@ -4,7 +4,7 @@
     "width": 1080,
     "height": 1920,
     "fps": 30,
-    "durationSec": 59.5
+    "durationSec": 59.1
   },
   "brand": {
     "colors": {
@@ -214,7 +214,7 @@
     {
       "id": 8,
       "start": 51.71,
-      "end": 59.5,
+      "end": 59.1,
       "background": "navy",
       "logo": {
         "file": "assets/08_logo.png",
