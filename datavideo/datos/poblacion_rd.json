@@ -1,0 +1,15 @@
+{
+  "tipo": "barras",
+  "titulo": "¿Cuántos dominicanos\nsomos?",
+  "subtitulo": "Población según cada censo nacional",
+  "etiquetas": [1950, 1960, 1970, 1981, 1993, 2002, 2010, 2022],
+  "valores": [2135872, 3047070, 4009458, 5545741, 7293390, 8562541, 9445281, 10760028],
+  "etiqueta_contador": "habitantes en",
+  "formato_corto": {"escala": 1000000, "decimales": 1, "sufijo": " M"},
+  "fuente": "ONE, censos nacionales 1950–2022",
+  "audio": "../audio/poblacion_voz.mp3",
+  "tiempos": [2.2, 5.85, 6.1, 6.4, 10.0, 10.5, 13.4, 15.1],
+  "duracion_barra": 1.0,
+  "remate": {"texto": "×5 en 70 años", "inicio": 20.0},
+  "pausa_final": 2.5
+}
