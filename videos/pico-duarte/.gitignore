@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.DS_Store
+out/segs/
+out/anim.mp4
+out/music.wav
+.env

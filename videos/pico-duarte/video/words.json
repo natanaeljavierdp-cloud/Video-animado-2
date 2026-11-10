@@ -1,0 +1,837 @@
+[
+{
+"text": "El",
+"start": 0.0,
+"end": 0.163
+},
+{
+"text": "punto",
+"start": 0.221,
+"end": 0.546
+},
+{
+"text": "más",
+"start": 0.604,
+"end": 0.743
+},
+{
+"text": "alto",
+"start": 0.824,
+"end": 1.057
+},
+{
+"text": "y",
+"start": 1.115,
+"end": 1.138
+},
+{
+"text": "el",
+"start": 1.161,
+"end": 1.219
+},
+{
+"text": "punto",
+"start": 1.277,
+"end": 1.556
+},
+{
+"text": "más",
+"start": 1.614,
+"end": 1.741
+},
+{
+"text": "bajo",
+"start": 1.811,
+"end": 2.067
+},
+{
+"text": "de",
+"start": 2.09,
+"end": 2.159
+},
+{
+"text": "todo",
+"start": 2.206,
+"end": 2.392
+},
+{
+"text": "el",
+"start": 2.415,
+"end": 2.461
+},
+{
+"text": "Caribe…",
+"start": 2.519,
+"end": 3.088
+},
+{
+"text": "están",
+"start": 3.32,
+"end": 3.657
+},
+{
+"text": "en",
+"start": 3.727,
+"end": 3.773
+},
+{
+"text": "el",
+"start": 3.831,
+"end": 3.889
+},
+{
+"text": "mismo",
+"start": 3.936,
+"end": 4.191
+},
+{
+"text": "país.",
+"start": 4.238,
+"end": 4.772
+},
+{
+"text": "Y",
+"start": 4.969,
+"end": 5.039
+},
+{
+"text": "ese",
+"start": 5.132,
+"end": 5.283
+},
+{
+"text": "país",
+"start": 5.341,
+"end": 5.712
+},
+{
+"text": "es",
+"start": 5.828,
+"end": 5.968
+},
+{
+"text": "el",
+"start": 6.037,
+"end": 6.095
+},
+{
+"text": "nuestro.",
+"start": 6.165,
+"end": 6.722
+},
+{
+"text": "Arriba",
+"start": 6.989,
+"end": 7.477
+},
+{
+"text": "está",
+"start": 7.558,
+"end": 7.779
+},
+{
+"text": "el",
+"start": 7.802,
+"end": 7.848
+},
+{
+"text": "Pico",
+"start": 7.93,
+"end": 8.162
+},
+{
+"text": "Duarte,",
+"start": 8.197,
+"end": 8.789
+},
+{
+"text": "con",
+"start": 8.963,
+"end": 9.114
+},
+{
+"text": "más",
+"start": 9.183,
+"end": 9.381
+},
+{
+"text": "de",
+"start": 9.404,
+"end": 9.462
+},
+{
+"text": "tres",
+"start": 9.509,
+"end": 9.694
+},
+{
+"text": "mil",
+"start": 9.752,
+"end": 9.892
+},
+{
+"text": "metros",
+"start": 9.961,
+"end": 10.252
+},
+{
+"text": "de",
+"start": 10.275,
+"end": 10.321
+},
+{
+"text": "altura.",
+"start": 10.344,
+"end": 10.867
+},
+{
+"text": "Le",
+"start": 11.134,
+"end": 11.262
+},
+{
+"text": "dicen",
+"start": 11.308,
+"end": 11.714
+},
+{
+"text": "el",
+"start": 11.912,
+"end": 12.063
+},
+{
+"text": "techo",
+"start": 12.179,
+"end": 12.446
+},
+{
+"text": "del",
+"start": 12.481,
+"end": 12.585
+},
+{
+"text": "Caribe,",
+"start": 12.643,
+"end": 13.224
+},
+{
+"text": "porque",
+"start": 13.421,
+"end": 13.735
+},
+{
+"text": "en",
+"start": 13.758,
+"end": 13.816
+},
+{
+"text": "toda",
+"start": 13.897,
+"end": 14.118
+},
+{
+"text": "la",
+"start": 14.164,
+"end": 14.234
+},
+{
+"text": "región",
+"start": 14.292,
+"end": 14.733
+},
+{
+"text": "no",
+"start": 15.047,
+"end": 15.221
+},
+{
+"text": "hay",
+"start": 15.267,
+"end": 15.395
+},
+{
+"text": "una",
+"start": 15.453,
+"end": 15.581
+},
+{
+"text": "montaña",
+"start": 15.627,
+"end": 16.033
+},
+{
+"text": "más",
+"start": 16.068,
+"end": 16.208
+},
+{
+"text": "alta.",
+"start": 16.289,
+"end": 16.707
+},
+{
+"text": "Ahora",
+"start": 17.206,
+"end": 17.578
+},
+{
+"text": "adivina…",
+"start": 17.601,
+"end": 18.274
+},
+{
+"text": "¿dónde",
+"start": 18.448,
+"end": 18.831
+},
+{
+"text": "está",
+"start": 18.855,
+"end": 19.006
+},
+{
+"text": "el",
+"start": 19.029,
+"end": 19.075
+},
+{
+"text": "punto",
+"start": 19.133,
+"end": 19.377
+},
+{
+"text": "más",
+"start": 19.423,
+"end": 19.551
+},
+{
+"text": "bajo?",
+"start": 19.609,
+"end": 20.108
+},
+{
+"text": "Te",
+"start": 20.306,
+"end": 20.434
+},
+{
+"text": "doy",
+"start": 20.48,
+"end": 20.654
+},
+{
+"text": "una",
+"start": 20.701,
+"end": 20.817
+},
+{
+"text": "pista:",
+"start": 20.875,
+"end": 21.409
+},
+{
+"text": "tiene",
+"start": 21.606,
+"end": 21.885
+},
+{
+"text": "cocodrilos.",
+"start": 21.943,
+"end": 22.756
+},
+{
+"text": "Es",
+"start": 22.93,
+"end": 23.115
+},
+{
+"text": "el",
+"start": 23.174,
+"end": 23.243
+},
+{
+"text": "Lago",
+"start": 23.301,
+"end": 23.487
+},
+{
+"text": "Enriquillo,",
+"start": 23.51,
+"end": 24.335
+},
+{
+"text": "el",
+"start": 24.451,
+"end": 24.59
+},
+{
+"text": "lago",
+"start": 24.66,
+"end": 24.857
+},
+{
+"text": "más",
+"start": 24.903,
+"end": 25.031
+},
+{
+"text": "grande",
+"start": 25.078,
+"end": 25.391
+},
+{
+"text": "de",
+"start": 25.437,
+"end": 25.495
+},
+{
+"text": "las",
+"start": 25.53,
+"end": 25.646
+},
+{
+"text": "Antillas.",
+"start": 25.704,
+"end": 26.366
+},
+{
+"text": "Su",
+"start": 26.54,
+"end": 26.726
+},
+{
+"text": "superficie",
+"start": 26.773,
+"end": 27.527
+},
+{
+"text": "está",
+"start": 27.841,
+"end": 28.119
+},
+{
+"text": "entre",
+"start": 28.143,
+"end": 28.375
+},
+{
+"text": "cuarenta",
+"start": 28.433,
+"end": 28.816
+},
+{
+"text": "y",
+"start": 28.839,
+"end": 28.862
+},
+{
+"text": "cincuenta",
+"start": 28.897,
+"end": 29.385
+},
+{
+"text": "metros",
+"start": 29.443,
+"end": 29.756
+},
+{
+"text": "por",
+"start": 29.814,
+"end": 29.942
+},
+{
+"text": "debajo",
+"start": 30.0,
+"end": 30.325
+},
+{
+"text": "del",
+"start": 30.372,
+"end": 30.488
+},
+{
+"text": "nivel",
+"start": 30.534,
+"end": 30.778
+},
+{
+"text": "del",
+"start": 30.836,
+"end": 30.952
+},
+{
+"text": "mar.",
+"start": 31.01,
+"end": 31.37
+},
+{
+"text": "Y",
+"start": 31.602,
+"end": 31.684
+},
+{
+"text": "su",
+"start": 31.765,
+"end": 31.893
+},
+{
+"text": "agua",
+"start": 31.974,
+"end": 32.276
+},
+{
+"text": "es",
+"start": 32.473,
+"end": 32.659
+},
+{
+"text": "más",
+"start": 32.729,
+"end": 32.891
+},
+{
+"text": "salada",
+"start": 32.914,
+"end": 33.251
+},
+{
+"text": "que",
+"start": 33.309,
+"end": 33.402
+},
+{
+"text": "la",
+"start": 33.448,
+"end": 33.518
+},
+{
+"text": "del",
+"start": 33.553,
+"end": 33.669
+},
+{
+"text": "mar,",
+"start": 33.739,
+"end": 34.11
+},
+{
+"text": "porque",
+"start": 34.377,
+"end": 34.714
+},
+{
+"text": "el",
+"start": 34.737,
+"end": 34.783
+},
+{
+"text": "lago",
+"start": 34.842,
+"end": 35.19
+},
+{
+"text": "no",
+"start": 35.318,
+"end": 35.457
+},
+{
+"text": "tiene",
+"start": 35.515,
+"end": 35.724
+},
+{
+"text": "salida:",
+"start": 35.77,
+"end": 36.316
+},
+{
+"text": "el",
+"start": 36.583,
+"end": 36.722
+},
+{
+"text": "agua",
+"start": 36.838,
+"end": 37.14
+},
+{
+"text": "solo",
+"start": 37.454,
+"end": 37.814
+},
+{
+"text": "se",
+"start": 37.872,
+"end": 37.953
+},
+{
+"text": "va",
+"start": 37.999,
+"end": 38.092
+},
+{
+"text": "por",
+"start": 38.139,
+"end": 38.278
+},
+{
+"text": "evaporación.",
+"start": 38.313,
+"end": 39.137
+},
+{
+"text": "Ahí",
+"start": 39.404,
+"end": 39.636
+},
+{
+"text": "viven",
+"start": 39.683,
+"end": 39.938
+},
+{
+"text": "cocodrilos",
+"start": 39.996,
+"end": 40.53
+},
+{
+"text": "americanos,",
+"start": 40.588,
+"end": 41.378
+},
+{
+"text": "flamencos…",
+"start": 41.61,
+"end": 42.434
+},
+{
+"text": "y",
+"start": 42.667,
+"end": 42.736
+},
+{
+"text": "dos",
+"start": 42.806,
+"end": 42.934
+},
+{
+"text": "especies",
+"start": 42.992,
+"end": 43.479
+},
+{
+"text": "de",
+"start": 43.514,
+"end": 43.572
+},
+{
+"text": "iguanas",
+"start": 43.595,
+"end": 43.944
+},
+{
+"text": "protegidas:",
+"start": 44.002,
+"end": 44.826
+},
+{
+"text": "la",
+"start": 45.197,
+"end": 45.29
+},
+{
+"text": "iguana",
+"start": 45.337,
+"end": 45.662
+},
+{
+"text": "de",
+"start": 45.708,
+"end": 45.766
+},
+{
+"text": "Ricord",
+"start": 45.836,
+"end": 46.3
+},
+{
+"text": "y",
+"start": 46.533,
+"end": 46.625
+},
+{
+"text": "la",
+"start": 46.707,
+"end": 46.765
+},
+{
+"text": "iguana",
+"start": 46.8,
+"end": 47.113
+},
+{
+"text": "rinoceronte.",
+"start": 47.171,
+"end": 48.007
+},
+{
+"text": "Del",
+"start": 48.274,
+"end": 48.46
+},
+{
+"text": "techo",
+"start": 48.53,
+"end": 48.773
+},
+{
+"text": "del",
+"start": 48.797,
+"end": 48.913
+},
+{
+"text": "Caribe…",
+"start": 48.982,
+"end": 49.586
+},
+{
+"text": "al",
+"start": 49.783,
+"end": 49.923
+},
+{
+"text": "fondo",
+"start": 50.039,
+"end": 50.375
+},
+{
+"text": "del",
+"start": 50.41,
+"end": 50.526
+},
+{
+"text": "Caribe,",
+"start": 50.584,
+"end": 51.142
+},
+{
+"text": "sin",
+"start": 51.339,
+"end": 51.571
+},
+{
+"text": "salir",
+"start": 51.618,
+"end": 51.978
+},
+{
+"text": "de",
+"start": 52.036,
+"end": 52.094
+},
+{
+"text": "República",
+"start": 52.152,
+"end": 52.674
+},
+{
+"text": "Dominicana.",
+"start": 52.721,
+"end": 53.475
+},
+{
+"text": "¿A",
+"start": 53.708,
+"end": 53.893
+},
+{
+"text": "cuál",
+"start": 53.986,
+"end": 54.149
+},
+{
+"text": "irías",
+"start": 54.207,
+"end": 54.462
+},
+{
+"text": "primero:",
+"start": 54.509,
+"end": 55.089
+},
+{
+"text": "al",
+"start": 55.263,
+"end": 55.403
+},
+{
+"text": "Pico",
+"start": 55.472,
+"end": 55.728
+},
+{
+"text": "Duarte",
+"start": 55.774,
+"end": 56.262
+},
+{
+"text": "o",
+"start": 56.459,
+"end": 56.552
+},
+{
+"text": "al",
+"start": 56.61,
+"end": 56.68
+},
+{
+"text": "Lago",
+"start": 56.738,
+"end": 56.935
+},
+{
+"text": "Enriquillo?",
+"start": 56.97,
+"end": 57.69
+},
+{
+"text": "Vota",
+"start": 58.119,
+"end": 58.421
+},
+{
+"text": "en",
+"start": 58.444,
+"end": 58.491
+},
+{
+"text": "los",
+"start": 58.537,
+"end": 58.653
+},
+{
+"text": "comentarios…",
+"start": 58.711,
+"end": 59.559
+},
+{
+"text": "y",
+"start": 59.756,
+"end": 59.838
+},
+{
+"text": "sígueme",
+"start": 59.931,
+"end": 60.302
+},
+{
+"text": "para",
+"start": 60.348,
+"end": 60.534
+},
+{
+"text": "más.",
+"start": 60.581,
+"end": 61.3
+}
+]
