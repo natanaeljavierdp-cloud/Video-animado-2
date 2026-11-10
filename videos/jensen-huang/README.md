@@ -6,27 +6,25 @@ Video vertical 9:16 (1080×1920, 30 fps) de **70 s**: 66.5 s de noticia narrada 
 
 | Archivo | Para qué |
 |---|---|
-| `salida/capital_curioso_jensen_huang.mp4` | **Video final**: voz de Jaider + música de suspenso + efectos. Súbelo a Canva para poner las fotos. |
+| `salida/capital_curioso_jensen_huang.mp4` | **Video final**: voz de Jaider + música de suspenso + efectos. Listo para publicar. |
 | `audio/narracion.mp3` | La narración original de ElevenLabs (voz "Jaider - Narration Spanish"). |
 | `salida/musica_y_efectos.mp3` | Solo la pista de música + efectos, por si quieres manejarla aparte. |
 | `salida/subtitulos.srt` | El guion cronometrado (los subtítulos ya van "quemados" en el video). |
 
 La música de suspenso (dron grave, cuerdas en trémolo, latido, piano con eco, tic-tac y subidas de tensión en cada corte) y los efectos están sintetizados por código (`musica.py`): no tienen derechos de autor.
 
-## Dónde van las fotos en Canva
+## Fotos
 
-Las fotos van en recuadros marcados `[FOTO: …]` con borde punteado y esquinas rojas. **No hay nada dibujado encima de esos recuadros**, así que puedes poner la foto encima sin tapar rótulos ni textos. Las coordenadas son sobre el lienzo de 1080×1920 px:
+Las fotos ya van dentro del video (originales en `assets/fotos/`, incrustadas en `fotos.js`), con zoom/paneo lento estilo documental:
 
-| Foto | Desde – hasta | Posición (x, y) | Tamaño (ancho × alto) |
-|---|---|---|---|
-| Jensen Huang con chaqueta de cuero | 0.3 s – 17.9 s | 90, 290 | 900 × 760 |
-| Alice Huang | 17.9 s – 24.1 s | 90, 290 | 900 × 760 |
-| Donald Trump | 42.3 s – 53.8 s | 60, 290 | 420 × 330 |
-| Capitolio | 42.3 s – 53.8 s | 60, 986 | 420 × 330 |
+| Foto | Tiempo | Movimiento |
+|---|---|---|
+| Jensen Huang con chaqueta de cuero | 0.3 s – 17.9 s | acercamiento lento a la cara |
+| Alice Huang (con Jensen) | 17.9 s – 24.1 s | empieza en Alice y se abre hasta mostrar a los dos |
+| Donald Trump | 42.3 s – 53.8 s | acercamiento lento |
+| Capitolio | 42.3 s – 53.8 s | acercamiento lento |
 
-(La bandera de China, entre las dos últimas, ya está dibujada y ondea).
-
-En Canva: pon la foto, en **Posición** escribe X/Y y ancho/alto (si tu diseño mide 1080×1920 los valores son los mismos), recórtala para que llene el recuadro y ajusta su tiempo en la línea de tiempo.
+Para cambiar una foto: reemplaza el JPG en `assets/fotos/`, regenera `fotos.js` (cada foto es un `data:image/jpeg;base64,...`) y vuelve a renderizar. Si falta una foto, aparece el recuadro `[FOTO: …]`.
 
 ## La narración (ElevenLabs "Jaider - Narration Spanish")
 

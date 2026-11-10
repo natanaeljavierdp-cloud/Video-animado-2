@@ -18,6 +18,7 @@
 <body>
 <canvas id="c" width="1080" height="1920"></canvas>
 <div id="ctrl"><button id="play">▶︎</button><input id="scrub" type="range" min="0" max="66.5" step="0.0333" value="0"><span id="tc">0.0 s</span></div>
+<script src="fotos.js"></script>
 <script>
 /* =====================================================================
    CAPITAL CURIOSO · "El escándalo de Jensen Huang" · 1080x1920 · 30 fps
@@ -247,6 +248,35 @@ function photoSlot(x, y, w, h, label, a = 1, t = 0) {
   });
 }
 
+// ---------------------------------------------------------------- FOTOS reales (fotos.js) con zoom/paneo lento
+const IMG = {};
+function photo(key, x, y, w, h, label, a, t, o = {}) {
+  const img = IMG[key];
+  if (!img) return photoSlot(x, y, w, h, label, a, t);
+  if (a <= 0) return;
+  const k = eInOut(prog(t, o.t0 ?? 0, o.t1 ?? 1));
+  const f0 = o.f0 || [.5, .4], f1 = o.f1 || f0, z = lerp(o.z0 ?? 1.02, o.z1 ?? 1.1, k);
+  const sc = Math.max(w / img.width, h / img.height) * z, sw = w / sc, sh = h / sc;
+  const cx = clamp(lerp(f0[0], f1[0], k) * img.width, sw / 2, img.width - sw / 2);
+  const cy = clamp(lerp(f0[1], f1[1], k) * img.height, sh / 2, img.height - sh / 2);
+  withAlpha(a, () => {
+    ctx.save(); shadow(40, '#000b', 14); rr(x, y, w, h, 18); ctx.fillStyle = '#000'; ctx.fill(); noShadow();
+    rr(x, y, w, h, 18); ctx.clip();
+    ctx.drawImage(img, cx - sw / 2, cy - sh / 2, sw, sh, x, y, w, h);
+    const g = ctx.createLinearGradient(0, y + h * .6, 0, y + h);
+    g.addColorStop(0, 'rgba(4,18,43,0)'); g.addColorStop(1, 'rgba(4,18,43,.45)');
+    ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+    ctx.restore();
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3; rr(x, y, w, h, 18); ctx.stroke();
+    ctx.strokeStyle = C.red; ctx.lineWidth = 8; ctx.lineCap = 'round';
+    const L = 46, p = -4;
+    [[x - p, y - p, 1, 1], [x + w + p, y - p, -1, 1], [x - p, y + h + p, 1, -1], [x + w + p, y + h + p, -1, -1]].forEach(([qx, qy, dx, dy]) => {
+      ctx.beginPath(); ctx.moveTo(qx + dx * L, qy); ctx.lineTo(qx, qy); ctx.lineTo(qx, qy + dy * L); ctx.stroke();
+    });
+    ctx.restore();
+  });
+}
+
 // ---------------------------------------------------------------- rótulo inferior (nombre + cargo)
 function lowerThird(t, t0, t1, name, role, y = 1078) {
   const kin = eOut(prog(t, t0, t0 + .45)), kout = eIn(prog(t, t1 - .35, t1));
@@ -412,11 +442,12 @@ const SLOT_MAIN = [90, 290, 900, 760];          // Jensen (0–15.5 s) y Alice (
 const SLOT_TRUMP = [60, 290, 420, 330];         // escena 5, panel 1
 const SLOT_CAPITOL = [60, 986, 420, 330];       // escena 5, panel 3
 
-// ================================================================ ESCENA 1 · 0–8 s
+const JENSEN_MOVE = { t0: 0, t1: SCENES.s2[1], f0: [.5, .3], f1: [.5, .26], z0: 1.0, z1: 1.14 };
+// ================================================================ ESCENA 1
 function scene1(t) {
   const [a, b] = SCENES.s1;
   const k = eOut(prog(t, .25, .8));
-  photoSlot(...SLOT_MAIN, '[FOTO: Jensen Huang con chaqueta de cuero]', k, t);
+  photo('jensen', ...SLOT_MAIN, '[FOTO: Jensen Huang con chaqueta de cuero]', k, t, JENSEN_MOVE);
   // flash inicial
   const fl = 1 - prog(t, 0, .35);
   if (fl > 0) { ctx.fillStyle = `rgba(255,255,255,${fl * .8})`; ctx.fillRect(0, 0, W, H); }
@@ -442,7 +473,7 @@ function scene1(t) {
 function fmtMoney(v) { return '+$' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 function scene2(t) {
   const [a, b] = SCENES.s2;
-  photoSlot(...SLOT_MAIN, '[FOTO: Jensen Huang con chaqueta de cuero]', 1, t);
+  photo('jensen', ...SLOT_MAIN, '[FOTO: Jensen Huang con chaqueta de cuero]', 1, t, JENSEN_MOVE);
   lowerThird(t, a + .15, b - .1, 'JENSEN HUANG', 'CEO y fundador de Nvidia');
   // contador
   const c0 = K.s2Count, kin = eBack(prog(t, c0 - .3, c0 + .15)), kout = eIn(prog(t, b - .4, b - .05));
@@ -502,7 +533,7 @@ function scene3(t) {
   const [a, b] = SCENES.s3, m0 = K.s3Map;
   // foto de Alice hasta que entra el mapa
   const kp = 1 - eIn(prog(t, m0 - .3, m0));
-  if (kp > 0) photoSlot(...SLOT_MAIN, '[FOTO: Alice Huang]', kp, t);
+  if (kp > 0) photo('alice', ...SLOT_MAIN, '[FOTO: Alice Huang]', kp, t, { t0: a + .3, t1: m0, f0: [.26, .42], f1: [.5, .45], z0: 1.12, z1: 1.0 });
   lowerThird(t, a + .2, m0, 'ALICE HUANG', 'Ejecutiva de Megaspeed (Singapur)');
   // mapa
   const km = eOut(prog(t, m0, m0 + .5));
@@ -650,9 +681,9 @@ function scene5(t) {
   const [a, b] = SCENES.s5;
   const ko = eIn(prog(t, b - .3, b));
   const panels = [
-    { y: 290, at: a + .05, chip: 'TRUMP', title: 'LO DEFIENDE', body: 'Dice que Huang le aseguró que no sabía que era espía.', kind: 'photo', label: '[FOTO: Donald Trump]' },
+    { y: 290, at: a + .05, chip: 'TRUMP', title: 'LO DEFIENDE', body: 'Dice que Huang le aseguró que no sabía que era espía.', kind: 'photo', key: 'trump', f: [.5, .4], label: '[FOTO: Donald Trump]' },
     { y: 638, at: K.s5China - .15, chip: 'CHINA', title: 'LO NIEGA', body: 'Habla de «difamaciones».', kind: 'flag' },
-    { y: 986, at: K.s5Cong - .15, chip: 'CONGRESO DE EE.UU.', title: 'LO CITA', body: 'Reunión a puerta cerrada el 18 de noviembre.', kind: 'photo', label: '[FOTO: Capitolio]' },
+    { y: 986, at: K.s5Cong - .15, chip: 'CONGRESO DE EE.UU.', title: 'LO CITA', body: 'Reunión a puerta cerrada el 18 de noviembre.', kind: 'photo', key: 'capitolio', f: [.5, .55], label: '[FOTO: Capitolio]' },
   ];
   const activeIdx = t >= panels[2].at ? 2 : t >= panels[1].at ? 1 : 0;
   panels.forEach((p, i) => {
@@ -660,7 +691,7 @@ function scene5(t) {
     // la ranura de foto aparece desde el inicio de la escena (fija, para Canva)
     const slotA = eOut(prog(t, a, a + .35)) * (1 - ko);
     const sx = 60, sw = 420, sh = 330;
-    if (p.kind === 'photo') photoSlot(sx, p.y, sw, sh, p.label, slotA, t);
+    if (p.kind === 'photo') photo(p.key, sx, p.y, sw, sh, p.label, slotA, t, { t0: a, t1: b, f0: p.f, z0: 1.02, z1: 1.12 });
     else withAlpha(slotA, () => { chinaFlag(sx, p.y, sw, sh, t); ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 3; rr(sx, p.y, sw, sh, 14); ctx.stroke(); });
     // panel de texto
     const px = 500, pw = 520;
@@ -838,8 +869,14 @@ async function loadFonts() {
     await f.load(); document.fonts.add(f);
   }));
 }
+async function loadPhotos() {
+  const src = window.FOTOS || {};
+  await Promise.all(Object.entries(src).map(([k, url]) => new Promise(res => {
+    const im = new Image(); im.onload = () => { IMG[k] = im; res(); }; im.onerror = res; im.src = url;
+  })));
+}
 window.renderFrame = t => draw(t);
-window.ready = loadFonts().then(() => { draw(0); return true; });
+window.ready = Promise.all([loadFonts(), loadPhotos()]).then(() => { draw(0); return true; });
 
 if (!/[?&]render/.test(location.search)) {
   document.body.classList.add('preview');
