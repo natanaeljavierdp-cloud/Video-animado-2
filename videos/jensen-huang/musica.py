@@ -1,4 +1,4 @@
-"""Genera música de fondo de tensión/noticias + efectos de sonido (100 % sintetizados, sin derechos de autor).
+"""Genera música de fondo de suspenso + efectos de sonido (100 % sintetizados, sin derechos de autor).
 
 Uso:  python3 musica.py salida/sfx.json salida/
 Salida: salida/musica.wav (solo música), salida/efectos.wav (solo efectos), salida/musica_y_efectos.wav (mezcla)
@@ -74,85 +74,95 @@ def midi(m):
     return 440 * 2 ** ((m - 69) / 12)
 
 
-# ------------------------------------------------------------------ MÚSICA
+# ------------------------------------------------------------------ MÚSICA DE SUSPENSO
 music = np.zeros(N)
 END = 60.0  # la noticia termina aquí; después entra el cierre de marca
+TT = t_axis(END)
+SCENE_CUTS = [8.0, 15.5, 26.5, 35.0, 46.5, 53.5]
 
-# progresión en Re menor: Dm  Bb  Gm  A  (2 compases cada uno)
-prog = [(50, [62, 65, 69]), (46, [62, 65, 70]), (43, [62, 67, 70]), (45, [61, 64, 69])]
-bar = 4 * BEAT
-chord_len = 2 * bar
+# intensidad general: crece a lo largo de la historia
+inten = np.interp(TT, [0, 8, 26.5, 35, 46.5, 49.5, 53.5, 60], [.75, .8, .9, 1, 1, .55, .85, .85])
 
-# pad de cuerdas oscuro
-t = 0.0
-i = 0
-while t < END:
-    root, notes = prog[i % 4]
-    d = chord_len + 0.6
-    sig = sum(saw(midi(n), d, 0.004) for n in notes) / 3
-    sig = lp(sig, 1400)
-    e = np.minimum(1, t_axis(d) / 0.8) * np.minimum(1, (d - t_axis(d)) / 0.6)
-    add(music, sig * e * 0.16, t)
-    # drone grave
-    dr = (np.sin(2 * np.pi * midi(root - 12) * t_axis(d)) + 0.4 * np.sin(2 * np.pi * midi(root) * t_axis(d)))
-    add(music, dr * e * 0.20, t)
-    t += chord_len
-    i += 1
+# 1) dron grave disonante (Re + Mi bemol, segunda menor) con respiración lenta
+dr = (np.sin(2 * np.pi * midi(26) * TT) * .9 + np.sin(2 * np.pi * midi(38) * TT) * .5
+      + lp(saw(midi(38), END, .004), 300) * .5 + np.sin(2 * np.pi * midi(39) * TT) * .18)
+dr *= .75 + .25 * np.sin(2 * np.pi * TT / 7.5)
+add(music, dr * .30 * np.minimum(1, TT / 1.5) * inten, 0)
 
-# bajo pulsante en corcheas (tensión), arranca tras el golpe inicial
-t = 0.4
-k = 0
-while t < END - 0.3:
-    root, _ = prog[int(t // chord_len) % 4]
-    d = BEAT / 2
-    s = saw(midi(root - 12), d, 0.003)
-    s = lp(s, 380 + 250 * (k % 2 == 0))
-    add(music, s * env(len(s), 0.004, 0.09) * (0.34 if k % 2 == 0 else 0.24), t)
-    t += BEAT / 2
-    k += 1
-
-# reloj / tic-tac de noticiero en semicorcheas
-t = 0.4
-k = 0
-while t < END - 0.3:
-    n = int(SR * 0.03)
-    tick = hp(rng.standard_normal(n), 6000) * env(n, 0.0005, 0.008)
-    add(music, tick * (0.10 if k % 4 == 0 else 0.045), t)
-    t += BEAT / 4
-    k += 1
-
-# bombo suave en negras + acento en cada compás
-t = 0.4
-k = 0
-while t < END - 0.3:
-    d = 0.35
+# 2) cuerdas agudas en trémolo (racimo Re–Mi bemol–La), entran y salen en olas
+for i, (n0, n1) in enumerate([(74, 75), (81, 80), (74, 77), (86, 87)]):
+    st = 3.0 + i * 13.5
+    d = min(16.0, END - st)
+    if d <= 0:
+        continue
     tt = t_axis(d)
-    f = 50 + 70 * np.exp(-tt * 30)
-    kick = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 9)
-    add(music, kick * (0.45 if k % 4 == 0 else 0.22), t)
+    sig = sum(saw(midi(n), d, .006) for n in (n0, n1)) / 2
+    sig = bp(sig, 600, 5000)
+    trem = .55 + .45 * np.sin(2 * np.pi * 9 * tt)
+    fade = np.sin(np.pi * np.clip(tt / d, 0, 1)) ** 1.5
+    add(music, sig * trem * fade * .07, st)
+
+# 3) latido de corazón (lub-dub) a 64 lpm, más rápido al final
+t = 0.6
+while t < END - .4:
+    for off, g in ((0, 1.0), (.2, .65)):
+        d = .3
+        tt = t_axis(d)
+        f = 45 + 40 * np.exp(-tt * 25)
+        beat = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 14)
+        add(music, lp(beat, 200) * .55 * g, t + off)
+    t += 60 / (64 + 18 * (t / END))
+
+# 4) tic-tac de reloj
+t = 0.6
+k = 0
+while t < END - .4:
+    n = int(SR * .04)
+    tick = bp(rng.standard_normal(n), 2500 if k % 2 else 3800, 9000) * env(n, .0005, .01)
+    add(music, tick * .07, t)
+    t += .5
+    k += 1
+
+# 5) piano lejano con eco: motivo menor que se repite
+motif = [62, 65, 69, 70, 69, 65, 62, 61]
+t = 4.0
+k = 0
+while t < END - 1:
+    if not (49.0 < t < 53.0):
+        n = motif[k % len(motif)] + (12 if (k // 8) % 2 else 0)
+        d = 2.2
+        tt = t_axis(d)
+        f = midi(n)
+        pno = (np.sin(2 * np.pi * f * tt) + .45 * np.sin(2 * np.pi * 2 * f * tt) * np.exp(-tt * 3)
+               + .2 * np.sin(2 * np.pi * 3.01 * f * tt) * np.exp(-tt * 6))
+        add(music, pno * env(len(tt), .003, .7) * .09, t)
+    t += BEAT * 2.4
+    k += 1
+
+# 6) bajo ostinato sordo (entra cuando la historia se complica)
+t = 15.5
+k = 0
+while t < 49.0:
+    n = [26, 26, 27, 26][k % 4]
+    d = .45
+    s = lp(saw(midi(n + 12), d, .003), 260)
+    add(music, s * env(len(s), .005, .16) * .30, t)
     t += BEAT
     k += 1
 
-# arpegio agudo tipo "sintetizador de noticias" (a partir de 8 s)
-t = 8.0
-k = 0
-while t < 53.0:
-    root, notes = prog[int(t // chord_len) % 4]
-    n = notes[[0, 1, 2, 1][k % 4]] + 12
-    d = BEAT / 2
-    s = np.sign(np.sin(2 * np.pi * midi(n) * t_axis(d))) * 0.5 + np.sin(2 * np.pi * midi(n) * t_axis(d)) * 0.5
-    s = lp(s, 2500)
-    add(music, s * env(len(s), 0.003, 0.12) * 0.05, t)
-    t += BEAT / 2
-    k += 1
+# 7) subidas de tensión (ruido + tono que asciende) que desembocan en cada corte
+for c in SCENE_CUTS:
+    d = 1.6
+    tt = t_axis(d)
+    nz = hp(rng.standard_normal(len(tt)), 1500) * (tt / d) ** 3
+    sw = np.sin(2 * np.pi * np.cumsum(200 + 600 * (tt / d) ** 2) / SR) * (tt / d) ** 2
+    add(music, (nz * .10 + sw * .05), c - d)
 
-music = reverb(music, 2.0, 0.22)
+music = reverb(music, 3.0, 0.32)
 
-# respiración: baja durante la "gran pregunta" y sube en la encuesta
-gain = np.ones(N)
+# silencio tenso antes de la gran pregunta y caída al final
 tt = np.arange(N) / SR
-gain *= np.interp(tt, [0, 46.3, 46.8, 53.3, 53.8, 59.4, 60.0, DUR], [1, 1, .65, .65, 1, 1, 0, 0])
-music *= gain
+music *= np.interp(tt, [0, 49.3, 49.8, 50.0, 53.5, 59.4, 60.0, DUR], [1, 1, .35, .5, 1, 1, 0, 0])
 
 # cola del cierre: acorde final que sostiene el logo
 d = DUR - 59.9

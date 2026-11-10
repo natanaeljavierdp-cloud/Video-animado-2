@@ -6,11 +6,11 @@ Video vertical 9:16 (1080×1920, 30 fps) de **63.5 s**: 60 s de noticia + 3.5 s 
 
 | Archivo | Para qué |
 |---|---|
-| `salida/capital_curioso_jensen_huang.mp4` | Video final con música de tensión + efectos (sin voz). Súbelo a Canva. |
+| `salida/capital_curioso_jensen_huang.mp4` | Video final con música de suspenso + efectos (sin voz). Súbelo a Canva. |
 | `salida/musica_y_efectos.mp3` | Solo la pista de música + efectos, por si quieres manejarla aparte. |
 | `salida/subtitulos.srt` | El guion cronometrado (los subtítulos ya van "quemados" en el video). |
 
-La música y los efectos están sintetizados por código (`musica.py`): no tienen derechos de autor.
+La música de suspenso (dron grave, cuerdas en trémolo, latido, piano con eco, tic-tac y subidas de tensión en cada corte) y los efectos están sintetizados por código (`musica.py`): no tienen derechos de autor.
 
 ## Dónde van las fotos en Canva
 
