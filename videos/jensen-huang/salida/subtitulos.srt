@@ -1,0 +1,163 @@
+1
+00:00:00,150 --> NaN:NaN:NaN,NaN
+El hombre detrás de los
+
+2
+00:00:01,323 --> NaN:NaN:NaN,NaN
+chips de la inteligencia artificial
+
+3
+00:00:02,965 --> NaN:NaN:NaN,NaN
+acaba de admitir una infidelidad...
+
+4
+00:00:04,725 --> NaN:NaN:NaN,NaN
+y la otra mujer,
+
+5
+00:00:05,656 --> NaN:NaN:NaN,NaN
+según Estados Unidos,
+
+6
+00:00:06,735 --> 00:00:08,150
+sería una espía china.
+
+7
+00:00:08,000 --> NaN:NaN:NaN,NaN
+Él es Jensen Huang,
+
+8
+00:00:09,180 --> NaN:NaN:NaN,NaN
+fundador de Nvidia,
+
+9
+00:00:10,307 --> NaN:NaN:NaN,NaN
+una de las empresas más
+
+10
+00:00:11,628 --> NaN:NaN:NaN,NaN
+valiosas del planeta,
+
+11
+00:00:12,843 --> NaN:NaN:NaN,NaN
+y una de las personas
+
+12
+00:00:14,076 --> 00:00:15,550
+más ricas del mundo.
+
+13
+00:00:15,500 --> NaN:NaN:NaN,NaN
+Ella es Alice Huang,
+
+14
+00:00:16,625 --> NaN:NaN:NaN,NaN
+ejecutiva de Megaspeed,
+
+15
+00:00:17,824 --> NaN:NaN:NaN,NaN
+una empresa de Singapur que
+
+16
+00:00:19,200 --> NaN:NaN:NaN,NaN
+le compraba a Nvidia.
+
+17
+00:00:20,487 --> NaN:NaN:NaN,NaN
+Según The New York Times,
+
+18
+00:00:21,863 --> NaN:NaN:NaN,NaN
+la inteligencia estadounidense cree que
+
+19
+00:00:23,725 --> NaN:NaN:NaN,NaN
+China la reclutó para obtener
+
+20
+00:00:25,183 --> 00:00:26,550
+información sobre él.
+
+21
+00:00:26,500 --> NaN:NaN:NaN,NaN
+Este domingo,
+
+22
+00:00:27,160 --> NaN:NaN:NaN,NaN
+Huang escribió a sus empleados:
+
+23
+00:00:28,666 --> NaN:NaN:NaN,NaN
+«Le fui infiel a mi
+
+24
+00:00:29,563 --> NaN:NaN:NaN,NaN
+esposa. No hay excusa.
+
+25
+00:00:30,919 --> NaN:NaN:NaN,NaN
+Lo siento profundamente.»
+
+26
+00:00:32,124 --> NaN:NaN:NaN,NaN
+Ese mismo día,
+
+27
+00:00:32,863 --> 00:00:35,050
+Nvidia abrió una investigación independiente.
+
+28
+00:00:35,000 --> NaN:NaN:NaN,NaN
+Trump lo defendió:
+
+29
+00:00:36,226 --> NaN:NaN:NaN,NaN
+dice que Huang le aseguró
+
+30
+00:00:37,701 --> NaN:NaN:NaN,NaN
+que no sabía que era
+
+31
+00:00:38,945 --> NaN:NaN:NaN,NaN
+espía. China lo niega y
+
+32
+00:00:40,558 --> NaN:NaN:NaN,NaN
+habla de difamaciones.
+
+33
+00:00:42,014 --> NaN:NaN:NaN,NaN
+Y el Congreso lo citó
+
+34
+00:00:43,304 --> NaN:NaN:NaN,NaN
+a una reunión a puerta
+
+35
+00:00:44,641 --> 00:00:46,550
+cerrada el 18 de noviembre.
+
+36
+00:00:46,500 --> NaN:NaN:NaN,NaN
+Por ahora no hay pruebas
+
+37
+00:00:47,774 --> NaN:NaN:NaN,NaN
+de que se filtraran secretos.
+
+38
+00:00:49,460 --> NaN:NaN:NaN,NaN
+Pero la pregunta es:
+
+39
+00:00:50,685 --> NaN:NaN:NaN,NaN
+¿seguirá siendo el rey de
+
+40
+00:00:51,960 --> 00:00:53,550
+la inteligencia artificial?
+
+41
+00:00:53,800 --> 00:00:55,850
+Comenta 1 o 2.

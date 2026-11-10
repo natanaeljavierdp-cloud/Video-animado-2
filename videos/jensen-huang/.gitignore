@@ -1,0 +1,6 @@
+salida/*.wav
+salida/_video_sin_audio.mp4
+salida/render.log
+salida/sfx.json
+salida/stills/
+audio/

@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Capital Curioso · Jensen Huang</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html,body{margin:0;background:#061A3D;color:#fff;font-family:system-ui,sans-serif}
+  body.preview{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
+  canvas{display:block}
+  body.preview canvas{height:min(82vh,1920px);width:auto;box-shadow:0 10px 40px #0008}
+  #ctrl{display:none;gap:10px;align-items:center;width:min(92vw,520px)}
+  body.preview #ctrl{display:flex}
+  #ctrl input{flex:1}
+  #ctrl button{background:#FE4A55;color:#fff;border:0;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ctrl"><button id="play">▶︎</button><input id="scrub" type="range" min="0" max="60" step="0.0333" value="0"><span id="tc">0.0 s</span></div>
+<script>
+/* =====================================================================
+   CAPITAL CURIOSO · "El escándalo de Jensen Huang" · 1080x1920 · 30 fps
+   ---------------------------------------------------------------------
+   TODO el tiempo del video sale de NARRACION (abajo). Cuando tengas el
+   audio final de ElevenLabs, ajusta solo los [inicio, fin] de cada
+   bloque (o pega tiempos por palabra en WORD_TIMES) y todo se re-sincroniza:
+   subtítulos, escenas, contador, flechas, sellos y efectos de sonido.
+   ===================================================================== */
+const W = 1080, H = 1920, FPS = 30, DURATION = 60;
+
+const C = {
+  navy: '#0A285A', navyD: '#061A3D', navyDD: '#04122B', navyL: '#15407F', navyM: '#0E3170',
+  red: '#FE4A55', redD: '#D8303C', white: '#FFFFFF', ink: '#0A1F44',
+  gray: '#A9B8D3', grayD: '#5E7299', paper: '#F6F7FB', marker: '#FFE36E', gold: '#FFC83D'
+};
+
+// Bloques de narración = escenas. [inicio, fin] en segundos.
+const NARRACION = [
+  { id: 's1', t: [0.15, 7.9],  txt: 'El hombre detrás de los chips de la inteligencia artificial acaba de admitir una infidelidad... y la otra mujer, según Estados Unidos, sería una espía china.' },
+  { id: 's2', t: [8.0, 15.3],  txt: 'Él es Jensen Huang, fundador de Nvidia, una de las empresas más valiosas del planeta, y una de las personas más ricas del mundo.' },
+  { id: 's3', t: [15.5, 26.3], txt: 'Ella es Alice Huang, ejecutiva de Megaspeed, una empresa de Singapur que le compraba a Nvidia. Según The New York Times, la inteligencia estadounidense cree que China la reclutó para obtener información sobre él.' },
+  { id: 's4', t: [26.5, 34.8], txt: 'Este domingo, Huang escribió a sus empleados: «Le fui infiel a mi esposa. No hay excusa. Lo siento profundamente.» Ese mismo día, Nvidia abrió una investigación independiente.' },
+  { id: 's5', t: [35.0, 46.3], txt: 'Trump lo defendió: dice que Huang le aseguró que no sabía que era espía. China lo niega y habla de difamaciones. Y el Congreso lo citó a una reunión a puerta cerrada el 18 de noviembre.' },
+  { id: 's6', t: [46.5, 53.3], txt: 'Por ahora no hay pruebas de que se filtraran secretos. Pero la pregunta es: ¿seguirá siendo el rey de la inteligencia artificial?' },
+  { id: 's7', t: [53.8, 55.6], txt: 'Comenta 1 o 2.' },
+];
+// Límites visuales de escena (la escena 7 dura hasta el final).
+const SCENES = { s1: [0, 8], s2: [8, 15.5], s3: [15.5, 26.5], s4: [26.5, 35], s5: [35, 46.5], s6: [46.5, 53.5], s7: [53.5, 60] };
+// Opcional: tiempos reales por palabra [[inicio,fin], ...] por bloque (de una transcripción).
+const WORD_TIMES = window.WORD_TIMES || null;
+
+// ---------------------------------------------------------------- utilidades
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eIn = k => k * k * k;
+const eInOut = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+const eExpo = k => k >= 1 ? 1 : 1 - Math.pow(2, -10 * k);
+const inS = (t, id) => t >= SCENES[id][0] && t < SCENES[id][1];
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ]/g, '');
+
+// ---------------------------------------------------------------- tiempos por palabra
+const WORDS = NARRACION.map((seg, si) => {
+  const toks = seg.txt.split(/\s+/);
+  if (WORD_TIMES && WORD_TIMES[si] && WORD_TIMES[si].length === toks.length)
+    return toks.map((w, i) => ({ w, s: WORD_TIMES[si][i][0], e: WORD_TIMES[si][i][1] }));
+  const wt = toks.map((w, i) => {
+    let k = w.replace(/[^\p{L}\p{N}]/gu, '').length + 2.2;
+    if (/\.\.\.$|[.»]$/.test(w)) k += 6; else if (/[:?!]$/.test(w)) k += 5; else if (/,$/.test(w)) k += 3;
+    if (i === toks.length - 1) k -= 3;
+    return Math.max(k, 2.5);
+  });
+  const tot = wt.reduce((a, b) => a + b, 0), [a, b] = seg.t;
+  let acc = a;
+  return toks.map((w, i) => { const s = acc; acc += (b - a) * wt[i] / tot; return { w, s, e: acc }; });
+});
+// cue('s2','planeta') -> segundo en que se dice esa palabra
+function cue(id, word, nth = 0) {
+  const si = NARRACION.findIndex(s => s.id === id), nw = norm(word);
+  let n = 0;
+  for (const x of WORDS[si]) if (norm(x.w) === nw) { if (n++ === nth) return x.s; }
+  console.warn('cue no encontrado', id, word); return SCENES[id][0];
+}
+function cueEnd(id, word, nth = 0) {
+  const si = NARRACION.findIndex(s => s.id === id), nw = norm(word);
+  let n = 0;
+  for (const x of WORDS[si]) if (norm(x.w) === nw) { if (n++ === nth) return x.e; }
+  return SCENES[id][1];
+}
+
+// Cues clave (todo deriva de la narración)
+const K = {
+  s1Headline: cue('s1', 'admitir'), s1Sub: cue('s1', 'según'),
+  s2Count: cue('s2', 'una', 0), s2Rich: cue('s2', 'personas'),
+  s3Map: cueEnd('s3', 'Nvidia.') + 0.05, s3NYT: cue('s3', 'según'), s3China: cue('s3', 'China'), s3Info: cue('s3', 'información'),
+  s4Quote: cue('s4', '«Le'), s4QuoteEnd: cueEnd('s4', 'profundamente.»'), s4Same: cue('s4', 'Ese'), s4Inv: cue('s4', 'investigación'),
+  s5China: cue('s5', 'China'), s5Cong: cue('s5', 'Congreso'), s5Date: cue('s5', '18'),
+  s6Q: cue('s6', 'pregunta'),
+};
+
+// ---------------------------------------------------------------- canvas
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const F = (w, px, fam = 'Poppins') => `${w} ${px}px "${fam}"`;
+
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function txt(s, x, y, font, color, align = 'left', base = 'alphabetic') {
+  ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(s, x, y);
+}
+function wrap(s, maxW, font) {
+  ctx.font = font; const out = []; let line = '';
+  for (const w of s.split(' ')) { const tst = line ? line + ' ' + w : w; if (ctx.measureText(tst).width > maxW && line) { out.push(line); line = w; } else line = tst; }
+  if (line) out.push(line); return out;
+}
+function withAlpha(a, fn) { ctx.save(); ctx.globalAlpha *= clamp(a); fn(); ctx.restore(); }
+function shadow(blur = 30, col = '#0009', oy = 10) { ctx.shadowColor = col; ctx.shadowBlur = blur; ctx.shadowOffsetY = oy; }
+function noShadow() { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
+
+// ---------------------------------------------------------------- fondo
+function background(t) {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, C.navy); g.addColorStop(.55, C.navyD); g.addColorStop(1, C.navyDD);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // rejilla tipo estudio de noticias
+  ctx.save(); ctx.strokeStyle = 'rgba(120,160,230,0.07)'; ctx.lineWidth = 2;
+  const off = (t * 18) % 90;
+  for (let x = -90 + off; x < W + 90; x += 90) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = -90 + off; y < H + 90; y += 90) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  ctx.restore();
+  // brillo rojo que respira
+  const rg = ctx.createRadialGradient(W * .85, H * .2, 0, W * .85, H * .2, 900);
+  rg.addColorStop(0, `rgba(254,74,85,${0.10 + 0.04 * Math.sin(t * 1.3)})`); rg.addColorStop(1, 'rgba(254,74,85,0)');
+  ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+  const bg = ctx.createRadialGradient(W * .1, H * .75, 0, W * .1, H * .75, 900);
+  bg.addColorStop(0, 'rgba(60,120,255,0.10)'); bg.addColorStop(1, 'rgba(60,120,255,0)');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+}
+function vignette() {
+  const g = ctx.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, H * .75);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.45)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- marca (lupa con "?")
+function magnifier(cx, cy, r, t = 0) {
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = C.red; ctx.lineWidth = r * .32;
+  ctx.beginPath(); ctx.moveTo(cx + r * .78, cy + r * .78); ctx.lineTo(cx + r * 1.45, cy + r * 1.45); ctx.stroke();
+  ctx.strokeStyle = C.white; ctx.lineWidth = r * .26;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  txt('?', cx, cy + r * .05, F(900, r * 1.25), C.red, 'center', 'middle');
+  ctx.restore();
+}
+function brandBar(t) {
+  const a = eOut(prog(t, 0, .5));
+  withAlpha(a, () => {
+    magnifier(78, 92, 22, t);
+    txt('CAPITAL', 128, 88, F(800, 30), C.white);
+    txt('CURIOSO', 128, 120, F(800, 30), C.red);
+    txt('@capitalcuriosoo', W - 60, 106, F(600, 28), 'rgba(255,255,255,.85)', 'right');
+  });
+}
+
+// ---------------------------------------------------------------- banner ÚLTIMA HORA + cabecera de capítulo
+const CHAPTER = { s1: 'ESCÁNDALO EN NVIDIA', s2: 'ESCÁNDALO EN NVIDIA', s3: 'LA OTRA MUJER', s4: 'LA CONFESIÓN', s5: 'LAS REACCIONES', s6: 'LA GRAN PREGUNTA', s7: 'TU OPINIÓN' };
+function sceneAt(t) { for (const k in SCENES) if (t >= SCENES[k][0] && t < SCENES[k][1]) return k; return 's7'; }
+function breakingBanner(t) {
+  const y = 160, h = 92;
+  const k = eBack(prog(t, .1, .55));
+  const x0 = lerp(-560, 0, k);
+  // pieza roja
+  ctx.font = F(700, 62, 'Oswald'); const RW = 118 + ctx.measureText('ÚLTIMA HORA').width + 56;
+  ctx.save(); shadow(24, '#0008', 8);
+  ctx.fillStyle = C.red;
+  ctx.beginPath(); ctx.moveTo(x0 + 40, y); ctx.lineTo(x0 + RW + 30, y); ctx.lineTo(x0 + RW, y + h); ctx.lineTo(x0 + 40, y + h); ctx.closePath(); ctx.fill();
+  noShadow();
+  const blink = (Math.floor(t * 2.2) % 2 === 0) ? 1 : .25;
+  ctx.fillStyle = `rgba(255,255,255,${blink})`; ctx.beginPath(); ctx.arc(x0 + 88, y + h / 2, 13, 0, Math.PI * 2); ctx.fill();
+  txt('ÚLTIMA HORA', x0 + 118, y + h / 2 + 3, F(700, 62, 'Oswald'), C.white, 'left', 'middle');
+  ctx.restore();
+  // extensión azul con el título del capítulo
+  const ke = eOut(prog(t, .45, .9));
+  if (ke > 0) {
+    const ex = x0 + RW + 40, ew = (W - 40 - ex) * ke;
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(ex - 30, y + 10); ctx.lineTo(ex + ew, y + 10); ctx.lineTo(ex + ew, y + h - 10); ctx.lineTo(ex - 30 + 0, y + h - 10); ctx.closePath();
+    ctx.fillStyle = C.white; ctx.fill(); ctx.clip();
+    const sc = sceneAt(t), st = SCENES[sc][0];
+    const prev = Object.keys(SCENES)[Object.keys(SCENES).indexOf(sc) - 1];
+    const kk = eOut(prog(t, st, st + .4));
+    const label = CHAPTER[sc], plabel = prev ? CHAPTER[prev] : label;
+    if (label !== plabel && kk < 1) {
+      txt(plabel, ex + 14, y + h / 2 + 2 - kk * 60, F(800, 36), C.navy, 'left', 'middle');
+      txt(label, ex + 14, y + h / 2 + 2 + (1 - kk) * 60, F(800, 36), C.navy, 'left', 'middle');
+    } else txt(label, ex + 14, y + h / 2 + 2, F(800, 36), C.navy, 'left', 'middle');
+    ctx.restore();
+  }
+}
+
+// ---------------------------------------------------------------- espacio para FOTO (sin nada encima: ahí va la foto real en Canva)
+function photoSlot(x, y, w, h, label, a = 1, t = 0) {
+  if (a <= 0) return;
+  withAlpha(a, () => {
+    ctx.save();
+    rr(x, y, w, h, 18); ctx.fillStyle = '#1B3A72'; ctx.fill(); ctx.clip();
+    ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 14;
+    for (let i = -h; i < w + h; i += 46) { ctx.beginPath(); ctx.moveTo(x + i, y); ctx.lineTo(x + i - h, y + h); ctx.stroke(); }
+    // silueta genérica
+    ctx.fillStyle = 'rgba(255,255,255,.10)';
+    const s = Math.min(w, h);
+    ctx.beginPath(); ctx.arc(x + w / 2, y + h * .42, s * .17, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x + w / 2, y + h * .42 + s * .55, s * .36, s * .3, 0, Math.PI, 0); ctx.fill();
+    ctx.restore();
+    ctx.save(); ctx.setLineDash([22, 14]); ctx.lineDashOffset = -t * 30; ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 4;
+    rr(x + 2, y + 2, w - 4, h - 4, 16); ctx.stroke(); ctx.restore();
+    // esquinas rojas
+    ctx.save(); ctx.strokeStyle = C.red; ctx.lineWidth = 8; ctx.lineCap = 'round';
+    const L = 46, p = -4;
+    [[x - p, y - p, 1, 1], [x + w + p, y - p, -1, 1], [x - p, y + h + p, 1, -1], [x + w + p, y + h + p, -1, -1]].forEach(([cx, cy, dx, dy]) => {
+      ctx.beginPath(); ctx.moveTo(cx + dx * L, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + dy * L); ctx.stroke();
+    });
+    ctx.restore();
+    const fs = w > 600 ? 44 : 30;
+    const lines = wrap(label, w - 70, F(800, fs));
+    const lh = fs * 1.25, ty = y + h * .5 - (lines.length - 1) * lh / 2;
+    lines.forEach((l, i) => txt(l, x + w / 2, ty + i * lh, F(800, fs), C.white, 'center', 'middle'));
+  });
+}
+
+// ---------------------------------------------------------------- rótulo inferior (nombre + cargo)
+function lowerThird(t, t0, t1, name, role, y = 1078) {
+  const kin = eOut(prog(t, t0, t0 + .45)), kout = eIn(prog(t, t1 - .35, t1));
+  if (kin <= 0 || kout >= 1) return;
+  ctx.save();
+  const x = 60 - (1 - kin) * 700 - kout * 1100;
+  ctx.font = F(700, 74, 'Oswald'); const nw = ctx.measureText(name).width + 70;
+  ctx.font = F(600, 36); const rw = ctx.measureText(role).width + 60;
+  shadow(30, '#000a', 10);
+  ctx.fillStyle = C.red; ctx.fillRect(x, y, nw, 104);
+  noShadow();
+  ctx.fillStyle = C.white; ctx.fillRect(x, y, 12, 104);
+  txt(name, x + 38, y + 56, F(700, 74, 'Oswald'), C.white, 'left', 'middle');
+  const k2 = eOut(prog(t, t0 + .2, t0 + .65));
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y + 104, rw * k2, 66); ctx.clip();
+  ctx.fillStyle = C.white; ctx.fillRect(x, y + 104, rw, 66);
+  txt(role, x + 30, y + 139, F(600, 36), C.navy, 'left', 'middle');
+  ctx.restore(); ctx.restore();
+}
+
+// ---------------------------------------------------------------- subtítulos palabra por palabra
+const CHUNKS = (() => {
+  const out = [];
+  WORDS.forEach((ws, si) => {
+    let cur = [];
+    ws.forEach((w, i) => {
+      cur.push(w);
+      const end = /[.,:?!»]$|\.\.\.$/.test(w.w);
+      if (cur.length >= 5 || (end && cur.length >= 2) || i === ws.length - 1) { out.push({ si, words: cur }); cur = []; }
+    });
+  });
+  out.forEach((c, i) => { c.s = c.words[0].s; const nx = out[i + 1]; c.e = (nx && nx.si === c.si) ? nx.s : c.words[c.words.length - 1].e + .25; });
+  return out;
+})();
+function captions(t) {
+  if (t >= K.s6Q - .1 || inS(t, 's7')) return; // aquí manda el texto grande
+  const ch = CHUNKS.find(c => t >= c.s - .02 && t < c.e);
+  if (!ch) return;
+  const font = F(800, 58), maxW = 900, cy = 1488;
+  ctx.font = font;
+  const items = ch.words.map(w => ({ ...w, up: w.w.toUpperCase(), wd: ctx.measureText(w.w.toUpperCase()).width }));
+  const sp = 18, lines = [[]]; let lw = 0;
+  items.forEach(it => { if (lw + it.wd > maxW && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push(it); lw += it.wd + sp; });
+  const lh = 78, y0 = cy - (lines.length - 1) * lh / 2;
+  lines.forEach((ln, li) => {
+    const tw = ln.reduce((a, b) => a + b.wd, 0) + sp * (ln.length - 1);
+    let x = W / 2 - tw / 2;
+    ln.forEach(it => {
+      const k = prog(t, it.s - .02, it.s + .14);
+      if (k > 0) {
+        const active = t >= it.s && t < it.e + .05;
+        const sc = .7 + .3 * eBack(k);
+        ctx.save(); ctx.translate(x + it.wd / 2, y0 + li * lh); ctx.scale(sc, sc); ctx.globalAlpha = k;
+        if (active) { ctx.fillStyle = C.red; rr(-it.wd / 2 - 12, -40, it.wd + 24, 78, 12); ctx.fill(); }
+        ctx.lineJoin = 'round'; ctx.lineWidth = 12; ctx.strokeStyle = active ? 'rgba(0,0,0,0)' : C.navyDD;
+        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        if (!active) ctx.strokeText(it.up, 0, 3);
+        ctx.fillStyle = C.white; ctx.fillText(it.up, 0, 3);
+        ctx.restore();
+      }
+      x += it.wd + sp;
+    });
+  });
+}
+
+// ---------------------------------------------------------------- cinta de noticias
+const TICKER = 'NVIDIA ABRE UNA INVESTIGACIÓN INDEPENDIENTE   ●   EL CONGRESO DE EE.UU. CITA A HUANG A PUERTA CERRADA EL 18 DE NOVIEMBRE   ●   CHINA NIEGA LAS ACUSACIONES   ●   ESPIONAJE: SEGÚN REPORTES, NO CONFIRMADO   ●   ';
+function ticker(t) {
+  const t0 = 8.2, t1 = 53.3;
+  const k = eOut(prog(t, t0, t0 + .5)) - eIn(prog(t, t1, t1 + .4));
+  if (k <= 0) return;
+  const y = 1650 + (1 - k) * 120, h = 70;
+  ctx.save(); ctx.globalAlpha = clamp(k * 1.5);
+  ctx.fillStyle = 'rgba(4,18,43,.92)'; ctx.fillRect(0, y, W, h);
+  ctx.save(); ctx.beginPath(); ctx.rect(290, y, W - 290, h); ctx.clip();
+  ctx.font = F(700, 32);
+  const tw = ctx.measureText(TICKER).width, off = ((t - t0) * 150) % tw;
+  txt(TICKER + TICKER, 300 - off, y + h / 2 + 2, F(700, 32), C.white, 'left', 'middle');
+  ctx.restore();
+  ctx.fillStyle = C.red; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(290, y); ctx.lineTo(270, y + h); ctx.lineTo(0, y + h); ctx.fill();
+  txt('EN DESARROLLO', 26, y + h / 2 + 2, F(700, 36, 'Oswald'), C.white, 'left', 'middle');
+  ctx.restore();
+}
+
+// ---------------------------------------------------------------- transiciones (barrido rojo)
+function wipes(t) {
+  for (const k of ['s2', 's3', 's4', 's5', 's6', 's7']) {
+    const b = SCENES[k][0], p = prog(t, b - .22, b + .22);
+    if (p <= 0 || p >= 1) continue;
+    const x = lerp(-W * 1.4, W * 1.4, eInOut(p));
+    ctx.save(); ctx.translate(x, 0);
+    ctx.fillStyle = C.red; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W * .55, 0); ctx.lineTo(W * .25, H); ctx.lineTo(-W * .3, H); ctx.fill();
+    ctx.fillStyle = C.white; ctx.beginPath(); ctx.moveTo(W * .55, 0); ctx.lineTo(W * .62, 0); ctx.lineTo(W * .32, H); ctx.lineTo(W * .25, H); ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ---------------------------------------------------------------- iconos / piezas
+function arrowCurve(p0, p1, bend, k, col, dash = null, width = 8, t = 0) {
+  if (k <= 0) return;
+  const mx = (p0[0] + p1[0]) / 2, my = (p0[1] + p1[1]) / 2;
+  const dx = p1[0] - p0[0], dy = p1[1] - p0[1], len = Math.hypot(dx, dy);
+  const cxp = mx - dy / len * bend, cyp = my + dx / len * bend;
+  const pt = u => [(1 - u) ** 2 * p0[0] + 2 * (1 - u) * u * cxp + u * u * p1[0], (1 - u) ** 2 * p0[1] + 2 * (1 - u) * u * cyp + u * u * p1[1]];
+  ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = width; ctx.lineCap = 'round';
+  if (dash) { ctx.setLineDash(dash); ctx.lineDashOffset = -t * 60; }
+  ctx.beginPath(); const N = 60;
+  for (let i = 0; i <= N * k; i++) { const q = pt(i / N); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }
+  ctx.stroke(); ctx.setLineDash([]);
+  const e = pt(k), b = pt(Math.max(0, k - .03)), ang = Math.atan2(e[1] - b[1], e[0] - b[0]);
+  ctx.fillStyle = col; ctx.translate(e[0], e[1]); ctx.rotate(ang);
+  ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-22, -18); ctx.lineTo(-22, 18); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  return pt(.5);
+}
+function chinaFlag(x, y, w, h, t = 0) {
+  ctx.save(); rr(x, y, w, h, 14); ctx.clip();
+  // ondulación suave
+  const strips = 40;
+  for (let i = 0; i < strips; i++) {
+    const sx = x + i * w / strips, wv = Math.sin(t * 3 + i * .3) * 6;
+    ctx.fillStyle = `hsl(355, 85%, ${44 + Math.sin(t * 3 + i * .3) * 4}%)`;
+    ctx.fillRect(sx, y + wv - 8, w / strips + 1, h + 16);
+  }
+  const u = h / 20;
+  const star = (cx, cy, r, rot = -Math.PI / 2) => {
+    ctx.beginPath(); for (let i = 0; i < 10; i++) { const rr2 = i % 2 ? r * .382 : r, a = rot + i * Math.PI / 5; ctx.lineTo(cx + Math.cos(a) * rr2, cy + Math.sin(a) * rr2); } ctx.closePath(); ctx.fill();
+  };
+  ctx.fillStyle = '#FFDE00';
+  const ox = x + (w - h * 1.5) / 2 + 10;
+  star(ox + 5 * u, y + 5 * u, 3 * u);
+  [[10, 2], [12, 4], [12, 7], [10, 9]].forEach(([sx, sy]) => {
+    const a = Math.atan2(5 - sy, 5 - sx); star(ox + sx * u, y + sy * u, u, a + Math.PI / 2 - Math.PI / 2 + Math.PI);
+  });
+  ctx.restore();
+}
+function crown(cx, cy, s, col) {
+  ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s); ctx.fillStyle = col;
+  ctx.beginPath(); ctx.moveTo(-60, 30); ctx.lineTo(-70, -30); ctx.lineTo(-35, 0); ctx.lineTo(0, -45); ctx.lineTo(35, 0); ctx.lineTo(70, -30); ctx.lineTo(60, 30); ctx.closePath(); ctx.fill();
+  ctx.fillRect(-60, 36, 120, 14);
+  [[-70, -34], [0, -50], [70, -34]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fill(); });
+  ctx.restore();
+}
+function sourceTag(x, y, label, a = 1) {
+  withAlpha(a, () => {
+    ctx.font = F(700, 26); const w = ctx.measureText(label).width + 36;
+    rr(x, y, w, 46, 23); ctx.fillStyle = C.navy; ctx.fill();
+    txt(label, x + 18, y + 24, F(700, 26), C.white, 'left', 'middle');
+  });
+}
+function presuntoTag(x, y, label = 'PRESUNTO · NO CONFIRMADO', a = 1, align = 'left') {
+  withAlpha(a, () => {
+    ctx.font = F(800, 24); const w = ctx.measureText(label).width + 32;
+    const xx = align === 'center' ? x - w / 2 : x;
+    rr(xx, y, w, 42, 8); ctx.fillStyle = 'rgba(254,74,85,.15)'; ctx.fill();
+    ctx.strokeStyle = C.red; ctx.lineWidth = 3; ctx.stroke();
+    txt(label, xx + 16, y + 22, F(800, 24), C.red, 'left', 'middle');
+  });
+}
+
+// ---------------------------------------------------------------- RANURAS DE FOTO (coordenadas fijas para Canva)
+const SLOT_MAIN = [90, 290, 900, 760];          // Jensen (0–15.5 s) y Alice (15.5 s–mapa)
+const SLOT_TRUMP = [60, 290, 420, 330];         // escena 5, panel 1
+const SLOT_CAPITOL = [60, 986, 420, 330];       // escena 5, panel 3
+
+// ================================================================ ESCENA 1 · 0–8 s
+function scene1(t) {
+  const [a, b] = SCENES.s1;
+  const k = eOut(prog(t, .25, .8));
+  photoSlot(...SLOT_MAIN, '[FOTO: Jensen Huang con chaqueta de cuero]', k, t);
+  // flash inicial
+  const fl = 1 - prog(t, 0, .35);
+  if (fl > 0) { ctx.fillStyle = `rgba(255,255,255,${fl * .8})`; ctx.fillRect(0, 0, W, H); }
+  // titular bajo la foto
+  const kh = eOut(prog(t, K.s1Headline - .2, K.s1Headline + .3)), ko = eIn(prog(t, b - .4, b));
+  if (kh > 0) withAlpha(1 - ko, () => {
+    const y = 1080 + (1 - kh) * 60;
+    ctx.save(); ctx.globalAlpha *= kh;
+    txt('CEO DE NVIDIA ADMITE', 90, y + 70, F(700, 82, 'Oswald'), C.white);
+    txt('UNA INFIDELIDAD', 90, y + 162, F(700, 82, 'Oswald'), C.white);
+    ctx.font = F(700, 82, 'Oswald'); const uw = ctx.measureText('UNA INFIDELIDAD').width;
+    ctx.fillStyle = C.red; ctx.fillRect(90, y + 178, uw * eOut(prog(t, K.s1Headline + .2, K.s1Headline + .7)), 10);
+    ctx.restore();
+  });
+  const ks = eOut(prog(t, K.s1Sub - .1, K.s1Sub + .35));
+  if (ks > 0) withAlpha(ks * (1 - ko), () => {
+    presuntoTag(90, 1292, 'SEGÚN REPORTES');
+    txt('La otra mujer sería una presunta espía china', 90, 1376, F(600, 36), C.gray);
+  });
+}
+
+// ================================================================ ESCENA 2 · 8–15.5 s
+function fmtMoney(v) { return '+$' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function scene2(t) {
+  const [a, b] = SCENES.s2;
+  photoSlot(...SLOT_MAIN, '[FOTO: Jensen Huang con chaqueta de cuero]', 1, t);
+  lowerThird(t, a + .15, b - .1, 'JENSEN HUANG', 'CEO y fundador de Nvidia');
+  // contador
+  const c0 = K.s2Count, kin = eBack(prog(t, c0 - .3, c0 + .15)), kout = eIn(prog(t, b - .4, b - .05));
+  if (kin > 0) {
+    ctx.save();
+    const y = 1262, x = 60 + kout * -1100;
+    ctx.translate(x + 480, y + 70); ctx.scale(.85 + .15 * kin, .85 + .15 * kin); ctx.translate(-(x + 480), -(y + 70));
+    ctx.globalAlpha = clamp(kin);
+    shadow(30, '#0009', 10);
+    rr(x, y, 960, 140, 18); ctx.fillStyle = C.navyM; ctx.fill(); noShadow();
+    ctx.strokeStyle = 'rgba(255,255,255,.15)'; ctx.lineWidth = 2; ctx.stroke();
+    const kc = eExpo(prog(t, c0, c0 + 3.2));
+    const val = 200e9 * kc;
+    txt('FORTUNA ESTIMADA', x + 30, y + 40, F(800, 26), C.red);
+    // jitter de "contador" mientras sube
+    const jit = kc < 1 ? (Math.random() * 0) : 0;
+    txt(fmtMoney(val), x + 28 + jit, y + 116, F(700, 84, 'Oswald'), C.white);
+    // mini gráfica ascendente
+    ctx.save(); ctx.translate(x + 760, y + 30);
+    ctx.strokeStyle = '#3BE07A'; ctx.lineWidth = 6; ctx.lineJoin = 'round'; ctx.beginPath();
+    const pts = [[0, 80], [30, 70], [55, 74], [85, 50], [110, 56], [140, 25], [170, 8]];
+    const n = pts.length - 1, upto = kc * n;
+    pts.forEach((p, i) => { if (i <= upto) i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); });
+    if (upto < n) { const i = Math.floor(upto), f = upto - i; ctx.lineTo(lerp(pts[i][0], pts[i + 1][0], f), lerp(pts[i][1], pts[i + 1][1], f)); }
+    ctx.stroke(); ctx.restore();
+    const kr = eOut(prog(t, K.s2Rich - .2, K.s2Rich + .3));
+    if (kr > 0) withAlpha(kr, () => txt('UNA DE LAS PERSONAS MÁS RICAS DEL MUNDO', x + 30, y + 175, F(700, 26), C.gray));
+    ctx.restore();
+  }
+}
+
+// ================================================================ ESCENA 3 · 15.5–26.5 s
+const NODES = { us: [790, 560], sg: [300, 900], cn: [290, 500] };
+function node(pos, k, initials, title, sub, col, kind = 'person', t = 0) {
+  if (k <= 0) return;
+  const [x, y] = pos, s = eBack(k);
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  ctx.fillStyle = 'rgba(254,74,85,.18)'; ctx.beginPath(); ctx.arc(0, 0, 80 + 10 * Math.sin(t * 4), 0, 7); ctx.fill();
+  if (kind === 'flag') { ctx.save(); ctx.beginPath(); ctx.arc(0, 0, 64, 0, 7); ctx.clip(); chinaFlag(-96, -64, 192, 128, t); ctx.restore(); }
+  else { ctx.fillStyle = C.navyL; ctx.beginPath(); ctx.arc(0, 0, 64, 0, 7); ctx.fill(); txt(initials, 0, 4, F(800, 46), C.white, 'center', 'middle'); }
+  ctx.strokeStyle = col; ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(0, 0, 64, 0, 7); ctx.stroke();
+  ctx.font = F(800, 30); const tw = Math.max(ctx.measureText(title).width, (ctx.font = F(600, 24), ctx.measureText(sub).width)) + 40;
+  rr(-tw / 2, 82, tw, 86, 12); ctx.fillStyle = C.white; ctx.fill();
+  txt(title, 0, 118, F(800, 30), C.navy, 'center', 'middle');
+  txt(sub, 0, 150, F(600, 24), C.grayD, 'center', 'middle');
+  ctx.restore();
+}
+function labelPill(p, text, col, bg, a) {
+  if (a <= 0) return;
+  withAlpha(a, () => {
+    ctx.font = F(800, 26); const w = ctx.measureText(text).width + 34;
+    rr(p[0] - w / 2, p[1] - 23, w, 46, 23); ctx.fillStyle = bg; ctx.fill();
+    txt(text, p[0], p[1] + 1, F(800, 26), col, 'center', 'middle');
+  });
+}
+function scene3(t) {
+  const [a, b] = SCENES.s3, m0 = K.s3Map;
+  // foto de Alice hasta que entra el mapa
+  const kp = 1 - eIn(prog(t, m0 - .3, m0));
+  if (kp > 0) photoSlot(...SLOT_MAIN, '[FOTO: Alice Huang]', kp, t);
+  lowerThird(t, a + .2, m0, 'ALICE HUANG', 'Ejecutiva de Megaspeed (Singapur)');
+  // mapa
+  const km = eOut(prog(t, m0, m0 + .5));
+  if (km > 0) {
+    const [x, y, w, h] = SLOT_MAIN;
+    ctx.save(); ctx.globalAlpha = km;
+    ctx.translate(x + w / 2, y + h / 2); const zs = 1.08 - .08 * km + .03 * prog(t, m0, b); ctx.scale(zs, zs); ctx.translate(-(x + w / 2), -(y + h / 2));
+    rr(x - 30, y, w + 60, h, 22); ctx.fillStyle = 'rgba(4,18,43,.85)'; ctx.fill();
+    ctx.save(); rr(x - 30, y, w + 60, h, 22); ctx.clip();
+    // meridianos / paralelos curvos
+    ctx.strokeStyle = 'rgba(120,170,255,.16)'; ctx.lineWidth = 2;
+    for (let i = 0; i <= 10; i++) { const yy = y + i * h / 10; ctx.beginPath(); ctx.moveTo(x - 30, yy); ctx.quadraticCurveTo(x + w / 2, yy - 40, x + w + 30, yy); ctx.stroke(); }
+    for (let i = 0; i <= 12; i++) { const xx = x - 30 + i * (w + 60) / 12; ctx.beginPath(); ctx.moveTo(xx, y); ctx.quadraticCurveTo(xx + (xx - (x + w / 2)) * .12, y + h / 2, xx, y + h); ctx.stroke(); }
+    // puntos de "tierra" sugeridos
+    ctx.fillStyle = 'rgba(160,190,240,.22)';
+    const blob = (cx, cy, rx, ry) => { for (let gx = cx - rx; gx <= cx + rx; gx += 22) for (let gy = cy - ry; gy <= cy + ry; gy += 22) { if (((gx - cx) / rx) ** 2 + ((gy - cy) / ry) ** 2 < 1) { ctx.beginPath(); ctx.arc(gx, gy, 4, 0, 7); ctx.fill(); } } };
+    blob(250, 520, 210, 170); blob(340, 860, 70, 60); blob(860, 560, 190, 200); blob(560, 1000, 80, 40);
+    txt('OCÉANO PACÍFICO', 560, 720, F(700, 26), 'rgba(160,190,240,.45)', 'center');
+    ctx.restore();
+    const t1 = m0 + .25, t2 = m0 + .55;
+    const ka = eInOut(prog(t, t2 + .3, t2 + 1.2));
+    const mid = arrowCurve([NODES.us[0] - 70, NODES.us[1] + 50], [NODES.sg[0] + 80, NODES.sg[1] - 30], -120, ka, C.white, null, 8, t);
+    if (mid) labelPill([mid[0] + 40, mid[1] + 20], 'LE COMPRABA CHIPS', C.navy, C.white, prog(t, t2 + 1, t2 + 1.3));
+    // China
+    const tc = K.s3China;
+    const kc = eInOut(prog(t, tc + .2, tc + 1.0));
+    const m2 = arrowCurve([NODES.cn[0] - 10, NODES.cn[1] + 175], [NODES.sg[0] - 30, NODES.sg[1] - 72], -60, kc, C.red, [18, 14], 8, t);
+    if (m2) labelPill([m2[0] - 20, m2[1] + 6], '¿LA RECLUTÓ?', C.white, C.red, prog(t, tc + .8, tc + 1.1));
+    // flujo de información hacia Huang
+    const ti = K.s3Info, ki = eInOut(prog(t, ti, ti + .8));
+    const m3 = arrowCurve([NODES.sg[0] + 70, NODES.sg[1] + 30], [NODES.us[0] - 20, NODES.us[1] + 180], 90, ki, C.red, [6, 14], 6, t);
+    if (m3) labelPill([m3[0] + 30, m3[1] + 30], '¿INFORMACIÓN?', C.white, C.red, prog(t, ti + .6, ti + .9));
+    node(NODES.us, prog(t, t1, t1 + .4), 'JH', 'NVIDIA · EE.UU.', 'Jensen Huang', C.white, 'person', t);
+    node(NODES.sg, prog(t, t2, t2 + .4), 'AH', 'MEGASPEED · SINGAPUR', 'Alice Huang', C.white, 'person', t);
+    node(NODES.cn, prog(t, tc - .15, tc + .3), '', 'CHINA', 'Gobierno', C.red, 'flag', t);
+    presuntoTag(W / 2, y + 22, 'PRESUNTO · SEGÚN REPORTES · NO CONFIRMADO', prog(t, tc, tc + .4), 'center');
+    ctx.restore();
+  }
+  // tarjeta de cita: The New York Times
+  const tn = K.s3NYT, kn = eOut(prog(t, tn - .2, tn + .35)), kno = eIn(prog(t, b - .35, b));
+  if (kn > 0) {
+    const y = 1086 + (1 - kn) * 80, x = 60;
+    ctx.save(); ctx.globalAlpha = kn * (1 - kno);
+    shadow(30, '#000a', 10); rr(x, y, 960, 330, 18); ctx.fillStyle = C.paper; ctx.fill(); noShadow();
+    ctx.fillStyle = C.red; ctx.fillRect(x, y + 20, 10, 290);
+    txt('SEGÚN', x + 40, y + 52, F(800, 22), C.red);
+    txt('The New York Times', x + 40, y + 96, `700 44px "DejaVu Serif", "Liberation Serif", serif`, C.ink);
+    txt('“', x + 880, y + 120, F(900, 150), 'rgba(10,40,90,.12)', 'center');
+    const q = 'La inteligencia de EE.UU. cree que China la habría reclutado para obtener información sobre Huang.';
+    const lines = wrap(q, 860, F(600, 32));
+    const shown = Math.floor(q.length * prog(t, tn + .1, tn + 2.6));
+    let c = 0;
+    lines.forEach((l, i) => { const part = l.slice(0, clamp(shown - c, 0, l.length)); c += l.length + 1; txt(part, x + 40, y + 148 + i * 42, F(600, 32), C.ink); });
+    presuntoTag(x + 40, y + 266, 'PRESUNTO · NO CONFIRMADO', prog(t, tn + 2.4, tn + 2.8));
+    ctx.restore();
+  }
+}
+
+// ================================================================ ESCENA 4 · 26.5–35 s (correo + línea de tiempo)
+function scene4(t) {
+  const [a, b] = SCENES.s4;
+  const ki = eOut(prog(t, a, a + .5)), ko = eIn(prog(t, b - .3, b));
+  const x = 70, y = 300, w = 940, h = 740;
+  ctx.save();
+  ctx.globalAlpha = 1 - ko;
+  const zs = .92 + .08 * ki + .035 * prog(t, a + .5, b);
+  ctx.translate(W / 2, y + h / 2); ctx.scale(zs, zs); ctx.translate(-W / 2, -(y + h / 2));
+  ctx.translate(0, (1 - ki) * 200);
+  shadow(50, '#000b', 18); rr(x, y, w, h, 22); ctx.fillStyle = C.paper; ctx.fill(); noShadow();
+  ctx.save(); rr(x, y, w, h, 22); ctx.clip();
+  ctx.fillStyle = C.navy; ctx.fillRect(x, y, w, 76);
+  ['#FF5F57', '#FEBC2E', '#28C840'].forEach((c, i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x + 40 + i * 34, y + 38, 11, 0, 7); ctx.fill(); });
+  txt('Correo interno', x + w / 2, y + 40, F(700, 28), C.white, 'center', 'middle');
+  const rows = [['De:', 'Jensen Huang, CEO'], ['Para:', 'Empleados de Nvidia'], ['Asunto:', 'Un mensaje personal'], ['Fecha:', 'Domingo']];
+  rows.forEach(([k, v], i) => {
+    const yy = y + 126 + i * 50, kr = eOut(prog(t, a + .3 + i * .12, a + .6 + i * .12));
+    withAlpha(kr, () => { txt(k, x + 40, yy, F(700, 28), C.grayD); txt(v, x + 170, yy, F(600, 28), C.ink); });
+  });
+  ctx.fillStyle = 'rgba(10,40,90,.12)'; ctx.fillRect(x + 40, y + 316, w - 80, 3);
+  txt('Fuente: citado por CNBC', x + w - 30, y + 40, F(600, 22), 'rgba(255,255,255,.75)', 'right', 'middle');
+  // texto tecleado
+  const q0 = K.s4Quote, q1 = K.s4QuoteEnd;
+  const sents = ['Le fui infiel a mi esposa.', 'No hay excusa.', 'Lo siento profundamente.'];
+  const total = sents.join('').length; const typed = Math.floor(total * prog(t, q0 - .05, q1 - .1));
+  let used = 0;
+  sents.forEach((s, i) => {
+    const yy = y + 400 + i * 84, n = clamp(typed - used, 0, s.length); used += s.length;
+    const part = s.slice(0, n);
+    ctx.font = F(700, 56); const fullW = ctx.measureText(s).width;
+    // resaltador / subrayado cuando la frase termina
+    if (n === s.length) {
+      const hk = eOut(prog(t, q0 + (q1 - q0) * (used / total) - .1, q0 + (q1 - q0) * (used / total) + .35));
+      if (i === 0 || i === 2) { ctx.fillStyle = i === 0 ? 'rgba(254,74,85,.22)' : 'rgba(255,227,110,.75)'; ctx.fillRect(x + 32, yy - 50, (fullW + 16) * hk, 70); }
+      if (i === 0) { ctx.fillStyle = C.red; ctx.fillRect(x + 36, yy + 16, fullW * hk, 7); }
+    }
+    txt(part, x + 40, yy, F(700, 56), C.ink);
+    if (n > 0 && n < s.length && Math.floor(t * 4) % 2 === 0) { ctx.font = F(700, 56); ctx.fillStyle = C.red; ctx.fillRect(x + 44 + ctx.measureText(part).width, yy - 46, 5, 56); }
+  });
+  ctx.restore();
+  // sello "investigación"
+  const ts = K.s4Inv - .15, ks = prog(t, ts, ts + .25);
+  if (ks > 0) {
+    const s = lerp(2.4, 1, eOut(ks));
+    ctx.save(); ctx.translate(x + w / 2 + 110, y + h - 110); ctx.rotate(-.1); ctx.scale(s * .85, s * .85); ctx.globalAlpha = clamp(ks * 2);
+    ctx.strokeStyle = C.red; ctx.lineWidth = 7; rr(-230, -78, 460, 156, 14); ctx.stroke();
+    ctx.lineWidth = 3; rr(-218, -66, 436, 132, 10); ctx.stroke();
+    txt('NVIDIA ABRE', 0, -24, F(700, 44, 'Oswald'), C.red, 'center', 'middle');
+    txt('INVESTIGACIÓN INDEPENDIENTE', 0, 30, F(700, 34, 'Oswald'), C.red, 'center', 'middle');
+    ctx.restore();
+  }
+  ctx.restore();
+  // línea de tiempo animada
+  const tl = K.s4Same - .3, kt = prog(t, tl, tl + 1.2);
+  if (kt > 0 && t < b) {
+    const ty = 1205, x0 = 120, x1 = 960;
+    ctx.save(); ctx.globalAlpha = (1 - ko) * clamp(kt * 3);
+    txt('LÍNEA DE TIEMPO', 60, 1110, F(800, 28), C.red);
+    ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x0, ty); ctx.lineTo(x1, ty); ctx.stroke();
+    ctx.strokeStyle = C.red; ctx.beginPath(); ctx.moveTo(x0, ty); ctx.lineTo(lerp(x0, x1, eInOut(kt)), ty); ctx.stroke();
+    const pts = [
+      { x: x0, top: 'DOMINGO', l1: 'Carta a', l2: 'empleados', at: 0 },
+      { x: (x0 + x1) / 2, top: 'DOMINGO', l1: 'Investigación', l2: 'independiente', at: .45 },
+      { x: x1, top: '18 NOV', l1: 'Congreso,', l2: 'puerta cerrada', at: .9, future: true },
+    ];
+    pts.forEach(p => {
+      const kp = eBack(prog(kt, p.at, p.at + .15));
+      if (kp <= 0) return;
+      ctx.save(); ctx.translate(p.x, ty); ctx.scale(kp, kp);
+      if (p.future) { ctx.strokeStyle = C.red; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, 26 + 8 * Math.sin(t * 6), 0, 7); ctx.stroke(); }
+      ctx.fillStyle = p.future ? C.white : C.red; ctx.beginPath(); ctx.arc(0, 0, 18, 0, 7); ctx.fill();
+      ctx.restore();
+      withAlpha(kp, () => {
+        const al = p.x === x0 ? 'left' : p.x === x1 ? 'right' : 'center', ox = p.x === x0 ? -30 : p.x === x1 ? 30 : 0;
+        txt(p.top, p.x + ox, ty - 40, F(800, 30), p.future ? C.red : C.white, al);
+        txt(p.l1, p.x + ox, ty + 62, F(600, 28), C.gray, al);
+        txt(p.l2, p.x + ox, ty + 98, F(600, 28), C.gray, al);
+      });
+    });
+    ctx.restore();
+  }
+}
+
+// ================================================================ ESCENA 5 · 35–46.5 s (pantalla dividida en 3)
+function scene5(t) {
+  const [a, b] = SCENES.s5;
+  const ko = eIn(prog(t, b - .3, b));
+  const panels = [
+    { y: 290, at: a + .05, chip: 'TRUMP', title: 'LO DEFIENDE', body: 'Dice que Huang le aseguró que no sabía que era espía.', kind: 'photo', label: '[FOTO: Donald Trump]' },
+    { y: 638, at: K.s5China - .15, chip: 'CHINA', title: 'LO NIEGA', body: 'Habla de «difamaciones».', kind: 'flag' },
+    { y: 986, at: K.s5Cong - .15, chip: 'CONGRESO DE EE.UU.', title: 'LO CITA', body: 'Reunión a puerta cerrada el 18 de noviembre.', kind: 'photo', label: '[FOTO: Capitolio]' },
+  ];
+  const activeIdx = t >= panels[2].at ? 2 : t >= panels[1].at ? 1 : 0;
+  panels.forEach((p, i) => {
+    const k = eOut(prog(t, p.at, p.at + .45));
+    // la ranura de foto aparece desde el inicio de la escena (fija, para Canva)
+    const slotA = eOut(prog(t, a, a + .35)) * (1 - ko);
+    const sx = 60, sw = 420, sh = 330;
+    if (p.kind === 'photo') photoSlot(sx, p.y, sw, sh, p.label, slotA, t);
+    else withAlpha(slotA, () => { chinaFlag(sx, p.y, sw, sh, t); ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 3; rr(sx, p.y, sw, sh, 14); ctx.stroke(); });
+    // panel de texto
+    const px = 500, pw = 520;
+    const act = i === activeIdx;
+    ctx.save(); ctx.globalAlpha = k * (1 - ko) * (act ? 1 : .45);
+    ctx.translate((1 - k) * 600, 0);
+    rr(px, p.y, pw, sh, 14); ctx.fillStyle = act ? C.navyM : 'rgba(14,49,112,.6)'; ctx.fill();
+    if (act) { ctx.strokeStyle = C.red; ctx.lineWidth = 6; rr(px, p.y, pw, sh, 14); ctx.stroke(); }
+    ctx.font = F(800, 26); const cw = ctx.measureText(p.chip).width + 32;
+    rr(px + 28, p.y + 28, cw, 46, 8); ctx.fillStyle = C.red; ctx.fill();
+    txt(p.chip, px + 44, p.y + 52, F(800, 26), C.white, 'left', 'middle');
+    txt(p.title, px + 28, p.y + 150, F(700, 72, 'Oswald'), C.white);
+    wrap(p.body, pw - 56, F(600, 32)).forEach((l, j) => txt(l, px + 28, p.y + 210 + j * 42, F(600, 32), C.gray));
+    // calendario 18 NOV
+    if (i === 2) {
+      const kc = eBack(prog(t, K.s5Date - .1, K.s5Date + .3));
+      if (kc > 0) {
+        ctx.save(); ctx.translate(px + pw - 100, p.y + 110); ctx.scale(kc, kc); ctx.rotate(.06);
+        rr(-70, -70, 140, 150, 14); ctx.fillStyle = C.white; ctx.fill();
+        ctx.save(); rr(-70, -70, 140, 150, 14); ctx.clip(); ctx.fillStyle = C.red; ctx.fillRect(-70, -70, 140, 44); ctx.restore();
+        txt('NOV', 0, -46, F(800, 26), C.white, 'center', 'middle');
+        txt('18', 0, 22, F(700, 78, 'Oswald'), C.navy, 'center', 'middle');
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  });
+  // flecha que conecta a Trump con Huang ("lo defendió") — pequeño acento
+}
+
+// ================================================================ ESCENA 6 · 46.5–53.5 s
+function scene6(t) {
+  const [a, b] = SCENES.s6, q = K.s6Q;
+  // insignia "por ahora"
+  const kb = eOut(prog(t, a + .1, a + .5)), kbo = eInOut(prog(t, q - .2, q + .3));
+  if (kb > 0) {
+    const y = lerp(700, 300, kbo), s = lerp(1, .78, kbo);
+    ctx.save(); ctx.translate(W / 2, y + 150); ctx.scale(s * (.9 + .1 * kb), s * (.9 + .1 * kb)); ctx.globalAlpha = kb * (1 - .25 * kbo) * (1 - eIn(prog(t, b - .3, b)));
+    shadow(40, '#000a', 14); rr(-460, -150, 920, 300, 24); ctx.fillStyle = C.paper; ctx.fill(); noShadow();
+    ctx.fillStyle = C.navy; ctx.beginPath(); ctx.arc(-340, 0, 70, 0, 7); ctx.fill();
+    ctx.strokeStyle = C.white; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const ck = eOut(prog(t, a + .4, a + .8));
+    ctx.beginPath(); ctx.moveTo(-372, 2); ctx.lineTo(lerp(-372, -350, clamp(ck * 2)), lerp(2, 26, clamp(ck * 2)));
+    if (ck > .5) ctx.lineTo(lerp(-350, -302, (ck - .5) * 2), lerp(26, -28, (ck - .5) * 2)); ctx.stroke();
+    txt('POR AHORA', -240, -62, F(800, 30), C.red);
+    txt('No hay pruebas de', -240, -8, F(800, 48), C.ink);
+    txt('que se filtraran', -240, 50, F(800, 48), C.ink);
+    txt('secretos.', -240, 108, F(800, 48), C.ink);
+    ctx.restore();
+  }
+  // gran pregunta palabra por palabra
+  if (t >= q - .1) {
+    const lines = [['¿PUEDE'], ['SOBREVIVIR'], ['EL', 'REY'], ['DE', 'LA', 'IA?']];
+    const flat = lines.flat(); let idx = 0;
+    const zs = 1 + .06 * prog(t, q, b);
+    const fade = 1 - eIn(prog(t, b - .3, b));
+    ctx.save(); ctx.globalAlpha = fade; ctx.translate(W / 2, 1180); ctx.scale(zs, zs); ctx.translate(-W / 2, -1180);
+    const kc = eBack(prog(t, q + .2 + 3 * .2, q + .2 + 3 * .2 + .4));
+    if (kc > 0) { ctx.save(); ctx.translate(W / 2 + 165, 880); ctx.rotate(.18); crown(0, 0, kc * .95, C.gold); ctx.restore(); }
+    lines.forEach((ln, li) => {
+      const font = F(700, 150, 'Oswald'); ctx.font = font;
+      const sp = 34, ws = ln.map(w => ctx.measureText(w).width), tw = ws.reduce((x, y) => x + y, 0) + sp * (ln.length - 1);
+      let x = W / 2 - tw / 2;
+      ln.forEach((w, wi) => {
+        const t0 = q + .15 + idx * .2, k = prog(t, t0, t0 + .22); idx++;
+        if (k > 0) {
+          const s = 1.6 - .6 * eOut(k);
+          ctx.save(); ctx.translate(x + ws[wi] / 2, 1010 + li * 158); ctx.scale(s, s); ctx.globalAlpha *= k;
+          const red = w === 'REY' || w === 'IA?';
+          ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          shadow(30, '#000c', 10); ctx.fillStyle = red ? C.red : C.white; ctx.fillText(w, 0, 0); ctx.restore();
+        }
+        x += ws[wi] + sp;
+      });
+    });
+    ctx.restore();
+  }
+}
+
+// ================================================================ ESCENA 7 · 53.5–60 s (encuesta)
+function scene7(t) {
+  const [a, b] = SCENES.s7;
+  const end = eIn(prog(t, b - .6, b - .1));
+  ctx.save(); ctx.globalAlpha = 1 - end;
+  const kh = eBack(prog(t, a + .1, a + .5));
+  ctx.save(); ctx.translate(W / 2, 430); ctx.scale(kh, kh);
+  ctx.font = F(800, 34); const cw = ctx.measureText('ENCUESTA').width + 50;
+  rr(-cw / 2, -36, cw, 72, 36); ctx.fillStyle = C.red; ctx.fill();
+  txt('ENCUESTA', 0, 2, F(800, 34), C.white, 'center', 'middle');
+  ctx.restore();
+  const kt = eOut(prog(t, a + .3, a + .8));
+  withAlpha(kt, () => {
+    txt('¿Qué debe hacer', W / 2, 580, F(800, 70), C.white, 'center');
+    txt('Jensen Huang?', W / 2, 668, F(800, 70), C.white, 'center');
+  });
+  const opts = [{ n: '1', t: 'DEBE RENUNCIAR', col: C.red }, { n: '2', t: 'DEBE SEGUIR', col: C.navyL }];
+  opts.forEach((o, i) => {
+    const t0 = a + .6 + i * .25, k = eBack(prog(t, t0, t0 + .45));
+    if (k <= 0) return;
+    const y = 760 + i * 210;
+    // "toque" alterno sobre cada opción
+    const tap = Math.max(0, Math.sin((t - a) * Math.PI * 1.2 - i * Math.PI)) ** 6;
+    const s = (.6 + .4 * k) * (1 + .03 * tap);
+    ctx.save(); ctx.translate(W / 2, y + 85); ctx.scale(s, s); ctx.globalAlpha *= clamp(k);
+    shadow(30, '#000a', 12); rr(-450, -85, 900, 170, 85); ctx.fillStyle = C.white; ctx.fill(); noShadow();
+    ctx.strokeStyle = o.col; ctx.lineWidth = 8 + 6 * tap; ctx.stroke();
+    ctx.fillStyle = o.col; ctx.beginPath(); ctx.arc(-365, 0, 62, 0, 7); ctx.fill();
+    txt(o.n, -365, 4, F(700, 84, 'Oswald'), C.white, 'center', 'middle');
+    txt(o.t, -270, 6, F(800, 58), C.navy, 'left', 'middle');
+    ctx.restore();
+  });
+  // "Comenta 1 o 2"
+  const kc = eBack(prog(t, a + 1.2, a + 1.6));
+  if (kc > 0) {
+    const pulse = 1 + .05 * Math.sin((t - a) * 6);
+    ctx.save(); ctx.translate(W / 2, 1290); ctx.scale(kc * pulse, kc * pulse);
+    // globo de comentario
+    ctx.fillStyle = C.white; rr(-360, -70, 120, 96, 26); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-330, 20); ctx.lineTo(-345, 52); ctx.lineTo(-300, 22); ctx.fill();
+    [-325, -300, -275].forEach(x => { ctx.fillStyle = C.navy; ctx.beginPath(); ctx.arc(x, -22, 8, 0, 7); ctx.fill(); });
+    txt('COMENTA 1 O 2', -210, 2, F(700, 92, 'Oswald'), C.white, 'left', 'middle');
+    ctx.restore();
+    const ay = 1410 + 14 * Math.sin((t - a) * 6);
+    withAlpha(kc, () => { ctx.fillStyle = C.red; ctx.beginPath(); ctx.moveTo(W / 2 - 34, ay); ctx.lineTo(W / 2 + 34, ay); ctx.lineTo(W / 2, ay + 40); ctx.fill(); });
+  }
+  ctx.restore();
+}
+
+// ================================================================ cuadro completo
+function draw(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+  background(t);
+  if (inS(t, 's1')) scene1(t);
+  if (inS(t, 's2')) scene2(t);
+  if (inS(t, 's3')) scene3(t);
+  if (inS(t, 's4')) scene4(t);
+  if (inS(t, 's5')) scene5(t);
+  if (inS(t, 's6')) scene6(t);
+  if (t >= SCENES.s7[0]) scene7(t);
+  vignette();
+  const hdrOut = 1 - eIn(prog(t, 59.2, 59.75));
+  withAlpha(hdrOut, () => { breakingBanner(t); brandBar(t); });
+  ticker(t);
+  captions(t);
+  wipes(t);
+  // fundido final al azul del cierre de Capital Curioso
+  const f = prog(t, 59.55, 59.95);
+  if (f > 0) { ctx.fillStyle = `rgba(10,40,90,${f})`; ctx.fillRect(0, 0, W, H); }
+}
+
+// ================================================================ efectos de sonido (los lee musica.py)
+window.SFX = (() => {
+  const s = [];
+  s.push({ t: 0.0, type: 'sting' }, { t: 0.12, type: 'impact' });
+  ['s2', 's3', 's4', 's5', 's6', 's7'].forEach(k => s.push({ t: SCENES[k][0] - .22, type: 'whoosh' }));
+  s.push({ t: K.s2Count, type: 'counter', dur: 3.0 });
+  s.push({ t: K.s3Map + .25, type: 'pop' }, { t: K.s3Map + .55, type: 'pop' }, { t: K.s3China - .15, type: 'pop' });
+  s.push({ t: K.s3NYT - .2, type: 'swoosh_up' });
+  s.push({ t: K.s4Quote, type: 'typing', dur: K.s4QuoteEnd - K.s4Quote - .1 });
+  s.push({ t: K.s4Inv - .05, type: 'stamp' });
+  s.push({ t: K.s5China - .15, type: 'swoosh_up' }, { t: K.s5Cong - .15, type: 'swoosh_up' }, { t: K.s5Date, type: 'pop' });
+  s.push({ t: K.s6Q + .15, type: 'impact' });
+  s.push({ t: SCENES.s7[0] + .6, type: 'pop' }, { t: SCENES.s7[0] + .85, type: 'pop' }, { t: SCENES.s7[0] + 1.2, type: 'impact_small' });
+  return s.sort((x, y) => x.t - y.t);
+})();
+window.SUBS = CHUNKS.map(c => ({ s: c.s, e: c.e, text: c.words.map(w => w.w).join(' ') }));
+window.SEGMENTS = NARRACION;
+
+// ================================================================ arranque
+async function loadFonts() {
+  const list = [['Poppins', 500], ['Poppins', 600], ['Poppins', 700], ['Poppins', 800], ['Poppins', 900], ['Oswald', 500], ['Oswald', 700]];
+  await Promise.all(list.map(async ([fam, wgt]) => {
+    const f = new FontFace(fam, `url(fonts/${fam.toLowerCase()}-latin-${wgt}-normal.woff2)`, { weight: String(wgt) });
+    await f.load(); document.fonts.add(f);
+  }));
+}
+window.renderFrame = t => draw(t);
+window.ready = loadFonts().then(() => { draw(0); return true; });
+
+if (!/[?&]render/.test(location.search)) {
+  document.body.classList.add('preview');
+  const play = document.getElementById('play'), scrub = document.getElementById('scrub'), tc = document.getElementById('tc');
+  let playing = false, t = 0, last = 0;
+  const tick = now => { if (playing) { t += (now - last) / 1000; if (t >= DURATION) { t = DURATION - .001; playing = false; play.textContent = '▶︎'; } scrub.value = t; } last = now; draw(t); tc.textContent = t.toFixed(1) + ' s'; requestAnimationFrame(tick); };
+  window.ready.then(() => requestAnimationFrame(n => { last = n; tick(n); }));
+  play.onclick = () => { playing = !playing; play.textContent = playing ? '❚❚' : '▶︎'; };
+  scrub.oninput = () => { t = +scrub.value; };
+}
+</script>
+</body>
+</html>
