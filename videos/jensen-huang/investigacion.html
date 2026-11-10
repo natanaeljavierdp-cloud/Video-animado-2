@@ -291,23 +291,6 @@ function captions(t) {
   });
 }
 
-// ---------------------------------------------------------------- cinta inferior
-const TICKER = 'CASO NVIDIA   ▸   CONFESIÓN: HUANG ADMITE INFIDELIDAD   ▸   ESPIONAJE: PRESUNTO, SEGÚN REPORTES   ▸   NVIDIA ABRE INVESTIGACIÓN INDEPENDIENTE   ▸   CHINA NIEGA LAS ACUSACIONES   ▸   CONGRESO: REUNIÓN A PUERTA CERRADA EL 18 DE NOVIEMBRE   ▸   ';
-function ticker(t) {
-  const t0 = SCENES.s2[0] + .2, t1 = SCENES.s7[0] - .2;
-  const k = eOut(prog(t, t0, t0 + .5)) - eIn(prog(t, t1, t1 + .4)); if (k <= 0) return;
-  const y = 1650 + (1 - k) * 120, h = 66;
-  ctx.save(); ctx.globalAlpha = clamp(k * 1.5);
-  ctx.fillStyle = 'rgba(3,10,24,.94)'; ctx.fillRect(0, y, W, h);
-  ctx.strokeStyle = 'rgba(254,74,85,.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  ctx.save(); ctx.beginPath(); ctx.rect(330, y, W - 330, h); ctx.clip();
-  ctx.font = F(700, 30, TYPE); const tw = ctx.measureText(TICKER).width, o = ((t - t0) * 140) % tw;
-  txt(TICKER + TICKER, 340 - o, y + h / 2 + 2, F(700, 30, TYPE), P.white, 'left', 'middle'); ctx.restore();
-  ctx.fillStyle = P.red; ctx.fillRect(0, y, 320, h);
-  txt('CASO EN DESARROLLO', 22, y + h / 2 + 2, F(700, 32, 'Oswald'), P.white, 'left', 'middle');
-  ctx.restore();
-}
-
 // ---------------------------------------------------------------- transición: destello + corte con glitch
 function transitions(t) {
   for (const k of ['s2', 's3', 's4', 's5', 's6', 's7']) {
@@ -708,7 +691,6 @@ function draw(t) {
   filmFx(t, frame);
   const hd = 1 - eIn(prog(t, DURATION - .8, DURATION - .25));
   withAlpha(hd, () => header(t));
-  ticker(t);
   captions(t);
   transitions(t);
   // apertura desde negro y fundido final al azul del cierre de Capital Curioso
