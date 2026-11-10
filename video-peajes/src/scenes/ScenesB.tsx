@@ -290,7 +290,7 @@ export const S10Encuesta: React.FC<P> = ({ t }) => {
         })}
       </Panel>
       <div style={{ position: "absolute", left: 0, right: 0, top: 1200, textAlign: "center", transform: `scale(${cta})` }}>
-        <div style={{ display: "inline-block", fontFamily: F.title, fontWeight: 900, fontSize: 64, color: "#fff", background: C.red, padding: "20px 40px", borderRadius: 24, boxShadow: "0 0 60px rgba(214,40,40,0.6)" }}>
+        <div style={{ display: "inline-block", fontFamily: F.title, fontWeight: 900, fontSize: 52, color: "#fff", background: C.red, padding: "20px 34px", whiteSpace: "nowrap", borderRadius: 24, boxShadow: "0 0 60px rgba(214,40,40,0.6)" }}>
           ¿Tú qué opinas? Comenta 👇
         </div>
         <div style={{ fontSize: 80, marginTop: 6, transform: `translateY(${Math.abs(Math.sin(t * 6)) * 18}px)` }}>⬇️</div>
