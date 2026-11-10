@@ -265,7 +265,7 @@ export const S10Encuesta: React.FC<P> = ({ t }) => {
   const cta = pop(t, 59.1, { damping: 9 });
   return (
     <AbsoluteFill>
-      <Backdrop src="media/fotos/peaje-6-noviembre.jpg" t={t - start} dur={end - start} dim={0.88} focusX={0.5} from={{ s: 1.05, x: 0, y: 0 }} to={{ s: 1.18, x: 0, y: -30 }} />
+      <Backdrop src="media/fotos/las-americas-km12.jpg" t={t - start} dur={end - start} dim={0.88} focusX={0.5} from={{ s: 1.05, x: 0, y: 0 }} to={{ s: 1.18, x: 0, y: -30 }} />
       <Panel style={{ left: 60, right: 60, top: 470, height: 690, opacity: card, transform: `translateY(${(1 - card) * 60}px)` }}>
         <Chip style={{ left: 50, top: 40 }} size={30}>
           Encuesta

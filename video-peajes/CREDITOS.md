@@ -8,12 +8,11 @@ Carpeta: `video-peajes/public/media/fotos/`
 |---|---|---|---|---|
 | `peaje-las-americas.jpg` | Escenas 1 y miniatura | Markocortesa2 | CC BY 4.0 | [Las Américas toll plaza at kilometer 22 of the Autopista Las Américas.jpg](https://commons.wikimedia.org/wiki/File:Las_Am%C3%A9ricas_toll_plaza_at_kilometer_22_of_the_Autopista_Las_Am%C3%A9ricas.jpg) |
 | `congreso-nacional.jpg` | Escenas 2 y 9 | Peteremueller | CC BY-SA 4.0 | [Palacio del Congreso Nacional Santo Domingo.jpg](https://commons.wikimedia.org/wiki/File:Palacio_del_Congreso_Nacional_Santo_Domingo.jpg) |
-| `las-americas-km12.jpg` | Escena 3 | Markocortesa2 | CC BY 4.0 | [Autopista Las Américas at kilometer 12, near Avenida Hipódromo.jpg](https://commons.wikimedia.org/wiki/File:Autopista_Las_Am%C3%A9ricas_at_kilometer_12%2C_near_Avenida_Hip%C3%B3dromo.jpg) |
+| `las-americas-km12.jpg` | Escenas 3 y 10 | Markocortesa2 | CC BY 4.0 | [Autopista Las Américas at kilometer 12, near Avenida Hipódromo.jpg](https://commons.wikimedia.org/wiki/File:Autopista_Las_Am%C3%A9ricas_at_kilometer_12%2C_near_Avenida_Hip%C3%B3dromo.jpg) |
 | `las-americas-la-caleta.jpg` | Escena 5 | Markocortesa2 | CC BY 4.0 | [Autopista Las Américas en La Caleta.jpg](https://commons.wikimedia.org/wiki/File:Autopista_Las_Am%C3%A9ricas_en_La_Caleta.jpg) |
 | `tarifas-las-americas.jpg` | Escena 6 | Markocortesa2 | CC BY 4.0 | [Lista de tarifas del peaje Las Américas en la Autopista Las Américas.jpg](https://commons.wikimedia.org/wiki/File:Lista_de_tarifas_del_peaje_Las_Am%C3%A9ricas_en_la_Autopista_Las_Am%C3%A9ricas.jpg) |
 | `autopista-duarte.jpg` | Escena 7 | Markocortesa2 | CC BY 4.0 | [Before the Monumental Avenue in the Autopista Duarte (DR-1) in Santo Domingo.jpg](https://commons.wikimedia.org/wiki/File:Before_the_Monumental_Avenue_in_the_Autopista_Duarte_%28DR-1%29_in_Santo_Domingo.jpg) |
 | `av-27-febrero.jpg` | Escena 8 | Ronny Medina | CC BY 4.0 | [27 de febrero, RD.jpg](https://commons.wikimedia.org/wiki/File:27_de_febrero%2C_RD.jpg) |
-| `peaje-6-noviembre.jpg` | Escena 10 | Markocortesa2 | CC BY 4.0 | [Peaje de la Autopista 6 de Noviembre.jpg](https://commons.wikimedia.org/wiki/File:Peaje_de_la_Autopista_6_de_Noviembre.jpg) |
 
 No se usaron imágenes generadas con IA. Todas las ilustraciones (carro, placa, marbete, candado, pórtico, monedas, alcancía, mazo, sello, mapa) son vectores originales dibujados en código.
 
