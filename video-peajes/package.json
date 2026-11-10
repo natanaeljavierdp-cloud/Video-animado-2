@@ -5,7 +5,7 @@
   "description": "Video vertical 'Peajes sin casetas' para Capital Curioso (Remotion)",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Peajes out/render-bruto.mp4 --codec=h264 --crf=18 --browser-executable=/opt/pw-browsers/chromium",
+    "render": "node scripts/render.mjs",
     "thumb": "remotion still src/index.ts Miniatura out/miniatura.png --browser-executable=/opt/pw-browsers/chromium"
   },
   "dependencies": {
