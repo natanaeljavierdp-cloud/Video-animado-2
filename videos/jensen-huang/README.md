@@ -1,5 +1,31 @@
 # Capital Curioso · El escándalo de Jensen Huang (Nvidia)
 
+Dos formatos con la misma narración, fotos y tiempos:
+
+| Formato | Archivo de escena | Video final |
+|---|---|---|
+| **Noticiero** (ÚLTIMA HORA) | `escena.html` | `salida/capital_curioso_jensen_huang.mp4` |
+| **Investigación** (expediente) | `investigacion.html` | `salida/investigacion/capital_curioso_jensen_huang_investigacion.mp4` |
+
+Los tiempos de la narración están en `narracion.js` y los usan los dos formatos.
+
+### Formato INVESTIGACIÓN
+
+Estética de expediente: bloque "INVESTIGACIÓN" con el capítulo escrito a máquina (1/7 · EXPEDIENTE ABIERTO … 7/7 · TU VEREDICTO),
+fichas de "SUJETO 01/02" sobre papel con clip, tablero de evidencias con polaroids e hilos rojos, recorte de prensa con resaltador,
+correo impreso con círculo de bolígrafo y sellos, cronología del caso, tres "reacciones" como expedientes, informe "ESTADO DEL CASO"
+con casillas y el "VEREDICTO" final. Todo con grano de película, viñeta, polvo en la luz y transiciones con destello y glitch.
+
+Las fotos de personas nunca están quietas: entran con zoom y desenfoque o con un barrido con estela; luego la cámara hace zoom y paneo lentos,
+con un leve balanceo de cámara en mano, gradación de color de cine y un reflejo de luz que las cruza. Detrás, una copia desenfocada
+se mueve en sentido contrario (paralaje) para dar profundidad.
+
+```bash
+FORMATO=investigacion ./montar.sh   # -> salida/investigacion/
+```
+
+---
+
 Video vertical 9:16 (1080×1920, 30 fps) de **70 s**: 66.5 s de noticia narrada por **Jaider (ElevenLabs)** + 3.5 s de tu cierre animado (lupa con "?").
 
 ## Archivos listos

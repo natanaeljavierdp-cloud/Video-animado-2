@@ -6,3 +6,12 @@ salida/stills/
 
 salida/timing.json
 salida/capital_curioso_jensen_huang_sin_voz.mp4
+salida/*/*.wav
+salida/*/_video_sin_audio.mp4
+salida/*/render.log
+salida/*/sfx.json
+salida/*/timing.json
+salida/*/stills/
+salida/*/sheet.png
+salida/*/*_sin_voz.mp4
+salida/chk.png

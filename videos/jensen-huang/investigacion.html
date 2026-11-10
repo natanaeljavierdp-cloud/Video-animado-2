@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Capital Curioso · Investigación</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html,body{margin:0;background:#030B1A;color:#fff;font-family:system-ui,sans-serif}
+  body.preview{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
+  canvas{display:block}
+  body.preview canvas{height:min(82vh,1920px);width:auto;box-shadow:0 10px 40px #0008}
+  #ctrl{display:none;gap:10px;align-items:center;width:min(92vw,520px)}
+  body.preview #ctrl{display:flex}
+  #ctrl input{flex:1}
+  #ctrl button{background:#FE4A55;color:#fff;border:0;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ctrl"><button id="play">▶︎</button><input id="scrub" type="range" min="0" max="66.5" step="0.0333" value="0"><span id="tc">0.0 s</span></div>
+<script src="fotos.js"></script>
+<script src="narracion.js"></script>
+<script>
+/* =====================================================================
+   CAPITAL CURIOSO · formato "INVESTIGACIÓN" · 1080x1920 · 30 fps
+   Misma narración y tiempos que el noticiero (narracion.js), con estética
+   de expediente: tablero de evidencias, fichas de sujeto, papel, sellos,
+   máquina de escribir, grano de película y fotos con movimiento de cámara.
+   ===================================================================== */
+const P = {
+  bg0: '#071833', bg1: '#030B1A', navy: '#0A285A', red: '#FE4A55', redD: '#C92A36', string: '#E3343F',
+  paper: '#EFE7D6', paper2: '#E4D9C2', ink: '#1C2333', inkSoft: '#5A5F6E', marker: 'rgba(255,214,64,.62)',
+  white: '#FFFFFF', gray: '#A9B8D3', gold: '#FFC83D'
+};
+const TYPE = 'Courier Prime', STAMPF = 'Special Elite';
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const F = (w, px, fam = 'Poppins') => `${w} ${px}px "${fam}"`;
+
+// ---------------------------------------------------------------- utilidades de dibujo
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function txt(s, x, y, font, color, align = 'left', base = 'alphabetic') { ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(s, x, y); }
+function wrap(s, maxW, font) { ctx.font = font; const out = []; let line = ''; for (const w of s.split(' ')) { const tst = line ? line + ' ' + w : w; if (ctx.measureText(tst).width > maxW && line) { out.push(line); line = w; } else line = tst; } if (line) out.push(line); return out; }
+function withAlpha(a, fn) { if (a <= 0) return; ctx.save(); ctx.globalAlpha *= clamp(a); fn(); ctx.restore(); }
+function shadow(blur = 30, col = '#000a', oy = 10) { ctx.shadowColor = col; ctx.shadowBlur = blur; ctx.shadowOffsetY = oy; }
+function noShadow() { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const off = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+
+// ---------------------------------------------------------------- texturas (se crean una vez)
+let GRAIN, PAPER;
+function makeTextures() {
+  const r = rng(7);
+  GRAIN = off(512, 512); const g = GRAIN.getContext('2d'), id = g.createImageData(512, 512);
+  for (let i = 0; i < id.data.length; i += 4) { const v = r() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+  g.putImageData(id, 0, 0);
+  PAPER = off(1024, 1024); const p = PAPER.getContext('2d');
+  p.fillStyle = P.paper; p.fillRect(0, 0, 1024, 1024);
+  for (let i = 0; i < 9000; i++) { p.fillStyle = `rgba(120,95,60,${r() * .05})`; p.fillRect(r() * 1024, r() * 1024, 1 + r() * 3, 1 + r() * 3); }
+  for (let i = 0; i < 40; i++) { const x = r() * 1024, y = r() * 1024, rad = 30 + r() * 140; const gr = p.createRadialGradient(x, y, 0, x, y, rad); gr.addColorStop(0, `rgba(150,110,60,${r() * .06})`); gr.addColorStop(1, 'rgba(150,110,60,0)'); p.fillStyle = gr; p.fillRect(x - rad, y - rad, rad * 2, rad * 2); }
+}
+function paper(x, y, w, h, rot = 0, opt = {}) {
+  ctx.save(); ctx.translate(x + w / 2, y + h / 2); ctx.rotate(rot); ctx.translate(-w / 2, -h / 2);
+  shadow(opt.sh ?? 36, '#000c', 14);
+  ctx.fillStyle = ctx.createPattern(PAPER, 'repeat'); ctx.fillRect(0, 0, w, h); noShadow();
+  const eg = ctx.createLinearGradient(0, 0, 0, h); eg.addColorStop(0, 'rgba(0,0,0,0)'); eg.addColorStop(1, 'rgba(90,60,20,.10)'); ctx.fillStyle = eg; ctx.fillRect(0, 0, w, h);
+  if (opt.lines) { ctx.strokeStyle = 'rgba(40,80,160,.10)'; ctx.lineWidth = 2; for (let yy = opt.lines; yy < h; yy += opt.lines) { ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(w, yy); ctx.stroke(); } }
+  if (opt.fn) opt.fn(w, h);
+  ctx.restore();
+}
+function pin(x, y, col = P.red) {
+  ctx.save(); shadow(8, '#0009', 4);
+  const g = ctx.createRadialGradient(x - 4, y - 5, 2, x, y, 15); g.addColorStop(0, '#ff9aa1'); g.addColorStop(1, col);
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fill(); ctx.restore();
+}
+function clip(x, y, rot = 0) { // clip de papel
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.strokeStyle = '#B8C0CC'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, 60); ctx.lineTo(0, -10); ctx.arc(14, -10, 14, Math.PI, 0); ctx.lineTo(28, 50); ctx.arc(18, 50, 10, 0, Math.PI); ctx.lineTo(8, 0); ctx.stroke(); ctx.restore();
+}
+const STAMPS = {};
+function stamp(key, lines, cx, cy, rot, s, a = 1, col = P.red) {
+  if (s <= 0 || a <= 0) return;
+  if (!STAMPS[key]) {
+    const fs = 64; const m = off(10, 10).getContext('2d'); m.font = `${fs}px "${STAMPF}"`;
+    const w = Math.max(...lines.map(l => m.measureText(l).width)) + 90, h = lines.length * fs * 1.08 + 60;
+    const c = off(w, h), g = c.getContext('2d');
+    g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 9; g.beginPath(); g.roundRect(6, 6, w - 12, h - 12, 12); g.stroke();
+    g.lineWidth = 3; g.beginPath(); g.roundRect(20, 20, w - 40, h - 40, 8); g.stroke();
+    g.font = `${fs}px "${STAMPF}"`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    lines.forEach((l, i) => g.fillText(l, w / 2, h / 2 + (i - (lines.length - 1) / 2) * fs * 1.08 + 4));
+    const r = rng(key.length * 97); g.globalCompositeOperation = 'destination-out';
+    for (let i = 0; i < 900; i++) { g.globalAlpha = .3 + r() * .7; g.beginPath(); g.arc(r() * w, r() * h, r() * 2.6, 0, 7); g.fill(); }
+    STAMPS[key] = c;
+  }
+  const c = STAMPS[key];
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.scale(s, s); ctx.globalAlpha *= a * .92; ctx.drawImage(c, -c.width / 2, -c.height / 2); ctx.restore();
+}
+function typed(str, k) { return str.slice(0, Math.floor(str.length * clamp(k))); }
+function cursorAt(x, y, h, t, col = P.red) { if (Math.floor(t * 4) % 2 === 0) { ctx.fillStyle = col; ctx.fillRect(x + 4, y - h * .8, 4, h); } }
+function magnifier(cx, cy, r) {
+  ctx.save(); ctx.lineCap = 'round';
+  ctx.strokeStyle = P.red; ctx.lineWidth = r * .32; ctx.beginPath(); ctx.moveTo(cx + r * .78, cy + r * .78); ctx.lineTo(cx + r * 1.45, cy + r * 1.45); ctx.stroke();
+  ctx.strokeStyle = P.white; ctx.lineWidth = r * .26; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  txt('?', cx, cy + r * .05, F(900, r * 1.25), P.red, 'center', 'middle'); ctx.restore();
+}
+
+// ---------------------------------------------------------------- FOTOS con movimiento de cámara
+const IMG = {}, BLUR = {};
+async function loadPhotos() {
+  await Promise.all(Object.entries(window.FOTOS || {}).map(([k, url]) => new Promise(res => {
+    const im = new Image(); im.onload = () => {
+      IMG[k] = im;
+      const bw = 160, bh = Math.round(160 * im.height / im.width), c = off(bw, bh), g = c.getContext('2d');
+      g.filter = 'blur(5px)'; g.drawImage(im, -10, -10, bw + 20, bh + 20); BLUR[k] = c; res();
+    }; im.onerror = res; im.src = url;
+  })));
+}
+// Dibuja la foto `key` dentro de (x,y,w,h) con: entrada (zoom/desenfoque o barrido), paneo y zoom lentos,
+// balanceo de cámara en mano, reflejo de luz y salida con empuje. o: {t0,t1,f0,f1,z0,z1,r0,r1,enter,exit,tag}
+function cine(key, x, y, w, h, t, o = {}) {
+  const img = IMG[key]; if (!img) return;
+  const t0 = o.t0 ?? 0, t1 = o.t1 ?? 999;
+  if (t < t0 - .01 || t > t1 + .01) return;
+  const ent = eOut(prog(t, t0, t0 + .75)), ex = eIn(prog(t, t1 - .4, t1));
+  const k = eInOut(prog(t, t0, t1));
+  const f0 = o.f0 || [.5, .4], f1 = o.f1 || f0;
+  let z = lerp(o.z0 ?? 1.05, o.z1 ?? 1.2, k);
+  let rot = lerp(o.r0 ?? -.012, o.r1 ?? .012, k);
+  let dx = Math.sin(t * 1.3) * 4 + Math.sin(t * 2.3 + 1) * 2.5, dy = Math.sin(t * 1.7 + 2) * 3;
+  let blur = 0, alpha = 1, whip = 0;
+  if ((o.enter || 'zoom') === 'zoom') { z *= 1 + .28 * (1 - ent); blur += 14 * (1 - ent); rot += -.04 * (1 - ent); alpha = clamp(ent * 1.6); }
+  else { whip = (1 - ent) * (o.enter === 'whipL' ? -1 : 1); blur += 5 * (1 - ent); alpha = clamp(ent * 2); }
+  if ((o.exit || 'push') === 'push') { z *= 1 + .14 * ex; blur += 10 * ex; alpha *= 1 - ex * .9; }
+  const sc = Math.max(w / img.width, h / img.height) * z, sw = w / sc, sh = h / sc;
+  const cx = clamp(lerp(f0[0], f1[0], k) * img.width, sw / 2, img.width - sw / 2);
+  const cy = clamp(lerp(f0[1], f1[1], k) * img.height, sh / 2, img.height - sh / 2);
+  ctx.save(); ctx.globalAlpha *= alpha;
+  // sombra y recorte
+  shadow(50, '#000d', 20); ctx.fillStyle = '#000'; rr(x, y, w, h, 10); ctx.fill(); noShadow();
+  rr(x, y, w, h, 10); ctx.clip();
+  ctx.translate(x + w / 2 + dx + whip * w * .55, y + h / 2 + dy); ctx.rotate(rot);
+  const draw = (ox, a) => { ctx.globalAlpha = alpha * a; ctx.drawImage(img, cx - sw / 2, cy - sh / 2, sw, sh, -w / 2 - 8 + ox, -h / 2 - 8, w + 16, h + 16); };
+  ctx.filter = `blur(${blur.toFixed(1)}px) contrast(1.08) saturate(.88)`;
+  if (Math.abs(whip) > .02) { for (let i = 4; i >= 0; i--) draw(-whip * i * 38, i === 0 ? 1 : .22); } else draw(0, 1);
+  ctx.filter = 'none'; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = alpha;
+  // gradación de color tipo cine (sombras azules, luces cálidas)
+  ctx.globalCompositeOperation = 'soft-light';
+  const cg = ctx.createLinearGradient(x, y, x + w, y + h); cg.addColorStop(0, 'rgba(40,90,190,.55)'); cg.addColorStop(1, 'rgba(255,170,90,.35)');
+  ctx.fillStyle = cg; ctx.fillRect(x, y, w, h);
+  ctx.globalCompositeOperation = 'source-over';
+  const vg = ctx.createRadialGradient(x + w / 2, y + h / 2, Math.min(w, h) * .35, x + w / 2, y + h / 2, Math.max(w, h) * .75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.5)'); ctx.fillStyle = vg; ctx.fillRect(x, y, w, h);
+  // reflejo de luz que cruza la foto al entrar
+  const ls = prog(t, t0 + .35, t0 + 1.6);
+  if (ls > 0 && ls < 1) {
+    const lx = lerp(x - w * .6, x + w * 1.4, eInOut(ls));
+    ctx.globalCompositeOperation = 'screen';
+    const lg = ctx.createLinearGradient(lx - 160, y, lx + 160, y + 80);
+    lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,240,220,.28)'); lg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = lg; ctx.fillRect(x, y, w, h); ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.restore();
+  // visor de cámara + etiqueta
+  withAlpha(alpha, () => {
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 4; ctx.lineCap = 'square';
+    const L = 40, m = 22;
+    [[x + m, y + m, 1, 1], [x + w - m, y + m, -1, 1], [x + m, y + h - m, 1, -1], [x + w - m, y + h - m, -1, -1]].forEach(([qx, qy, sx, sy]) => {
+      ctx.beginPath(); ctx.moveTo(qx + sx * L, qy); ctx.lineTo(qx, qy); ctx.lineTo(qx, qy + sy * L); ctx.stroke();
+    });
+    if (o.cross) { ctx.strokeStyle = 'rgba(254,74,85,.8)'; ctx.lineWidth = 2; const fx = x + w * o.cross[0], fy = y + h * o.cross[1], R = 60 + 6 * Math.sin(t * 4);
+      ctx.beginPath(); ctx.arc(fx, fy, R, 0, 7); ctx.stroke(); [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(fx + a * (R - 14), fy + b * (R - 14)); ctx.lineTo(fx + a * (R + 18), fy + b * (R + 18)); ctx.stroke(); }); }
+    ctx.restore();
+    if (o.tag) {
+      const kt = eOut(prog(t, t0 + .4, t0 + .9));
+      ctx.font = F(700, 26, TYPE); const tw = ctx.measureText(o.tag).width + 34;
+      ctx.save(); ctx.globalAlpha *= kt; ctx.translate((1 - kt) * -40, 0);
+      ctx.fillStyle = P.red; ctx.fillRect(x + 22, y + h - 76, tw, 46);
+      txt(o.tag, x + 39, y + h - 52, F(700, 26, TYPE), P.white, 'left', 'middle'); ctx.restore();
+    }
+    if (o.rec) {
+      const on = Math.floor(t * 1.5) % 2 === 0;
+      txt('●', x + w - 150, y + 62, F(700, 26), on ? P.red : 'rgba(254,74,85,.3)', 'left', 'middle');
+      const s = Math.max(0, t - t0); txt(`00:${String(Math.floor(s)).padStart(2, '0')}:${String(Math.floor((s % 1) * 30)).padStart(2, '0')}`, x + w - 120, y + 62, F(700, 22, TYPE), 'rgba(255,255,255,.85)', 'left', 'middle');
+    }
+  });
+}
+// Fondo de profundidad: copia desenfocada que se mueve en sentido contrario (paralaje)
+function backdrop(key, t, a, dir = 1) {
+  const b = BLUR[key]; if (!b || a <= 0) return;
+  const s = Math.max(W / b.width, H / b.height) * 1.25, w = b.width * s, h = b.height * s;
+  ctx.save(); ctx.globalAlpha = a * .38;
+  ctx.drawImage(b, (W - w) / 2 - dir * Math.sin(t * .25) * 50 - dir * t * 4 % 60, (H - h) / 2, w, h);
+  ctx.restore();
+}
+
+// ---------------------------------------------------------------- fondo, grano, viñeta, destellos
+function background(t) {
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, P.bg0); g.addColorStop(1, P.bg1);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // haz de luz de lámpara que se mueve lento
+  const lx = W * .5 + Math.sin(t * .3) * 220, ly = H * .32;
+  const lg = ctx.createRadialGradient(lx, ly, 0, lx, ly, 900); lg.addColorStop(0, 'rgba(120,160,255,.13)'); lg.addColorStop(1, 'rgba(120,160,255,0)');
+  ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
+  // polvo flotando en la luz
+  const r = rng(3);
+  for (let i = 0; i < 46; i++) { const px = (r() * W + t * (8 + r() * 14)) % W, py = (r() * H - t * (5 + r() * 10) + H * 4) % H, s = 1 + r() * 2.5;
+    ctx.fillStyle = `rgba(220,230,255,${.08 + r() * .18})`; ctx.beginPath(); ctx.arc(px, py, s, 0, 7); ctx.fill(); }
+}
+function filmFx(t, frame) {
+  // destello cálido (light leak)
+  const lk = .5 + .5 * Math.sin(t * .7);
+  const g = ctx.createRadialGradient(W + 80, H * .15 + Math.sin(t * .4) * 200, 0, W + 80, H * .15, 700);
+  g.addColorStop(0, `rgba(255,120,80,${.10 * lk})`); g.addColorStop(1, 'rgba(255,120,80,0)');
+  ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
+  // viñeta
+  const v = ctx.createRadialGradient(W / 2, H / 2, H * .28, W / 2, H / 2, H * .72); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.55)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  // grano de película (cambia cada cuadro)
+  const r = rng(frame * 131 + 7), ox = -Math.floor(r() * 512), oy = -Math.floor(r() * 512);
+  ctx.save(); ctx.globalAlpha = .07; ctx.globalCompositeOperation = 'overlay';
+  for (let yy = oy; yy < H; yy += 512) for (let xx = ox; xx < W; xx += 512) ctx.drawImage(GRAIN, xx, yy);
+  ctx.restore();
+  // rayas finas de película de vez en cuando
+  if (r() < .25) { ctx.fillStyle = `rgba(255,255,255,${.04 + r() * .05})`; ctx.fillRect(r() * W, 0, 1.5, H); }
+}
+
+// ---------------------------------------------------------------- cabecera: marca + INVESTIGACIÓN + capítulo
+const CHAP = { s1: 'EXPEDIENTE ABIERTO', s2: 'SUJETO 01', s3: 'SUJETO 02', s4: 'LA CONFESIÓN', s5: 'LAS REACCIONES', s6: 'ESTADO DEL CASO', s7: 'TU VEREDICTO' };
+function sceneAt(t) { for (const k in SCENES) if (t >= SCENES[k][0] && t < SCENES[k][1]) return k; return 's7'; }
+function header(t) {
+  const a = eOut(prog(t, 0, .5));
+  withAlpha(a, () => {
+    magnifier(78, 92, 22);
+    txt('CAPITAL', 128, 88, F(800, 30), P.white); txt('CURIOSO', 128, 120, F(800, 30), P.red);
+    txt('@capitalcuriosoo', W - 60, 106, F(600, 28), 'rgba(255,255,255,.85)', 'right');
+  });
+  // bloque INVESTIGACIÓN
+  const y = 160, h = 92, k = eBack(prog(t, .1, .55));
+  ctx.save(); ctx.translate(lerp(-600, 0, k), 0);
+  shadow(24, '#000a', 8); ctx.fillStyle = '#050E20'; ctx.fillRect(40, y, 486, h); noShadow();
+  ctx.strokeStyle = P.red; ctx.lineWidth = 4; ctx.strokeRect(42, y + 2, 482, h - 4);
+  ctx.save(); ctx.translate(92, y + h / 2 - 6); ctx.scale(.9, .9); magnifier(0, 0, 20); ctx.restore();
+  ctx.letterSpacing = '3px'; txt('INVESTIGACIÓN', 136, y + h / 2 + 3, F(700, 50, 'Oswald'), P.white, 'left', 'middle'); ctx.letterSpacing = '0px';
+  ctx.restore();
+  // tira de papel con el capítulo (se re-escribe a máquina en cada escena)
+  const kp = eOut(prog(t, .45, .9));
+  if (kp > 0) {
+    const sc = sceneAt(t), st = SCENES[sc][0], label = CHAP[sc];
+    const n = Object.keys(SCENES).indexOf(sc);
+    const kt = sc === 's1' ? prog(t, .6, 1.3) : prog(t, st + .05, st + .55);
+    const ex = 544, ew = (W - 40 - ex) * kp;
+    ctx.save(); ctx.beginPath(); ctx.rect(ex, y + 8, ew, h - 16); ctx.clip();
+    paper(ex, y + 8, W - 40 - ex, h - 16, 0, { sh: 0 });
+    const s = typed(`${n + 1}/7 · ${label}`, kt);
+    txt(s, ex + 20, y + h / 2 + 3, F(700, 30, TYPE), P.ink, 'left', 'middle');
+    if (kt < 1) { ctx.font = F(700, 30, TYPE); cursorAt(ex + 20 + ctx.measureText(s).width, y + h / 2 + 14, 30, t * 3, P.red); }
+    ctx.restore();
+  }
+}
+
+// ---------------------------------------------------------------- subtítulos palabra por palabra
+const CHUNKS = (() => {
+  const out = [];
+  WORDS.forEach((ws, si) => { let cur = []; ws.forEach((w, i) => { cur.push(w); const end = /[.,:?!»]$|\.\.\.$/.test(w.w);
+    if (cur.length >= 5 || (end && cur.length >= 2) || i === ws.length - 1) { out.push({ si, words: cur }); cur = []; } }); });
+  out.forEach(c => { c.s = c.words[0].s; });
+  out.forEach((c, i) => { const nx = out[i + 1]; c.e = (nx && nx.si === c.si) ? nx.s : c.words[c.words.length - 1].e + .25; });
+  return out;
+})();
+function captions(t) {
+  if (t >= K.s6Q - .1 || inS(t, 's7')) return;
+  const ch = CHUNKS.find(c => t >= c.s - .02 && t < c.e); if (!ch) return;
+  const font = F(800, 58), maxW = 900, cy = 1500; ctx.font = font;
+  const items = ch.words.map(w => ({ ...w, up: w.w.toUpperCase(), wd: ctx.measureText(w.w.toUpperCase()).width }));
+  const sp = 18, lines = [[]]; let lw = 0;
+  items.forEach(it => { if (lw + it.wd > maxW && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push(it); lw += it.wd + sp; });
+  const lh = 78, y0 = cy - (lines.length - 1) * lh / 2;
+  lines.forEach((ln, li) => {
+    const tw = ln.reduce((a, b) => a + b.wd, 0) + sp * (ln.length - 1); let x = W / 2 - tw / 2;
+    ln.forEach(it => {
+      const k = prog(t, it.s - .02, it.s + .14);
+      if (k > 0) {
+        const active = t >= it.s && t < it.e + .05, sc = .7 + .3 * eBack(k);
+        ctx.save(); ctx.translate(x + it.wd / 2, y0 + li * lh); ctx.scale(sc, sc); ctx.globalAlpha = k;
+        if (active) { ctx.fillStyle = P.red; rr(-it.wd / 2 - 12, -40, it.wd + 24, 78, 6); ctx.fill(); }
+        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+        if (!active) { ctx.lineWidth = 12; ctx.strokeStyle = '#020814'; ctx.strokeText(it.up, 0, 3); }
+        ctx.fillStyle = P.white; ctx.fillText(it.up, 0, 3); ctx.restore();
+      }
+      x += it.wd + sp;
+    });
+  });
+}
+
+// ---------------------------------------------------------------- cinta inferior
+const TICKER = 'CASO NVIDIA   ▸   CONFESIÓN: HUANG ADMITE INFIDELIDAD   ▸   ESPIONAJE: PRESUNTO, SEGÚN REPORTES   ▸   NVIDIA ABRE INVESTIGACIÓN INDEPENDIENTE   ▸   CHINA NIEGA LAS ACUSACIONES   ▸   CONGRESO: REUNIÓN A PUERTA CERRADA EL 18 DE NOVIEMBRE   ▸   ';
+function ticker(t) {
+  const t0 = SCENES.s2[0] + .2, t1 = SCENES.s7[0] - .2;
+  const k = eOut(prog(t, t0, t0 + .5)) - eIn(prog(t, t1, t1 + .4)); if (k <= 0) return;
+  const y = 1650 + (1 - k) * 120, h = 66;
+  ctx.save(); ctx.globalAlpha = clamp(k * 1.5);
+  ctx.fillStyle = 'rgba(3,10,24,.94)'; ctx.fillRect(0, y, W, h);
+  ctx.strokeStyle = 'rgba(254,74,85,.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  ctx.save(); ctx.beginPath(); ctx.rect(330, y, W - 330, h); ctx.clip();
+  ctx.font = F(700, 30, TYPE); const tw = ctx.measureText(TICKER).width, o = ((t - t0) * 140) % tw;
+  txt(TICKER + TICKER, 340 - o, y + h / 2 + 2, F(700, 30, TYPE), P.white, 'left', 'middle'); ctx.restore();
+  ctx.fillStyle = P.red; ctx.fillRect(0, y, 320, h);
+  txt('CASO EN DESARROLLO', 22, y + h / 2 + 2, F(700, 32, 'Oswald'), P.white, 'left', 'middle');
+  ctx.restore();
+}
+
+// ---------------------------------------------------------------- transición: destello + corte con glitch
+function transitions(t) {
+  for (const k of ['s2', 's3', 's4', 's5', 's6', 's7']) {
+    const b = SCENES[k][0], d = t - b;
+    if (d < -.12 || d > .3) continue;
+    const r = rng(Math.floor(t * 30) * 17 + 3);
+    // cortes horizontales desplazados (glitch)
+    for (let i = 0; i < 7; i++) { const sy = r() * H, sh = 20 + r() * 120, dx = (r() - .5) * 90; ctx.drawImage(cv, 0, sy, W, sh, dx, sy, W, sh); }
+    // separación de color
+    ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = .35 * (1 - Math.abs(d) / .3);
+    ctx.fillStyle = 'rgba(255,0,40,.5)'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    const fl = Math.max(0, 1 - Math.abs(d) / .12);
+    if (fl > 0) { ctx.fillStyle = `rgba(255,255,255,${fl * .85})`; ctx.fillRect(0, 0, W, H); }
+  }
+}
+
+// ---------------------------------------------------------------- piezas reutilizables
+// Ficha de sujeto (papel con clip), escrita a máquina
+function ficha(t, t0, t1, x, y, w, num, nombre, cargo) {
+  const kin = eOut(prog(t, t0, t0 + .45)), kout = eIn(prog(t, t1 - .35, t1));
+  if (kin <= 0 || kout >= 1) return;
+  const h = 150;
+  ctx.save(); ctx.translate((1 - kin) * -700 - kout * 1100, 0);
+  paper(x, y, w, h, -.008, { lines: 0, fn: (pw, ph) => {
+    ctx.fillStyle = P.red; ctx.fillRect(0, 0, 12, ph);
+    txt(`SUJETO ${num}`, 36, 40, F(700, 26, TYPE), P.red);
+    const k1 = prog(t, t0 + .25, t0 + .95), k2 = prog(t, t0 + .8, t0 + 1.6);
+    txt(typed(nombre, k1), 36, 96, F(700, 54, 'Oswald'), P.ink);
+    txt(typed(cargo, k2), 36, 134, F(700, 30, TYPE), P.inkSoft);
+  } });
+  clip(x + w - 60, y - 22, .1);
+  ctx.restore();
+}
+
+// ================================================================ ESCENAS
+const PH = [60, 290, 960, 840];   // marco principal de foto
+const JENSEN = { f0: [.5, .28], f1: [.52, .24] };
+
+// ---------- 1 · EXPEDIENTE ABIERTO (0 – 9.5 s)
+function scene1(t) {
+  const [a, b] = SCENES.s1;
+  backdrop('jensen', t, eOut(prog(t, 0, 1)), 1);
+  cine('jensen', ...PH, t, { t0: 0, t1: b, ...JENSEN, z0: 1.0, z1: 1.18, r0: -.015, r1: .01, tag: 'SUJETO 01 · JENSEN HUANG', rec: true, cross: [.5, .3] });
+  // titular escrito a máquina sobre papel
+  const th = K.s1Headline - .3, kh = eOut(prog(t, th, th + .4)), ko = eIn(prog(t, b - .35, b));
+  if (kh > 0) {
+    ctx.save(); ctx.globalAlpha = 1 - ko; ctx.translate(0, (1 - kh) * 80);
+    paper(60, 1150, 960, 260, .006, { lines: 52, fn: (w, h) => {
+      txt('ARCHIVO 001 · CASO NVIDIA', 34, 44, F(700, 24, TYPE), P.red);
+      const kt = prog(t, th + .2, th + 1.8);
+      const l1 = 'CEO DE NVIDIA ADMITE', l2 = 'UNA INFIDELIDAD';
+      const n = Math.floor((l1.length + l2.length) * kt);
+      txt(l1.slice(0, n), 34, 118, F(700, 70, 'Oswald'), P.ink);
+      txt(l2.slice(0, Math.max(0, n - l1.length)), 34, 196, F(700, 70, 'Oswald'), P.ink);
+      // trazo de rotulador rojo bajo "INFIDELIDAD"
+      const ku = eOut(prog(t, th + 1.8, th + 2.3));
+      ctx.font = F(700, 70, 'Oswald'); const uw = ctx.measureText(l2).width;
+      ctx.strokeStyle = 'rgba(227,52,63,.9)'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.beginPath();
+      for (let i = 0; i <= 30 * ku; i++) { const xx = 34 + uw * i / 30, yy = 214 + Math.sin(i * .9) * 2.5; i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); } ctx.stroke();
+    } });
+    ctx.restore();
+  }
+  // sello "SEGÚN REPORTES"
+  const ts = K.s1Sub - .1, ks = prog(t, ts, ts + .25);
+  stamp('reportes', ['PRESUNTA ESPÍA', 'SEGÚN REPORTES'], 790, 1330, -.12, lerp(1.9, .58, eOut(ks)) * (ks > 0 ? 1 : 0), clamp(ks * 3) * (1 - eIn(prog(t, b - .35, b))));
+}
+
+// ---------- 2 · SUJETO 01 (9.5 – 17.95 s)
+function fmtMoney(v) { return '+$' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function scene2(t) {
+  const [a, b] = SCENES.s2;
+  backdrop('jensen', t, 1, -1);
+  // corte a plano más cerrado, la cámara se acerca a la cara
+  cine('jensen', ...PH, t, { t0: a, t1: b, f0: [.42, .26], f1: [.56, .24], z0: 1.35, z1: 1.6, r0: .012, r1: -.01, enter: 'whipR', tag: 'JENSEN HUANG · CEO DE NVIDIA', rec: true });
+  ficha(t, a + .15, b, 60, 1150, 600, '01', 'JENSEN HUANG', 'CEO y fundador de Nvidia');
+  // contador de fortuna en tarjeta oscura
+  const c0 = K.s2Count, kin = eBack(prog(t, c0 - .3, c0 + .15)), kout = eIn(prog(t, b - .4, b - .05));
+  if (kin > 0) {
+    const x = 60, y = 1318, w = 960, h = 104;
+    ctx.save(); ctx.globalAlpha = clamp(kin) * (1 - kout); ctx.translate(kout * 1100, 0);
+    shadow(30, '#000a', 10); ctx.fillStyle = '#081B3D'; ctx.fillRect(x, y, w, h); noShadow();
+    ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+    const kc = eExpo(prog(t, c0, c0 + 3.2));
+    txt('FORTUNA ESTIMADA', x + 26, y + 34, F(700, 24, TYPE), P.red);
+    txt(fmtMoney(200e9 * kc), x + 24, y + 92, F(700, 62, 'Oswald'), P.white);
+    const kr = eOut(prog(t, K.s2Rich - .2, K.s2Rich + .3));
+    withAlpha(kr, () => { txt('UNA DE LAS PERSONAS', x + w - 26, y + 50, F(700, 24, TYPE), P.gray, 'right'); txt('MÁS RICAS DEL MUNDO', x + w - 26, y + 80, F(700, 24, TYPE), P.gray, 'right'); });
+    ctx.restore();
+  }
+  // tarjeta pequeña "NVIDIA" pegada
+  const kv = eBack(prog(t, cue('s2', 'valiosas') - .3, cue('s2', 'valiosas')));
+  if (kv > 0 && t < b - .2) {
+    ctx.save(); ctx.translate(820, 1205); ctx.rotate(.05); ctx.scale(kv, kv);
+    paper(-130, -55, 260, 110, 0, { sh: 20, fn: (w, h) => { txt('NVIDIA', w / 2, 52, F(700, 44, 'Oswald'), P.ink, 'center'); txt('TOP EMPRESAS', w / 2, 88, F(700, 22, TYPE), P.red, 'center'); } });
+    pin(0, -50); ctx.restore();
+  }
+}
+
+// ---------- 3 · SUJETO 02 + tablero de evidencias (17.95 – 30.8 s)
+function polaroid(key, cx, cy, w, h, rot, f, z, caption, k, t) {
+  if (k <= 0) return;
+  const img = IMG[key];
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot + Math.sin(t * 1.4 + cx) * .012); const s = lerp(1.5, 1, eOut(k)); ctx.scale(s, s); ctx.globalAlpha *= clamp(k * 2);
+  shadow(30, '#000c', 14); ctx.fillStyle = '#F4F1EA'; ctx.fillRect(-w / 2, -h / 2, w, h + 70); noShadow();
+  ctx.save(); ctx.beginPath(); ctx.rect(-w / 2 + 16, -h / 2 + 16, w - 32, h - 32); ctx.clip();
+  if (key === 'flag') chinaFlag(-w / 2 + 16, -h / 2 + 16, w - 32, h - 32, t);
+  else if (img) {
+    const pw = w - 32, ph = h - 32, zz = z * (1 + .06 * Math.sin(t * .5)), sc = Math.max(pw / img.width, ph / img.height) * zz, sw = pw / sc, sh = ph / sc;
+    const cx2 = clamp(f[0] * img.width, sw / 2, img.width - sw / 2), cy2 = clamp(f[1] * img.height, sh / 2, img.height - sh / 2);
+    ctx.filter = 'contrast(1.1) saturate(.8) sepia(.15)'; ctx.drawImage(img, cx2 - sw / 2, cy2 - sh / 2, sw, sh, -w / 2 + 16, -h / 2 + 16, pw, ph); ctx.filter = 'none';
+  }
+  ctx.restore();
+  txt(caption, 0, h / 2 + 38, `400 24px "${STAMPF}"`, P.ink, 'center', 'middle');
+  pin(0, -h / 2 + 4);
+  ctx.restore();
+}
+function chinaFlag(x, y, w, h, t) {
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  for (let i = 0; i < 30; i++) { const sx = x + i * w / 30, wv = Math.sin(t * 3 + i * .35) * 5; ctx.fillStyle = `hsl(355,82%,${43 + Math.sin(t * 3 + i * .35) * 5}%)`; ctx.fillRect(sx, y + wv - 8, w / 30 + 1, h + 16); }
+  const u = h / 20, ox = x + (w - h * 1.5) / 2 + 6;
+  const star = (cx, cy, r, rot) => { ctx.beginPath(); for (let i = 0; i < 10; i++) { const r2 = i % 2 ? r * .382 : r, a = rot + i * Math.PI / 5; ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); } ctx.closePath(); ctx.fill(); };
+  ctx.fillStyle = '#FFDE00'; star(ox + 5 * u, y + 5 * u, 3 * u, -Math.PI / 2);
+  [[10, 2], [12, 4], [12, 7], [10, 9]].forEach(([sx, sy]) => star(ox + sx * u, y + sy * u, u, Math.atan2(5 - sy, 5 - sx)));
+  ctx.restore();
+}
+function redString(p0, p1, sag, k, t, dashed = false) {
+  if (k <= 0) return null;
+  const c = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2 + sag + Math.sin(t * 1.2) * 4];
+  const pt = u => [(1 - u) ** 2 * p0[0] + 2 * (1 - u) * u * c[0] + u * u * p1[0], (1 - u) ** 2 * p0[1] + 2 * (1 - u) * u * c[1] + u * u * p1[1]];
+  ctx.save(); shadow(6, '#0008', 4); ctx.strokeStyle = P.string; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  if (dashed) { ctx.setLineDash([16, 12]); ctx.lineDashOffset = -t * 40; }
+  ctx.beginPath(); for (let i = 0; i <= 50 * k; i++) { const q = pt(i / 50); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); } ctx.stroke(); ctx.restore();
+  return pt(.5);
+}
+function note(p, text, k, rot = 0, bg = '#FFF3A6', col = P.ink) {
+  if (k <= 0) return;
+  ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(rot); ctx.scale(eBack(k), eBack(k));
+  ctx.font = `400 28px "${STAMPF}"`; const w = ctx.measureText(text).width + 36;
+  shadow(14, '#0009', 6); ctx.fillStyle = bg; ctx.fillRect(-w / 2, -26, w, 52); noShadow();
+  txt(text, 0, 2, `400 28px "${STAMPF}"`, col, 'center', 'middle'); ctx.restore();
+}
+function scene3(t) {
+  const [a, b] = SCENES.s3, m0 = K.s3Map;
+  // Alice: entra con barrido, la cámara va de ella a los dos
+  if (t < m0 + .1) {
+    backdrop('alice', t, 1 - eIn(prog(t, m0 - .3, m0)), 1);
+    cine('alice', ...PH, t, { t0: a, t1: m0, f0: [.24, .42], f1: [.5, .45], z0: 1.22, z1: 1.0, r0: -.01, r1: .012, enter: 'whipL', tag: 'SUJETO 02 · ALICE HUANG', rec: true, cross: [.27, .42] });
+    ficha(t, a + .15, m0, 60, 1150, 760, '02', 'ALICE HUANG', 'Ejecutiva de Megaspeed (Singapur)');
+  }
+  // tablero de evidencias
+  const km = eOut(prog(t, m0, m0 + .5));
+  if (km > 0) {
+    const [x, y, w, h] = PH;
+    ctx.save(); ctx.globalAlpha = km;
+    // cámara recorre el tablero
+    const kz = prog(t, m0, b), zs = 1.12 - .12 * eOut(prog(t, m0, m0 + .8)) + .05 * kz;
+    ctx.translate(x + w / 2 + Math.sin(t * .6) * 10 - kz * 20, y + h / 2); ctx.scale(zs, zs); ctx.rotate(-.01 + .02 * kz); ctx.translate(-(x + w / 2), -(y + h / 2));
+    shadow(40, '#000c', 16); ctx.fillStyle = '#0B1E3F'; ctx.fillRect(x - 10, y, w + 20, h); noShadow();
+    // textura de corcho oscuro
+    ctx.save(); ctx.beginPath(); ctx.rect(x - 10, y, w + 20, h); ctx.clip();
+    const r = rng(11); for (let i = 0; i < 1600; i++) { ctx.fillStyle = `rgba(${150 + r() * 60},${130 + r() * 40},${90},${r() * .07})`; ctx.fillRect(x - 10 + r() * (w + 20), y + r() * h, 2 + r() * 4, 2 + r() * 4); }
+    const lamp = ctx.createRadialGradient(x + w * .5, y + h * .45, 50, x + w * .5, y + h * .45, 700); lamp.addColorStop(0, 'rgba(255,230,180,.12)'); lamp.addColorStop(1, 'rgba(0,0,0,.35)'); ctx.fillStyle = lamp; ctx.fillRect(x - 10, y, w + 20, h);
+    ctx.restore();
+    txt('TABLERO DE EVIDENCIAS', x + 20, y + 44, F(700, 26, TYPE), 'rgba(255,255,255,.55)');
+    const J = [800, 520], A = [300, 860], CN = [290, 470];
+    const t1 = m0 + .2, t2 = m0 + .5, tc = K.s3China, ti = K.s3Info;
+    // hilos rojos (debajo de las fotos)
+    const kA = eInOut(prog(t, t2 + .3, t2 + 1.1)), mA = redString([J[0], J[1] - 120], [A[0], A[1] - 120], 80, kA, t);
+    const kC = eInOut(prog(t, tc + .2, tc + 1.0)), mC = redString([CN[0], CN[1] - 110], [A[0], A[1] - 120], 40, kC, t, true);
+    const kI = eInOut(prog(t, ti, ti + .8)), mI = redString([A[0] + 40, A[1] - 120], [J[0] - 40, J[1] - 120], 160, kI, t, true);
+    polaroid('jensen', J[0], J[1], 290, 250, .05, [.5, .25], 2.0, 'NVIDIA · EE.UU.', prog(t, t1, t1 + .35), t);
+    polaroid('alice', A[0], A[1], 300, 250, -.06, [.27, .42], 2.3, 'MEGASPEED · SINGAPUR', prog(t, t2, t2 + .35), t);
+    polaroid('flag', CN[0], CN[1], 250, 190, -.04, null, 1, 'CHINA', prog(t, tc - .15, tc + .2), t);
+    if (mA) note([mA[0] + 40, mA[1] + 10], 'LE COMPRABA CHIPS', prog(t, t2 + 1, t2 + 1.3), .04);
+    if (mC) note([mC[0] - 10, mC[1] + 30], '¿LA RECLUTÓ?', prog(t, tc + .8, tc + 1.1), -.05, P.red, P.white);
+    if (mI) note([mI[0] + 10, mI[1] + 60], '¿INFORMACIÓN?', prog(t, ti + .6, ti + .9), .03, P.red, P.white);
+    stamp('presunto', ['PRESUNTO', 'NO CONFIRMADO'], x + w - 210, y + 120, .1, lerp(1.6, .5, eOut(prog(t, tc, tc + .25))) * (t > tc ? 1 : 0), clamp(prog(t, tc, tc + .1) * 3));
+    ctx.restore();
+  }
+  // recorte de prensa: The New York Times
+  const tn = K.s3NYT, kn = eOut(prog(t, tn - .2, tn + .35)), kno = eIn(prog(t, b - .35, b));
+  if (kn > 0) {
+    ctx.save(); ctx.globalAlpha = kn * (1 - kno); ctx.translate(0, (1 - kn) * 90);
+    paper(60, 1150, 960, 270, -.012, { fn: (w, h) => {
+      txt('SEGÚN', 32, 44, F(700, 24, TYPE), P.red);
+      txt('The New York Times', 32, 92, `700 44px "DejaVu Serif", "Liberation Serif", serif`, P.ink);
+      ctx.fillStyle = 'rgba(28,35,51,.25)'; ctx.fillRect(32, 108, w - 64, 2);
+      const q = 'La inteligencia de EE.UU. cree que China la habría reclutado para obtener información sobre Huang.';
+      const lines = wrap(q, w - 70, F(700, 32, TYPE)), shown = Math.floor(q.length * prog(t, tn + .1, tn + 2.6)); let c = 0;
+      lines.forEach((l, i) => {
+        const part = l.slice(0, clamp(shown - c, 0, l.length)); c += l.length + 1;
+        if (i === 1 && shown > c) { ctx.font = F(700, 32, TYPE); const hk = eOut(prog(t, tn + 2.6, tn + 3.1)); ctx.fillStyle = P.marker; ctx.fillRect(28, 128 + i * 42 + 6, (ctx.measureText(l).width + 8) * hk, 38); }
+        txt(part, 32, 158 + i * 42, F(700, 32, TYPE), P.ink);
+      });
+    } });
+    ctx.restore();
+  }
+}
+
+// ---------- 4 · LA CONFESIÓN (30.8 – 42.25 s): documento impreso
+function scene4(t) {
+  const [a, b] = SCENES.s4;
+  const ki = eOut(prog(t, a, a + .6)), ko = eIn(prog(t, b - .3, b));
+  const x = 80, y = 300, w = 920, h = 800;
+  ctx.save(); ctx.globalAlpha = 1 - ko;
+  // la cámara recorre el papel: acercamiento lento + giro suave
+  const kz = prog(t, a, b), zs = lerp(1.25, 1, ki) + .05 * kz;
+  ctx.translate(W / 2 + Math.sin(t * .7) * 6, y + h / 2); ctx.scale(zs, zs); ctx.rotate(lerp(-.08, -.015, ki) + .02 * kz); ctx.translate(-W / 2, -(y + h / 2));
+  paper(x, y, w, h, 0, { lines: 0, fn: (pw, ph) => {
+    txt('CORREO INTERNO · NVIDIA', 44, 64, F(700, 26, TYPE), P.red);
+    txt('Fuente: citado por CNBC', pw - 44, 64, F(400, 22, TYPE), P.inkSoft, 'right');
+    ctx.fillStyle = 'rgba(28,35,51,.3)'; ctx.fillRect(44, 84, pw - 88, 2);
+    [['DE:', 'Jensen Huang, CEO'], ['PARA:', 'Empleados de Nvidia'], ['ASUNTO:', 'Un mensaje personal'], ['FECHA:', 'Domingo']].forEach(([k, v], i) => {
+      const kr = prog(t, a + .3 + i * .15, a + .7 + i * .15);
+      txt(k, 44, 136 + i * 46, F(700, 28, TYPE), P.inkSoft); txt(typed(v, kr), 210, 136 + i * 46, F(400, 28, TYPE), P.ink);
+    });
+    ctx.fillStyle = 'rgba(28,35,51,.2)'; ctx.fillRect(44, 316, pw - 88, 2);
+    const q0 = K.s4Quote, q1 = K.s4QuoteEnd, sents = ['Le fui infiel a mi esposa.', 'No hay excusa.', 'Lo siento profundamente.'];
+    const total = sents.join('').length, tk = Math.floor(total * prog(t, q0 - .05, q1 - .1)); let used = 0;
+    sents.forEach((s, i) => {
+      const yy = 410 + i * 88, n = clamp(tk - used, 0, s.length); used += s.length;
+      ctx.font = F(700, 50, TYPE); const fw = ctx.measureText(s).width;
+      const done = q0 + (q1 - q0) * (used / total);
+      if (n === s.length && i === 2) { const hk = eOut(prog(t, done - .05, done + .35)); ctx.fillStyle = P.marker; ctx.fillRect(38, yy - 46, (fw + 14) * hk, 62); }
+      txt(s.slice(0, n), 44, yy, F(700, 50, TYPE), P.ink);
+      if (n > 0 && n < s.length) cursorAt(44 + ctx.measureText(s.slice(0, n)).width, yy + 6, 50, t, P.ink);
+      // círculo de bolígrafo rojo a mano alrededor de la primera frase
+      if (n === s.length && i === 0) {
+        const ck = eOut(prog(t, done - .05, done + .7));
+        ctx.save(); ctx.strokeStyle = 'rgba(214,40,52,.9)'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.beginPath();
+        const cx = 44 + fw / 2, cy = yy - 16, rx = fw / 2 + 34, ry = 52;
+        for (let j = 0; j <= 80 * ck; j++) { const an = -2.4 + j / 80 * Math.PI * 2.15, wob = 1 + .03 * Math.sin(j * .7); const px = cx + Math.cos(an) * rx * wob, py = cy + Math.sin(an) * ry * wob; j ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+        ctx.stroke(); ctx.restore();
+      }
+    });
+  } });
+  clip(x + 120, y - 26, -.05);
+  // sello de investigación
+  const ts = K.s4Inv - .15, ks = prog(t, ts, ts + .25);
+  stamp('inv', ['NVIDIA ABRE', 'INVESTIGACIÓN', 'INDEPENDIENTE'], x + w - 230, y + h - 130, -.14, lerp(2.0, .62, eOut(ks)) * (ks > 0 ? 1 : 0), clamp(ks * 3));
+  ctx.restore();
+  // cronología del caso
+  const tl = K.s4Same - .3, kt = prog(t, tl, tl + 1.2);
+  if (kt > 0) {
+    const ty = 1290, x0 = 130, x1 = 950;
+    ctx.save(); ctx.globalAlpha = (1 - ko) * clamp(kt * 3);
+    txt('CRONOLOGÍA DEL CASO', 60, 1170, F(700, 28, TYPE), P.red);
+    ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 4; ctx.setLineDash([10, 10]); ctx.beginPath(); ctx.moveTo(x0, ty); ctx.lineTo(x1, ty); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = P.string; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x0, ty); ctx.lineTo(lerp(x0, x1, eInOut(kt)), ty); ctx.stroke();
+    [{ x: x0, top: 'DOMINGO', l: 'Carta a empleados', at: 0 }, { x: (x0 + x1) / 2, top: 'DOMINGO', l: 'Investigación interna', at: .45 }, { x: x1, top: '18 NOV', l: 'Congreso (a puerta cerrada)', at: .9, fut: true }].forEach(p => {
+      const kp = eBack(prog(kt, p.at, p.at + .15)); if (kp <= 0) return;
+      ctx.save(); ctx.translate(p.x, ty); ctx.scale(kp, kp); pin(0, 0, p.fut ? '#FFD34A' : P.red); ctx.restore();
+      withAlpha(kp, () => {
+        const al = p.x === x0 ? 'left' : p.x === x1 ? 'right' : 'center', ox = p.x === x0 ? -40 : p.x === x1 ? 40 : 0;
+        txt(p.top, p.x + ox, ty - 34, F(700, 28, TYPE), p.fut ? '#FFD34A' : P.white, al);
+        wrap(p.l, 280, F(400, 24, TYPE)).forEach((ln, i) => txt(ln, p.x + ox, ty + 56 + i * 30, F(400, 24, TYPE), P.gray, al));
+      });
+    });
+    ctx.restore();
+  }
+}
+
+// ---------- 5 · LAS REACCIONES (42.25 – 53.8 s): tres expedientes
+function scene5(t) {
+  const [a, b] = SCENES.s5, ko = eIn(prog(t, b - .3, b));
+  const rows = [
+    { y: 290, at: a + .05, chip: 'TRUMP', title: 'LO DEFIENDE', body: 'Dice que Huang le aseguró que no sabía que era espía.', key: 'trump', f0: [.5, .36], f1: [.5, .42], dir: 'whipL' },
+    { y: 638, at: K.s5China - .15, chip: 'CHINA', title: 'LO NIEGA', body: 'Habla de «difamaciones».', key: 'flag' },
+    { y: 986, at: K.s5Cong - .15, chip: 'CONGRESO DE EE.UU.', title: 'LO CITA', body: 'Reunión a puerta cerrada el 18 de noviembre.', key: 'capitolio', f0: [.42, .5], f1: [.58, .55], dir: 'whipR' },
+  ];
+  const act = t >= rows[2].at ? 2 : t >= rows[1].at ? 1 : 0;
+  rows.forEach((r, i) => {
+    const k = eOut(prog(t, r.at, r.at + .5)); if (k <= 0) return;
+    const sx = 60, sw = 440, sh = 330;
+    ctx.save(); ctx.globalAlpha = 1 - ko;
+    if (r.key === 'flag') withAlpha(clamp(k * 2), () => { ctx.save(); shadow(30, '#000c', 12); ctx.fillStyle = '#000'; ctx.fillRect(sx, r.y, sw, sh); noShadow(); ctx.restore(); chinaFlag(sx, r.y, sw, sh, t); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 3; ctx.strokeRect(sx, r.y, sw, sh); });
+    else cine(r.key, sx, r.y, sw, sh, t, { t0: r.at, t1: b + .5, f0: r.f0, f1: r.f1, z0: 1.05, z1: 1.3, enter: r.dir, exit: 'none' });
+    // nota del expediente
+    const px = 520, pw = 500, on = i === act;
+    ctx.translate((1 - k) * 600, 0); ctx.globalAlpha *= on ? 1 : .55;
+    paper(px, r.y, pw, sh, i % 2 ? .01 : -.01, { sh: 24, fn: (w, h) => {
+      ctx.fillStyle = P.red; ctx.fillRect(0, 0, w, 10);
+      txt(`REACCIÓN ${i + 1}`, 26, 54, F(700, 22, TYPE), P.inkSoft);
+      txt(r.chip, 26, 92, F(700, 30, TYPE), P.red);
+      txt(r.title, 26, 168, F(700, 72, 'Oswald'), P.ink);
+      wrap(r.body, w - 60, F(700, 28, TYPE)).forEach((l, j) => txt(typed(l, prog(t, r.at + .3 + j * .4, r.at + .9 + j * .4)), 26, 220 + j * 36, F(700, 28, TYPE), P.inkSoft));
+      if (i === 2) {
+        const kc = eBack(prog(t, K.s5Date - .1, K.s5Date + .3));
+        if (kc > 0) { ctx.save(); ctx.translate(w - 90, 96); ctx.scale(kc, kc); ctx.rotate(.08);
+          shadow(14, '#0008', 6); ctx.fillStyle = '#fff'; ctx.fillRect(-64, -64, 128, 136); noShadow();
+          ctx.fillStyle = P.red; ctx.fillRect(-64, -64, 128, 40); txt('NOV', 0, -43, F(800, 24), '#fff', 'center', 'middle'); txt('18', 0, 22, F(700, 72, 'Oswald'), P.navy, 'center', 'middle'); ctx.restore(); }
+      }
+    } });
+    if (on) { ctx.strokeStyle = P.red; ctx.lineWidth = 5; ctx.strokeRect(px - 6, r.y - 6, pw + 12, sh + 12); }
+    ctx.restore();
+  });
+}
+
+// ---------- 6 · ESTADO DEL CASO (53.8 – 61.1 s)
+function scene6(t) {
+  const [a, b] = SCENES.s6, q = K.s6Q;
+  const kq = eInOut(prog(t, q - .3, q + .4));
+  // informe de estado
+  const ki = eOut(prog(t, a + .05, a + .5));
+  if (ki > 0 && kq < 1) {
+    ctx.save(); ctx.globalAlpha = 1 - kq; ctx.translate(0, (1 - ki) * 120 - kq * 200);
+    paper(80, 360, 920, 640, -.01, { lines: 0, fn: (w, h) => {
+      txt('INFORME · ESTADO DEL CASO', 40, 64, F(700, 28, TYPE), P.red);
+      ctx.fillStyle = 'rgba(28,35,51,.3)'; ctx.fillRect(40, 86, w - 80, 2);
+      const items = [['Infidelidad', 'ADMITIDA POR HUANG', P.ink, a + .3], ['Espionaje', 'PRESUNTO · SEGÚN REPORTES', P.red, a + .9], ['Filtración de secretos', 'SIN PRUEBAS (POR AHORA)', '#1E7A46', cue('s6', 'pruebas') - .2]];
+      items.forEach(([lab, st, col, at], i) => {
+        const kk = prog(t, at, at + .6), yy = 190 + i * 150; if (kk <= 0) return;
+        ctx.strokeStyle = P.ink; ctx.lineWidth = 4; ctx.strokeRect(40, yy - 40, 52, 52);
+        const ck = eOut(prog(t, at + .3, at + .6));
+        if (ck > 0) { ctx.strokeStyle = col; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(50, yy - 14); ctx.lineTo(50 + 14 * clamp(ck * 2), yy - 14 + 16 * clamp(ck * 2)); if (ck > .5) ctx.lineTo(64 + 30 * (ck - .5) * 2, yy + 2 - 46 * (ck - .5) * 2); ctx.stroke(); }
+        txt(typed(lab, kk), 120, yy - 6, F(700, 40, TYPE), P.ink);
+        txt(typed(st, prog(t, at + .3, at + .9)), 120, yy + 40, F(700, 30, TYPE), col);
+      });
+    } });
+    stamp('abierto', ['CASO', 'ABIERTO'], 790, 900, -.16, lerp(2, .7, eOut(prog(t, cue('s6', 'secretos.') - .1, cue('s6', 'secretos.') + .15))) * (t > cue('s6', 'secretos.') - .1 ? 1 : 0), 1);
+    ctx.restore();
+  }
+  // gran pregunta sobre Jensen en penumbra
+  if (t >= q - .3) {
+    const kb = eOut(prog(t, q - .3, q + .6));
+    ctx.save(); ctx.globalAlpha = kb;
+    cine('jensen', 0, 260, W, 1180, t, { t0: q - .3, t1: b + .5, f0: [.5, .3], f1: [.5, .26], z0: 1.05, z1: 1.2, exit: 'none' });
+    const dk = ctx.createLinearGradient(0, 260, 0, 1440); dk.addColorStop(0, 'rgba(3,11,26,.55)'); dk.addColorStop(.5, 'rgba(3,11,26,.65)'); dk.addColorStop(1, 'rgba(3,11,26,.95)');
+    ctx.fillStyle = dk; ctx.fillRect(0, 260, W, 1180);
+    ctx.restore();
+    const lines = [['¿PUEDE'], ['SOBREVIVIR'], ['EL', 'REY'], ['DE', 'LA', 'IA?']]; let idx = 0;
+    const zs = 1 + .06 * prog(t, q, b), fade = 1 - eIn(prog(t, b - .3, b));
+    ctx.save(); ctx.globalAlpha = fade; ctx.translate(W / 2, 1000); ctx.scale(zs, zs); ctx.translate(-W / 2, -1000);
+    lines.forEach((ln, li) => {
+      const font = F(700, 150, 'Oswald'); ctx.font = font;
+      const sp = 34, ws = ln.map(w => ctx.measureText(w).width), tw = ws.reduce((x, y) => x + y, 0) + sp * (ln.length - 1); let x = W / 2 - tw / 2;
+      ln.forEach((w, wi) => {
+        const t0 = q + .15 + idx * .2, k = prog(t, t0, t0 + .22); idx++;
+        if (k > 0) { const s = 1.6 - .6 * eOut(k); ctx.save(); ctx.translate(x + ws[wi] / 2, 760 + li * 158); ctx.scale(s, s); ctx.globalAlpha *= k;
+          ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; shadow(30, '#000', 10); ctx.fillStyle = (w === 'REY' || w === 'IA?') ? P.red : P.white; ctx.fillText(w, 0, 0); ctx.restore(); }
+        x += ws[wi] + sp;
+      });
+    });
+    ctx.restore();
+  }
+}
+
+// ---------- 7 · TU VEREDICTO (61.1 – 66.5 s)
+function scene7(t) {
+  const [a, b] = SCENES.s7, end = eIn(prog(t, b - .6, b - .1));
+  ctx.save(); ctx.globalAlpha = 1 - end;
+  const kh = eOut(prog(t, a + .1, a + .5));
+  paper(110, 380, 860, 300, -.012, { sh: 30, fn: (w, h) => {
+    txt('EXPEDIENTE 001 · CASO NVIDIA', w / 2, 60, F(700, 26, TYPE), P.red, 'center');
+    txt(typed('¿Qué debe hacer', prog(t, a + .2, a + .7)), w / 2, 150, F(800, 64), P.ink, 'center');
+    txt(typed('Jensen Huang?', prog(t, a + .6, a + 1.1)), w / 2, 232, F(800, 64), P.ink, 'center');
+  } });
+  ctx.restore();
+  ctx.save(); ctx.globalAlpha = (1 - end) * kh;
+  stamp('veredicto', ['TU VEREDICTO'], W / 2, 360, -.05, lerp(1.8, .62, eOut(prog(t, a + .1, a + .4))), 1);
+  const opts = [{ n: '1', t: 'DEBE RENUNCIAR', col: P.red }, { n: '2', t: 'DEBE SEGUIR', col: '#2C5BA8' }];
+  opts.forEach((o, i) => {
+    const t0 = a + .7 + i * .25, k = eBack(prog(t, t0, t0 + .45)); if (k <= 0) return;
+    const y = 760 + i * 200, tap = Math.max(0, Math.sin((t - a) * Math.PI * 1.2 - i * Math.PI)) ** 6, s = (.6 + .4 * k) * (1 + .03 * tap);
+    ctx.save(); ctx.translate(W / 2, y + 80); ctx.scale(s, s); ctx.rotate(i ? .01 : -.01);
+    paper(-440, -80, 880, 160, 0, { sh: 24, fn: (w, h) => {
+      ctx.fillStyle = o.col; ctx.fillRect(0, 0, 150, h);
+      txt(o.n, 75, 88, F(700, 100, 'Oswald'), '#fff', 'center', 'middle');
+      txt(o.t, 190, 92, F(700, 62, 'Oswald'), P.ink, 'left', 'middle');
+    } });
+    ctx.strokeStyle = o.col; ctx.lineWidth = 4 + 6 * tap; ctx.strokeRect(-440, -80, 880, 160);
+    ctx.restore();
+  });
+  const kc = eBack(prog(t, a + 1.2, a + 1.6));
+  if (kc > 0) {
+    const pulse = 1 + .05 * Math.sin((t - a) * 6);
+    ctx.save(); ctx.translate(W / 2, 1260); ctx.scale(kc * pulse, kc * pulse);
+    ctx.fillStyle = '#fff'; rr(-360, -70, 120, 96, 26); ctx.fill(); ctx.beginPath(); ctx.moveTo(-330, 20); ctx.lineTo(-345, 52); ctx.lineTo(-300, 22); ctx.fill();
+    [-325, -300, -275].forEach(x => { ctx.fillStyle = P.navy; ctx.beginPath(); ctx.arc(x, -22, 8, 0, 7); ctx.fill(); });
+    txt('COMENTA 1 O 2', -210, 2, F(700, 92, 'Oswald'), '#fff', 'left', 'middle'); ctx.restore();
+    const ay = 1380 + 14 * Math.sin((t - a) * 6); ctx.fillStyle = P.red; ctx.beginPath(); ctx.moveTo(W / 2 - 34, ay); ctx.lineTo(W / 2 + 34, ay); ctx.lineTo(W / 2, ay + 40); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ================================================================ cuadro completo
+function draw(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none'; ctx.globalCompositeOperation = 'source-over';
+  const frame = Math.round(t * FPS);
+  background(t);
+  if (inS(t, 's1')) scene1(t);
+  if (inS(t, 's2')) scene2(t);
+  if (inS(t, 's3')) scene3(t);
+  if (inS(t, 's4')) scene4(t);
+  if (inS(t, 's5')) scene5(t);
+  if (inS(t, 's6')) scene6(t);
+  if (t >= SCENES.s7[0]) scene7(t);
+  filmFx(t, frame);
+  const hd = 1 - eIn(prog(t, DURATION - .8, DURATION - .25));
+  withAlpha(hd, () => header(t));
+  ticker(t);
+  captions(t);
+  transitions(t);
+  // apertura desde negro y fundido final al azul del cierre de Capital Curioso
+  const o = 1 - prog(t, 0, .45); if (o > 0) { ctx.fillStyle = `rgba(0,0,0,${o})`; ctx.fillRect(0, 0, W, H); }
+  const f = prog(t, DURATION - .45, DURATION - .05); if (f > 0) { ctx.fillStyle = `rgba(10,40,90,${f})`; ctx.fillRect(0, 0, W, H); }
+}
+
+// ================================================================ efectos de sonido (los lee musica.py)
+window.SFX = (() => {
+  const s = [{ t: 0.0, type: 'sting' }, { t: 0.1, type: 'impact' }];
+  ['s2', 's3', 's4', 's5', 's6', 's7'].forEach(k => s.push({ t: SCENES[k][0] - .2, type: 'whoosh' }));
+  s.push({ t: K.s1Headline - .1, type: 'typing', dur: 1.6 }, { t: K.s1Sub - .05, type: 'stamp' });
+  s.push({ t: SCENES.s2[0] + .4, type: 'typing', dur: 1.2 }, { t: K.s2Count, type: 'counter', dur: 3.0 }, { t: cue('s2', 'valiosas') - .1, type: 'pop' });
+  s.push({ t: SCENES.s3[0] + .4, type: 'typing', dur: 1.2 });
+  s.push({ t: K.s3Map + .2, type: 'pop' }, { t: K.s3Map + .5, type: 'pop' }, { t: K.s3China - .15, type: 'pop' }, { t: K.s3China, type: 'stamp' });
+  s.push({ t: K.s3NYT - .2, type: 'swoosh_up' }, { t: K.s3NYT + .1, type: 'typing', dur: 2.4 });
+  s.push({ t: SCENES.s4[0] + .3, type: 'typing', dur: .9 }, { t: K.s4Quote, type: 'typing', dur: K.s4QuoteEnd - K.s4Quote - .1 }, { t: K.s4Inv - .05, type: 'stamp' });
+  s.push({ t: K.s5China - .15, type: 'swoosh_up' }, { t: K.s5Cong - .15, type: 'swoosh_up' }, { t: K.s5Date, type: 'pop' });
+  s.push({ t: SCENES.s6[0] + .3, type: 'typing', dur: 1.2 }, { t: cue('s6', 'secretos.') - .05, type: 'stamp' }, { t: K.s6Q + .15, type: 'impact' });
+  s.push({ t: SCENES.s7[0] + .1, type: 'stamp' }, { t: SCENES.s7[0] + .7, type: 'pop' }, { t: SCENES.s7[0] + .95, type: 'pop' }, { t: SCENES.s7[0] + 1.2, type: 'impact_small' });
+  return s.sort((x, y) => x.t - y.t);
+})();
+window.SUBS = CHUNKS.map(c => ({ s: c.s, e: c.e, text: c.words.map(w => w.w).join(' ') }));
+window.TIMING = { scenes: SCENES, duration: DURATION, question: K.s6Q };
+
+// ================================================================ arranque
+async function loadFonts() {
+  const list = [['Poppins', 600, 'poppins'], ['Poppins', 700, 'poppins'], ['Poppins', 800, 'poppins'], ['Poppins', 900, 'poppins'], ['Oswald', 700, 'oswald'],
+    ['Courier Prime', 400, 'courier-prime'], ['Courier Prime', 700, 'courier-prime'], ['Special Elite', 400, 'special-elite']];
+  await Promise.all(list.map(async ([fam, wgt, file]) => { const f = new FontFace(fam, `url(fonts/${file}-latin-${wgt}-normal.woff2)`, { weight: String(wgt) }); await f.load(); document.fonts.add(f); }));
+}
+window.renderFrame = t => draw(t);
+window.ready = Promise.all([loadFonts(), loadPhotos()]).then(() => { makeTextures(); draw(0); return true; });
+
+if (!/[?&]render/.test(location.search)) {
+  document.body.classList.add('preview');
+  const play = document.getElementById('play'), scrub = document.getElementById('scrub'), tc = document.getElementById('tc');
+  let playing = false, t = 0, last = 0;
+  const tick = now => { if (playing) { t += (now - last) / 1000; if (t >= DURATION) { t = DURATION - .001; playing = false; play.textContent = '▶︎'; } scrub.value = t; } last = now; draw(t); tc.textContent = t.toFixed(1) + ' s'; requestAnimationFrame(tick); };
+  window.ready.then(() => requestAnimationFrame(n => { last = n; tick(n); }));
+  play.onclick = () => { playing = !playing; play.textContent = playing ? '❚❚' : '▶︎'; };
+  scrub.oninput = () => { t = +scrub.value; };
+}
+</script>
+</body>
+</html>

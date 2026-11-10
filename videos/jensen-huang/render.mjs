@@ -2,6 +2,7 @@
 // Uso:
 //   node render.mjs                      -> salida/_video_sin_audio.mp4 + salida/sfx.json + salida/subtitulos.srt
 //   node render.mjs --stills 2,10,20     -> salida/stills/t_XX.png (para revisar cuadros sueltos)
+//   --escena investigacion.html --out salida/investigacion   -> otro formato, otra carpeta
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -13,17 +14,18 @@ let playwright;
 try { playwright = require('playwright'); } catch { playwright = require('/opt/node-tools/node_modules/playwright'); }
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const out = path.join(here, 'salida');
-mkdirSync(out, { recursive: true });
 const FPS = 30;
-
 const args = process.argv.slice(2);
+const opt = (k, d) => args.includes(k) ? args[args.indexOf(k) + 1] : d;
+const escena = opt('--escena', 'escena.html');
+const out = path.resolve(here, opt('--out', 'salida'));
+mkdirSync(out, { recursive: true });
 const stillsArg = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
 
 const browser = await playwright.chromium.launch({ args: ['--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
 page.on('console', m => { if (m.type() === 'warning' || m.type() === 'error') console.log('[page]', m.text()); });
-await page.goto(pathToFileURL(path.join(here, 'escena.html')).href + '?render');
+await page.goto(pathToFileURL(path.join(here, escena)).href + '?render');
 await page.evaluate(() => window.ready);
 
 const grab = (t, type) => page.evaluate(([t, type]) => {
