@@ -35,3 +35,12 @@ y tener `ffmpeg` instalado. El master sale con CRF 17 (~31 MB); la versión web 
 se recodificó con `ffmpeg -i master.mp4 -c:v libx264 -crf 23 -movflags +faststart web.mp4`.
 
 Textos, tiempos y colores están en `main.js` (`updateType`, `camKeys`, `morphs`).
+
+## Audio
+
+- `output/audio/voz-jaider.mp3`: narración (voz «Jaider – Narration Spanish», ElevenLabs).
+- `audio/score.py`: banda sonora dramática original, sintetizada (drones, cuerdas, braams,
+  tambores, risers y campanas en los cortes del video). `python3 audio/score.py output/audio/musica.wav`
+  (requiere `numpy` y `scipy`).
+- `audio/mix.sh`: coloca cada frase de la voz en su escena, baja la música bajo la voz
+  (sidechain), normaliza a −14 LUFS y une todo al video → `output/sandoval-legal-motion-con-audio.mp4`.
