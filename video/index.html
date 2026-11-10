@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sandoval Legal — Motion 15 s</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="gl"></canvas>
+
+  <!-- Transiciones de formas 2D -->
+  <svg id="shapes" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+    <defs>
+      <mask id="holeMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080">
+        <rect width="1920" height="1080" fill="#fff"/>
+        <path id="hole" fill="#000"/>
+      </mask>
+    </defs>
+    <!-- 1→2: rombo que cubre y luego se abre -->
+    <path id="diamondFill" fill="#071629" mask="url(#holeMask)"/>
+    <path id="diamondLine" fill="none" stroke="#c9a45c" stroke-width="2"/>
+    <path id="diamondLine2" fill="none" stroke="#dcc08a" stroke-width="1" opacity=".6"/>
+    <!-- 2→3: barras redondeadas -->
+    <g id="pills"></g>
+    <!-- 4→5: círculo que se transforma en rombo -->
+    <path id="morph" fill="none" stroke="#dcc08a" stroke-width="2.2"/>
+  </svg>
+
+  <!-- Tipografía cinética -->
+  <div id="type">
+    <div id="t1" class="line t1"></div>
+
+    <div id="t2" class="t2">
+      <div class="mask"><div id="t2a" class="t2a">TIENE UNA</div></div>
+      <div id="t2b" class="t2b"></div>
+    </div>
+
+    <div id="t3" class="t3">
+      <div id="t3count" class="t3count"></div>
+      <div id="t3words"></div>
+      <div id="t3rule" class="rule"></div>
+    </div>
+
+    <div id="t4" class="t4">
+      <div id="t4a" class="t4l"></div>
+      <div id="t4b" class="t4l"></div>
+    </div>
+
+    <div id="logoS" class="logoS">S</div>
+    <div id="t5" class="t5">
+      <div id="t5name" class="t5name"></div>
+      <div class="t5sub">
+        <span id="t5l" class="t5line"></span>
+        <span id="t5tag" class="t5tag">SOLUCIÓN JURÍDICA</span>
+        <span id="t5r" class="t5line"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="vignette"></div>
+  <canvas id="grain" width="480" height="270"></canvas>
+  <div id="barTop" class="bar"></div>
+  <div id="barBot" class="bar"></div>
+  <div id="fade"></div>
+</div>
+
+<div id="ui">
+  <button id="play" type="button">❚❚</button>
+  <input id="scrub" type="range" min="0" max="15" step="0.001" value="0">
+  <span id="clock">0.00 s</span>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
