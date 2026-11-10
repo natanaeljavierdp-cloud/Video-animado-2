@@ -1,8 +1,8 @@
 """Genera música de fondo de suspenso + efectos de sonido (100 % sintetizados, sin derechos de autor).
 
-Uso:  python3 musica.py salida/sfx.json salida/
+Uso:  python3 musica.py salida/sfx.json salida/ [salida/timing.json]
 Salida: salida/musica.wav (solo música), salida/efectos.wav (solo efectos), salida/musica_y_efectos.wav (mezcla)
-Duración: 63.5 s (60 s de noticia + 3.5 s del cierre de Capital Curioso).
+Duración: la de la noticia (timing.json) + 3.5 s del cierre de Capital Curioso.
 """
 import json
 import sys
@@ -12,7 +12,12 @@ import numpy as np
 from scipy.signal import butter, sosfilt, fftconvolve
 
 SR = 44100
-DUR = 63.5
+_tp = sys.argv[3] if len(sys.argv) > 3 else sys.argv[1].replace('sfx.json', 'timing.json')
+TIMING = json.load(open(_tp))
+SC = {k: v[0] for k, v in TIMING['scenes'].items()}
+END = TIMING['duration']
+Q = TIMING['question']
+DUR = END + 3.5
 N = int(SR * DUR)
 BPM = 100
 BEAT = 60 / BPM
@@ -76,12 +81,11 @@ def midi(m):
 
 # ------------------------------------------------------------------ MÚSICA DE SUSPENSO
 music = np.zeros(N)
-END = 60.0  # la noticia termina aquí; después entra el cierre de marca
 TT = t_axis(END)
-SCENE_CUTS = [8.0, 15.5, 26.5, 35.0, 46.5, 53.5]
+SCENE_CUTS = [SC[k] for k in ('s2', 's3', 's4', 's5', 's6', 's7')]
 
 # intensidad general: crece a lo largo de la historia
-inten = np.interp(TT, [0, 8, 26.5, 35, 46.5, 49.5, 53.5, 60], [.75, .8, .9, 1, 1, .55, .85, .85])
+inten = np.interp(TT, [0, SC['s2'], SC['s4'], SC['s5'], SC['s6'], Q, SC['s7'], END], [.75, .8, .9, 1, 1, .55, .85, .85])
 
 # 1) dron grave disonante (Re + Mi bemol, segunda menor) con respiración lenta
 dr = (np.sin(2 * np.pi * midi(26) * TT) * .9 + np.sin(2 * np.pi * midi(38) * TT) * .5
@@ -91,7 +95,7 @@ add(music, dr * .30 * np.minimum(1, TT / 1.5) * inten, 0)
 
 # 2) cuerdas agudas en trémolo (racimo Re–Mi bemol–La), entran y salen en olas
 for i, (n0, n1) in enumerate([(74, 75), (81, 80), (74, 77), (86, 87)]):
-    st = 3.0 + i * 13.5
+    st = 3.0 + i * (END - 6) / 4
     d = min(16.0, END - st)
     if d <= 0:
         continue
@@ -128,7 +132,7 @@ motif = [62, 65, 69, 70, 69, 65, 62, 61]
 t = 4.0
 k = 0
 while t < END - 1:
-    if not (49.0 < t < 53.0):
+    if not (Q - .8 < t < SC['s7']):
         n = motif[k % len(motif)] + (12 if (k // 8) % 2 else 0)
         d = 2.2
         tt = t_axis(d)
@@ -140,9 +144,9 @@ while t < END - 1:
     k += 1
 
 # 6) bajo ostinato sordo (entra cuando la historia se complica)
-t = 15.5
+t = SC['s3']
 k = 0
-while t < 49.0:
+while t < Q - .6:
     n = [26, 26, 27, 26][k % 4]
     d = .45
     s = lp(saw(midi(n + 12), d, .003), 260)
@@ -162,15 +166,15 @@ music = reverb(music, 3.0, 0.32)
 
 # silencio tenso antes de la gran pregunta y caída al final
 tt = np.arange(N) / SR
-music *= np.interp(tt, [0, 49.3, 49.8, 50.0, 53.5, 59.4, 60.0, DUR], [1, 1, .35, .5, 1, 1, 0, 0])
+music *= np.interp(tt, [0, Q - .7, Q - .2, Q, SC['s7'], END - .6, END, DUR], [1, 1, .35, .5, 1, 1, 0, 0])
 
 # cola del cierre: acorde final que sostiene el logo
-d = DUR - 59.9
+d = DUR - (END - .1)
 fin = sum(np.sin(2 * np.pi * midi(n) * t_axis(d)) for n in (50, 57, 62, 65)) / 4
 fin = lp(fin + 0.3 * sum(saw(midi(n), d, 0.003) for n in (62, 69)) / 2, 1800)
 fin *= np.minimum(1, t_axis(d) / 0.05) * np.exp(-t_axis(d) * 0.9)
 fin_r = reverb(np.concatenate([fin, np.zeros(int(SR * 0.1))]), 2.5, 0.4)
-add(music, fin_r * 0.35, 59.95)
+add(music, fin_r * 0.35, END - .05)
 
 # ------------------------------------------------------------------ EFECTOS
 fx = np.zeros(N)

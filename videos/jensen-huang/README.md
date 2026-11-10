@@ -1,12 +1,13 @@
 # Capital Curioso · El escándalo de Jensen Huang (Nvidia)
 
-Video vertical 9:16 (1080×1920, 30 fps) de **63.5 s**: 60 s de noticia + 3.5 s de tu cierre animado (lupa con "?").
+Video vertical 9:16 (1080×1920, 30 fps) de **70 s**: 66.5 s de noticia narrada por **Jaider (ElevenLabs)** + 3.5 s de tu cierre animado (lupa con "?").
 
 ## Archivos listos
 
 | Archivo | Para qué |
 |---|---|
-| `salida/capital_curioso_jensen_huang.mp4` | Video final con música de suspenso + efectos (sin voz). Súbelo a Canva. |
+| `salida/capital_curioso_jensen_huang.mp4` | **Video final**: voz de Jaider + música de suspenso + efectos. Súbelo a Canva para poner las fotos. |
+| `audio/narracion.mp3` | La narración original de ElevenLabs (voz "Jaider - Narration Spanish"). |
 | `salida/musica_y_efectos.mp3` | Solo la pista de música + efectos, por si quieres manejarla aparte. |
 | `salida/subtitulos.srt` | El guion cronometrado (los subtítulos ya van "quemados" en el video). |
 
@@ -18,10 +19,10 @@ Las fotos van en recuadros marcados `[FOTO: …]` con borde punteado y esquinas 
 
 | Foto | Desde – hasta | Posición (x, y) | Tamaño (ancho × alto) |
 |---|---|---|---|
-| Jensen Huang con chaqueta de cuero | 0.3 s – 15.5 s | 90, 290 | 900 × 760 |
-| Alice Huang | 15.5 s – 20.5 s | 90, 290 | 900 × 760 |
-| Donald Trump | 35.0 s – 46.5 s | 60, 290 | 420 × 330 |
-| Capitolio | 35.0 s – 46.5 s | 60, 986 | 420 × 330 |
+| Jensen Huang con chaqueta de cuero | 0.3 s – 17.9 s | 90, 290 | 900 × 760 |
+| Alice Huang | 17.9 s – 24.1 s | 90, 290 | 900 × 760 |
+| Donald Trump | 42.3 s – 53.8 s | 60, 290 | 420 × 330 |
+| Capitolio | 42.3 s – 53.8 s | 60, 986 | 420 × 330 |
 
 (La bandera de China, entre las dos últimas, ya está dibujada y ondea).
 
@@ -29,24 +30,22 @@ En Canva: pon la foto, en **Posición** escribe X/Y y ancho/alto (si tu diseño 
 
 ## La narración (ElevenLabs "Jaider - Narration Spanish")
 
-Los tiempos del video están calculados para una lectura de ~3 palabras por segundo. Cuando tengas el audio:
+El video ya está sincronizado con `audio/narracion.mp3`: los tiempos de cada frase (medidos en las pausas del audio) están en `NARRACION`, al principio de `escena.html`. Escenas, subtítulos, contador, flechas, sello, calendario y efectos se calculan a partir de ahí.
 
-* **Opción rápida:** súbelo a Canva encima del video y baja el volumen del video a ~40 %.
-* **Opción exacta:** guarda el audio como `audio/narracion.mp3` y ejecuta `./montar.sh audio/narracion.mp3`. Eso crea `salida/capital_curioso_jensen_huang_con_voz.mp4`: la música baja sola cuando habla la voz y todo sale a -14 LUFS (volumen estándar de TikTok/Reels).
-* Si la voz no cae en su sitio, cambia los `[inicio, fin]` de cada bloque en `NARRACION` (arriba en `escena.html`) y vuelve a renderizar: subtítulos, escenas, contador, flechas, sello y efectos se re-sincronizan solos.
+Si cambias la narración: reemplaza `audio/narracion.mp3`, ajusta los `[inicio, fin]` de cada frase y ejecuta `rm salida/_video_sin_audio.mp4 && ./montar.sh`. La música baja sola cuando habla la voz (sidechain) y la mezcla sale a -14 LUFS (volumen estándar de TikTok/Reels).
 
 ## Escenas
 
 | Tiempo | Qué pasa |
 |---|---|
-| 0 – 8 s | Banner rojo **ÚLTIMA HORA**, foto de Jensen, titular "CEO de Nvidia admite una infidelidad" + etiqueta "SEGÚN REPORTES" |
-| 8 – 15.5 s | Rótulo **JENSEN HUANG – CEO y fundador de Nvidia**, contador animado hasta **+$200,000,000,000** (fortuna estimada) |
-| 15.5 – 26.5 s | Foto y rótulo de **Alice Huang – Ejecutiva de Megaspeed (Singapur)** → mapa animado EE.UU. → Singapur → China con flechas entre personas ("le compraba chips", "¿la reclutó?", "¿información?") + tarjeta de cita **The New York Times** con la etiqueta "PRESUNTO · NO CONFIRMADO" |
-| 26.5 – 35 s | Correo interno tecleado, frase subrayada/resaltada, sello "Nvidia abre investigación independiente" (fuente: CNBC) y línea de tiempo animada |
-| 35 – 46.5 s | Pantalla dividida en 3: Trump / China / Congreso, con calendario "18 NOV" |
-| 46.5 – 53.5 s | "Por ahora no hay pruebas…" y la gran pregunta palabra por palabra: **¿Puede sobrevivir el rey de la IA?** |
-| 53.5 – 60 s | Encuesta: **1 = Debe renunciar / 2 = Debe seguir** · "Comenta 1 o 2" |
-| 60 – 63.5 s | Tu cierre de Capital Curioso |
+| 0 – 9.5 s | Banner rojo **ÚLTIMA HORA**, foto de Jensen, titular "CEO de Nvidia admite una infidelidad" + etiqueta "SEGÚN REPORTES" |
+| 9.5 – 18 s | Rótulo **JENSEN HUANG – CEO y fundador de Nvidia**, contador animado hasta **+$200,000,000,000** (fortuna estimada) |
+| 18 – 30.8 s | Foto y rótulo de **Alice Huang – Ejecutiva de Megaspeed (Singapur)** → mapa animado EE.UU. → Singapur → China con flechas entre personas + tarjeta de cita **The New York Times** ("PRESUNTO · NO CONFIRMADO") |
+| 30.8 – 42.3 s | Correo interno tecleado, frase subrayada/resaltada, sello "Nvidia abre investigación independiente" (fuente: CNBC) y línea de tiempo |
+| 42.3 – 53.8 s | Pantalla dividida en 3: Trump / China / Congreso, con calendario "18 NOV" |
+| 53.8 – 61.1 s | "Por ahora no hay pruebas…" y la gran pregunta palabra por palabra: **¿Puede sobrevivir el rey de la IA?** |
+| 61.1 – 66.5 s | Encuesta: **1 = Debe renunciar / 2 = Debe seguir** · "Comenta 1 o 2" |
+| 66.5 – 70 s | Tu cierre de Capital Curioso |
 
 Durante todo el video: subtítulos palabra por palabra (la palabra que suena se marca en rojo) y una cinta inferior "EN DESARROLLO".
 

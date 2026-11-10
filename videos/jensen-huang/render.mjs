@@ -15,7 +15,7 @@ try { playwright = require('playwright'); } catch { playwright = require('/opt/n
 const here = path.dirname(fileURLToPath(import.meta.url));
 const out = path.join(here, 'salida');
 mkdirSync(out, { recursive: true });
-const FPS = 30, DURATION = 60;
+const FPS = 30;
 
 const args = process.argv.slice(2);
 const stillsArg = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
@@ -41,7 +41,9 @@ if (stillsArg) {
 }
 
 // datos para audio y subtítulos
-const { sfx, subs } = await page.evaluate(() => ({ sfx: window.SFX, subs: window.SUBS }));
+const { sfx, subs, timing } = await page.evaluate(() => ({ sfx: window.SFX, subs: window.SUBS, timing: window.TIMING }));
+const DURATION = timing.duration;
+writeFileSync(path.join(out, 'timing.json'), JSON.stringify(timing, null, 1));
 writeFileSync(path.join(out, 'sfx.json'), JSON.stringify(sfx, null, 1));
 const ts = s => { const ms = Math.round(s * 1000), h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60, sec = Math.floor(ms / 1000) % 60;
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')},${String(ms % 1000).padStart(3, '0')}`; };
@@ -50,7 +52,7 @@ writeFileSync(path.join(out, 'subtitulos.srt'), subs.map((c, i) => `${i + 1}\n${
 const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
   '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(FPS), path.join(out, '_video_sin_audio.mp4')],
   { stdio: ['pipe', 'inherit', 'inherit'] });
-const total = FPS * DURATION, t0 = Date.now();
+const total = Math.round(FPS * DURATION), t0 = Date.now();
 for (let i = 0; i < total; i++) {
   const buf = Buffer.from(await grab(i / FPS, 'image/jpeg'), 'base64');
   if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r));

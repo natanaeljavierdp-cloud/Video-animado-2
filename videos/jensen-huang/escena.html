@@ -17,7 +17,7 @@
 </head>
 <body>
 <canvas id="c" width="1080" height="1920"></canvas>
-<div id="ctrl"><button id="play">▶︎</button><input id="scrub" type="range" min="0" max="60" step="0.0333" value="0"><span id="tc">0.0 s</span></div>
+<div id="ctrl"><button id="play">▶︎</button><input id="scrub" type="range" min="0" max="66.5" step="0.0333" value="0"><span id="tc">0.0 s</span></div>
 <script>
 /* =====================================================================
    CAPITAL CURIOSO · "El escándalo de Jensen Huang" · 1080x1920 · 30 fps
@@ -27,7 +27,7 @@
    bloque (o pega tiempos por palabra en WORD_TIMES) y todo se re-sincroniza:
    subtítulos, escenas, contador, flechas, sellos y efectos de sonido.
    ===================================================================== */
-const W = 1080, H = 1920, FPS = 30, DURATION = 60;
+const W = 1080, H = 1920, FPS = 30;
 
 const C = {
   navy: '#0A285A', navyD: '#061A3D', navyDD: '#04122B', navyL: '#15407F', navyM: '#0E3170',
@@ -35,18 +35,31 @@ const C = {
   gray: '#A9B8D3', grayD: '#5E7299', paper: '#F6F7FB', marker: '#FFE36E', gold: '#FFC83D'
 };
 
-// Bloques de narración = escenas. [inicio, fin] en segundos.
+// Bloques de narración = escenas. Cada frase lleva [inicio, fin] en segundos,
+// medidos sobre audio/narracion.mp3 (voz de Jaider, ElevenLabs). Dentro de cada
+// frase las palabras se reparten según su longitud.
 const NARRACION = [
-  { id: 's1', t: [0.15, 7.9],  txt: 'El hombre detrás de los chips de la inteligencia artificial acaba de admitir una infidelidad... y la otra mujer, según Estados Unidos, sería una espía china.' },
-  { id: 's2', t: [8.0, 15.3],  txt: 'Él es Jensen Huang, fundador de Nvidia, una de las empresas más valiosas del planeta, y una de las personas más ricas del mundo.' },
-  { id: 's3', t: [15.5, 26.3], txt: 'Ella es Alice Huang, ejecutiva de Megaspeed, una empresa de Singapur que le compraba a Nvidia. Según The New York Times, la inteligencia estadounidense cree que China la reclutó para obtener información sobre él.' },
-  { id: 's4', t: [26.5, 34.8], txt: 'Este domingo, Huang escribió a sus empleados: «Le fui infiel a mi esposa. No hay excusa. Lo siento profundamente.» Ese mismo día, Nvidia abrió una investigación independiente.' },
-  { id: 's5', t: [35.0, 46.3], txt: 'Trump lo defendió: dice que Huang le aseguró que no sabía que era espía. China lo niega y habla de difamaciones. Y el Congreso lo citó a una reunión a puerta cerrada el 18 de noviembre.' },
-  { id: 's6', t: [46.5, 53.3], txt: 'Por ahora no hay pruebas de que se filtraran secretos. Pero la pregunta es: ¿seguirá siendo el rey de la inteligencia artificial?' },
-  { id: 's7', t: [53.8, 55.6], txt: 'Comenta 1 o 2.' },
+  { id: 's1', frases: [[0.05, 4.54, 'El hombre detrás de los chips de la inteligencia artificial acaba de admitir una infidelidad...'],
+    [5.17, 7.31, 'y la otra mujer, según Estados Unidos,'], [7.62, 8.99, 'sería una espía china.']] },
+  { id: 's2', frases: [[9.78, 11.23, 'Él es Jensen Huang,'], [11.47, 12.53, 'fundador de Nvidia,'],
+    [12.77, 15.26, 'una de las empresas más valiosas del planeta,'], [15.53, 17.73, 'y una de las personas más ricas del mundo.']] },
+  { id: 's3', frases: [[18.26, 19.68, 'Ella es Alice Huang,'], [19.99, 21.31, 'ejecutiva de Megaspeed,'],
+    [21.58, 24.11, 'una empresa de Singapur que le compraba a Nvidia.'],
+    [24.58, 30.54, 'Según The New York Times, la inteligencia estadounidense cree que China la reclutó para obtener información sobre él.']] },
+  { id: 's4', frases: [[31.07, 33.48, 'Este domingo, Huang escribió a sus empleados:'], [33.91, 35.23, '«Le fui infiel a mi esposa.'],
+    [35.62, 36.36, 'No hay excusa.'], [36.83, 38.20, 'Lo siento profundamente.»'], [38.79, 39.64, 'Ese mismo día,'],
+    [39.80, 41.99, 'Nvidia abrió una investigación independiente.']] },
+  { id: 's5', frases: [[42.52, 43.46, 'Trump lo defendió:'], [43.85, 46.65, 'dice que Huang le aseguró que no sabía que era espía.'],
+    [47.13, 49.32, 'China lo niega y habla de difamaciones.'],
+    [49.65, 53.57, 'Y el Congreso lo citó a una reunión a puerta cerrada el 18 de noviembre.']] },
+  { id: 's6', frases: [[54.02, 56.58, 'Por ahora no hay pruebas de que se filtraran secretos.'], [56.94, 57.97, 'Pero la pregunta es:'],
+    [58.32, 60.88, '¿seguirá siendo el rey de la inteligencia artificial?']] },
+  { id: 's7', frases: [[61.37, 62.79, 'Comenta 1 o 2.']] },
 ];
-// Límites visuales de escena (la escena 7 dura hasta el final).
-const SCENES = { s1: [0, 8], s2: [8, 15.5], s3: [15.5, 26.5], s4: [26.5, 35], s5: [35, 46.5], s6: [46.5, 53.5], s7: [53.5, 60] };
+NARRACION.forEach(n => { n.txt = n.frases.map(f => f[2]).join(' '); n.t = [n.frases[0][0], n.frases[n.frases.length - 1][1]]; });
+// Límites visuales de escena (la escena 7, la encuesta, dura hasta el final).
+const SCENES = { s1: [0, 9.5], s2: [9.5, 17.95], s3: [17.95, 30.8], s4: [30.8, 42.25], s5: [42.25, 53.8], s6: [53.8, 61.1], s7: [61.1, 66.5] };
+const DURATION = SCENES.s7[1];
 // Opcional: tiempos reales por palabra [[inicio,fin], ...] por bloque (de una transcripción).
 const WORD_TIMES = window.WORD_TIMES || null;
 
@@ -63,19 +76,23 @@ const inS = (t, id) => t >= SCENES[id][0] && t < SCENES[id][1];
 const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ]/g, '');
 
 // ---------------------------------------------------------------- tiempos por palabra
+function spread(text, a, b) {
+  const toks = text.split(/\s+/);
+  const wt = toks.map((w, i) => {
+    let k = w.replace(/[^\p{L}\p{N}]/gu, '').length + 2.2;
+    if (w === '18') k += 6; // se pronuncia "dieciocho"
+    if (/,$/.test(w) && i < toks.length - 1) k += 3;
+    return Math.max(k, 2.5);
+  });
+  const tot = wt.reduce((x, y) => x + y, 0);
+  let acc = a;
+  return toks.map((w, i) => { const s = acc; acc += (b - a) * wt[i] / tot; return { w, s, e: acc }; });
+}
 const WORDS = NARRACION.map((seg, si) => {
   const toks = seg.txt.split(/\s+/);
   if (WORD_TIMES && WORD_TIMES[si] && WORD_TIMES[si].length === toks.length)
     return toks.map((w, i) => ({ w, s: WORD_TIMES[si][i][0], e: WORD_TIMES[si][i][1] }));
-  const wt = toks.map((w, i) => {
-    let k = w.replace(/[^\p{L}\p{N}]/gu, '').length + 2.2;
-    if (/\.\.\.$|[.»]$/.test(w)) k += 6; else if (/[:?!]$/.test(w)) k += 5; else if (/,$/.test(w)) k += 3;
-    if (i === toks.length - 1) k -= 3;
-    return Math.max(k, 2.5);
-  });
-  const tot = wt.reduce((a, b) => a + b, 0), [a, b] = seg.t;
-  let acc = a;
-  return toks.map((w, i) => { const s = acc; acc += (b - a) * wt[i] / tot; return { w, s, e: acc }; });
+  return seg.frases.flatMap(([a, b, t]) => spread(t, a, b));
 });
 // cue('s2','planeta') -> segundo en que se dice esa palabra
 function cue(id, word, nth = 0) {
@@ -298,7 +315,7 @@ function captions(t) {
 // ---------------------------------------------------------------- cinta de noticias
 const TICKER = 'NVIDIA ABRE UNA INVESTIGACIÓN INDEPENDIENTE   ●   EL CONGRESO DE EE.UU. CITA A HUANG A PUERTA CERRADA EL 18 DE NOVIEMBRE   ●   CHINA NIEGA LAS ACUSACIONES   ●   ESPIONAJE: SEGÚN REPORTES, NO CONFIRMADO   ●   ';
 function ticker(t) {
-  const t0 = 8.2, t1 = 53.3;
+  const t0 = SCENES.s2[0] + .2, t1 = SCENES.s7[0] - .2;
   const k = eOut(prog(t, t0, t0 + .5)) - eIn(prog(t, t1, t1 + .4));
   if (k <= 0) return;
   const y = 1650 + (1 - k) * 120, h = 70;
@@ -589,7 +606,7 @@ function scene4(t) {
   const ts = K.s4Inv - .15, ks = prog(t, ts, ts + .25);
   if (ks > 0) {
     const s = lerp(2.4, 1, eOut(ks));
-    ctx.save(); ctx.translate(x + w / 2 + 110, y + h - 110); ctx.rotate(-.1); ctx.scale(s * .85, s * .85); ctx.globalAlpha = clamp(ks * 2);
+    ctx.save(); ctx.translate(x + w / 2 + 150, y + h - 72); ctx.rotate(-.07); ctx.scale(s * .78, s * .78); ctx.globalAlpha = clamp(ks * 2);
     ctx.strokeStyle = C.red; ctx.lineWidth = 7; rr(-230, -78, 460, 156, 14); ctx.stroke();
     ctx.lineWidth = 3; rr(-218, -66, 436, 132, 10); ctx.stroke();
     txt('NVIDIA ABRE', 0, -24, F(700, 44, 'Oswald'), C.red, 'center', 'middle');
@@ -784,13 +801,13 @@ function draw(t) {
   if (inS(t, 's6')) scene6(t);
   if (t >= SCENES.s7[0]) scene7(t);
   vignette();
-  const hdrOut = 1 - eIn(prog(t, 59.2, 59.75));
+  const hdrOut = 1 - eIn(prog(t, DURATION - .8, DURATION - .25));
   withAlpha(hdrOut, () => { breakingBanner(t); brandBar(t); });
   ticker(t);
   captions(t);
   wipes(t);
   // fundido final al azul del cierre de Capital Curioso
-  const f = prog(t, 59.55, 59.95);
+  const f = prog(t, DURATION - .45, DURATION - .05);
   if (f > 0) { ctx.fillStyle = `rgba(10,40,90,${f})`; ctx.fillRect(0, 0, W, H); }
 }
 
@@ -811,6 +828,7 @@ window.SFX = (() => {
 })();
 window.SUBS = CHUNKS.map(c => ({ s: c.s, e: c.e, text: c.words.map(w => w.w).join(' ') }));
 window.SEGMENTS = NARRACION;
+window.TIMING = { scenes: SCENES, duration: DURATION, question: K.s6Q };
 
 // ================================================================ arranque
 async function loadFonts() {

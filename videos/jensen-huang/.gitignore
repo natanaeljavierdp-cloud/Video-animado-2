@@ -3,4 +3,6 @@ salida/_video_sin_audio.mp4
 salida/render.log
 salida/sfx.json
 salida/stills/
-audio/
+
+salida/timing.json
+salida/capital_curioso_jensen_huang_sin_voz.mp4
