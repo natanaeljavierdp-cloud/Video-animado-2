@@ -7,16 +7,16 @@ s=np.zeros((L,2),np.float32); s[:min(L,len(sfx))]=sfx[:L]
 t=np.arange(L)/SR
 def smoothstep(a,b,x): u=np.clip((x-a)/(b-a),0,1); return u*u*(3-2*u)
 # music gain envelope (linear)
-g=np.full(L,0.27)
-g+=0.16*(smoothstep(-.1,.3,t)-smoothstep(2.4,3.4,t))   # hook lift
-g+=0.10*(smoothstep(5.6,6.6,t)-smoothstep(7.3,8.2,t))  # prision lift
-g+=0.14*(smoothstep(25.0,25.4,t)-smoothstep(26.5,27.6,t)) # pena lift
-g+=0.08*(smoothstep(37.4,37.8,t)-smoothstep(38.6,39.6,t))
+g=np.full(L,0.36)
+g+=0.22*(smoothstep(-.1,.3,t)-smoothstep(2.4,3.4,t))   # hook lift
+g+=0.18*(smoothstep(5.6,6.6,t)-smoothstep(7.3,8.2,t))  # prision lift
+g+=0.22*(smoothstep(25.0,25.4,t)-smoothstep(26.5,27.6,t)) # pena lift
+g+=0.14*(smoothstep(37.4,37.8,t)-smoothstep(38.6,39.6,t))
 g*=1-smoothstep(65.4,67.2,t)
-g*=smoothstep(0,0.25,t)
+g*=smoothstep(0,0.8,t)
 # ducking from narration envelope
 env=np.abs(nar[:,0]); k=int(.05*SR); env=np.convolve(env,np.ones(k)/k,'same')
-duck=1-0.35*smoothstep(0.01,0.06,env)
+duck=1-0.45*smoothstep(0.01,0.06,env)
 # smooth duck (attack/release)
 dk=int(.15*SR); duck=np.convolve(duck,np.ones(dk)/dk,'same')
 mix=nar*1.0 + mus*(g*duck)[:,None] + s*0.8
