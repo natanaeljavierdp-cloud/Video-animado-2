@@ -182,66 +182,94 @@ def sting(d=3.5):
 
 # ---------------------------------------------------------------- MÚSICA
 def music():
+    """Banda sonora cinematográfica: cuerdas en staccato, taikos, 'braams' graves y trémolo agudo.
+    90 bpm, La menor (Am – F – Dm – E, un acorde cada 2 compases)."""
     t = np.arange(N) / SR
     out = np.zeros((N, 2))
-    A1 = 55.0
-    # Dron grave (La) con LFO lento
-    drone = (np.sin(2 * np.pi * A1 * t) * .5 + np.sin(2 * np.pi * A1 * 1.5 * t + .3) * .25 + np.sin(2 * np.pi * A1 * 2 * t) * .18)
-    drone *= .7 + .3 * np.sin(2 * np.pi * .07 * t)
-    out += st(drone * .55)
-    # Aire / textura
-    air = bp(rng.standard_normal((N, 2)), 300, 1600) * (.5 + .5 * np.sin(2 * np.pi * .05 * t))[:, None]
-    out += air * .06
-    # Pads por acordes (La m – Fa – Re m – Mi), 8 s cada uno
-    chords = [[220, 261.63, 329.63], [174.61, 220, 261.63], [146.83, 174.61, 220], [164.81, 207.65, 246.94]]
-    pad = np.zeros(N)
-    seg = 8.0
-    for i in range(int(DUR / seg) + 1):
-        ch = chords[i % 4]
-        s0, s1 = int(i * seg * SR), min(N, int((i + 1) * seg * SR + SR))
-        if s0 >= N: break
-        tt = np.arange(s1 - s0) / SR
-        e = np.clip(tt / 2.5, 0, 1) * np.clip((seg + 1 - tt) / 1.5, 0, 1)
-        sig = np.zeros(len(tt))
-        for f in ch:
-            for det in (-.6, .6):
-                ph = 2 * np.pi * (f + det) * tt
-                sig += sum(np.sin(ph * h) / h for h in range(1, 6))
-        pad[s0:s1] += sig * e
-    pad = lp(pad, 1400)
-    out += reverb(norm(pad, .25), .5)
-    # Pulso tipo latido (90 bpm)
-    beat = 60 / 90
-    k = np.zeros(N)
-    thump = impact(.5, 80, 45, click=False)[:, 0]
-    for b in np.arange(0, DUR, beat * 2):
-        for off, g in ((0, 1.0), (beat * .45, .6)):
-            i = int((b + off) * SR)
-            j = min(N, i + len(thump)); k[i:j] += thump[:j - i] * g
-    out += st(lp(k, 300) * .35)
-    # Ostinato agudo (corcheas)
-    arp = np.zeros(N)
-    notes = [440, 523.25, 659.25, 523.25]
-    for n_i, b in enumerate(np.arange(0, DUR, beat / 2)):
-        f = notes[n_i % 4] * (1 if (n_i // 16) % 2 == 0 else 349.23 / 440 * (440 / 440))
-        tt = tvec(.35); y = np.sin(2 * np.pi * f * tt) * np.exp(-tt * 12) + np.sin(2 * np.pi * f * 2 * tt) * np.exp(-tt * 20) * .3
-        i = int(b * SR); j = min(N, i + len(y)); arp[i:j] += y[:j - i]
-    out += reverb(st(arp * .06, .2), .45)
-    # Reloj (tic) hasta la pregunta
-    for b in np.arange(0, 55, beat):
-        place(out, tick(3200, .03) * .18, b)
+    beat = 60 / 90; bar = beat * 4; s16 = beat / 4
+    prog = [(110.0, [0, 3, 7]), (87.31, [0, 4, 7]), (73.42, [0, 3, 7]), (82.41, [0, 4, 7])]  # Am F Dm E
+    def chord_at(x): return prog[int(x // (bar * 2)) % 4]
 
-    # Automatización: caída en los apagones, más energía en la pregunta y el cierre
-    g = np.ones(N)
-    def ramp(a, b, v0, v1):
-        i, j = int(a * SR), int(b * SR); g[i:j] = np.linspace(v0, v1, j - i)
-    ramp(2.78, 2.80, 1, .05); ramp(2.80, 3.6, .05, .05); ramp(3.6, 4.4, .05, 1)
-    ramp(9.26, 9.28, 1, .1); ramp(9.28, 9.8, .1, .1); ramp(9.8, 10.5, .1, 1)
-    ramp(54.9, 62.8, 1.0, 1.25)
-    g[int(62.8 * SR):] = 1.25
-    ramp(65.6, 67.0, 1.25, 0)
-    out *= g[:, None]
-    out[:int(.5 * SR)] *= np.linspace(0, 1, int(.5 * SR))[:, None]
+    # Curva de intensidad por secciones (sigue la historia)
+    pts = [(0, .45), (2.75, .5), (2.8, 0), (3.6, 0), (4.0, .6), (7.3, .7), (9.25, .75), (9.3, 0), (9.8, 0), (10.3, .7),
+           (15.5, .8), (18.0, .8), (28.1, .85), (28.2, .9), (37.5, .95), (37.6, 1.0), (41.1, 1.0), (41.2, .35),
+           (47.4, .4), (47.42, .9), (53.5, .95), (54.9, 1.0), (62.7, 1.0), (62.9, 0), (DUR, 0)]
+    xs, ys = zip(*pts)
+    I = np.interp(t, xs, ys)
+
+    # 1) Sub-dron
+    drone = np.sin(2 * np.pi * 55 * t) * .6 + np.sin(2 * np.pi * 82.41 * t) * .2
+    out += st(drone * (.35 + .25 * np.sin(2 * np.pi * .05 * t) ** 2) * .5)
+
+    # 2) Cuerdas staccato (semicorcheas)
+    pat = [0, 0, 12, 0, 7, 0, 12, 0, 3, 0, 12, 0, 7, 0, 15, 12]
+    acc = [1, .55, .7, .55, .85, .55, .7, .55, 1, .55, .7, .55, .85, .55, .75, .65]
+    nl = int(.16 * SR); tt = np.arange(nl) / SR
+    osti = np.zeros(N)
+    for k, x in enumerate(np.arange(0, DUR, s16)):
+        root, ch = chord_at(x)
+        semis = pat[k % 16]
+        if semis in (3, 15) and ch[1] == 4: semis += 1      # tercera mayor en F y E
+        f = root * 2 ** (semis / 12)
+        ph = 2 * np.pi * f * tt
+        saw = sum(np.sin(ph * h) / h for h in range(1, 9))
+        note = saw * np.exp(-tt * 22) * np.minimum(1, tt / .004)
+        i = int(x * SR); j = min(N, i + nl)
+        osti[i:j] += note[:j - i] * acc[k % 16] * I[i]
+    osti = lp(osti, 2600)
+    out += reverb(np.stack([osti * .9, np.roll(osti, 400) * .9], 1), .3) * .32
+
+    # 3) Trémolo agudo de cuerdas (tensión)
+    trem = np.zeros(N)
+    for c in range(int(DUR / (bar * 2)) + 1):
+        x0 = c * bar * 2; root, ch = prog[c % 4]
+        i, j = int(x0 * SR), min(N, int((x0 + bar * 2 + .5) * SR))
+        if i >= N: break
+        tt2 = np.arange(j - i) / SR
+        sig = sum(sum(np.sin(2 * np.pi * root * 4 * 2 ** (iv / 12) * (1 + d) * tt2 * h) / h for h in range(1, 5)) for iv in ch for d in (-.002, .002))
+        e = np.clip(tt2 / 1.2, 0, 1) * np.clip((bar * 2 + .5 - tt2) / .5, 0, 1)
+        trem[i:j] += sig * e
+    trem *= .55 + .45 * np.sin(2 * np.pi * 12 * t)
+    trem = lp(hp(trem, 400), 5000) * (.35 + .65 * I)
+    out += reverb(norm(trem, .12), .55)
+
+    # 4) Taikos
+    def taiko(d=1.0, f0=95, f1=48):
+        x = tvec(d); f = f1 + (f0 - f1) * np.exp(-x * 18)
+        y = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-x * 5.5)
+        y += lp(rng.standard_normal(len(x)), 1200) * np.exp(-x * 30) * .5
+        return np.tanh(y * 1.4)
+    tk = taiko(); tk2 = taiko(.6, 150, 80)
+    drums = np.zeros((N, 2))
+    for b0 in np.arange(0, DUR, bar):
+        for e8, g, kind in ((0, 1, 0), (3, .7, 0), (6, .8, 0), (7, .45, 1)):
+            x = b0 + e8 * beat / 2; i = int(x * SR)
+            if i >= N or I[i] < .55: continue
+            place(drums, (tk if kind == 0 else tk2) * g * I[i], x)
+    # redoble hacia la pregunta y hacia el choque de potencias
+    for a0, a1 in ((53.6, 54.9), (36.3, 37.6)):
+        for k, x in enumerate(np.arange(a0, a1, s16)):
+            place(drums, tk2 * (.3 + .7 * (x - a0) / (a1 - a0)), x)
+    out += reverb(drums, .3) * .55
+
+    # 5) "Braams" graves en los momentos clave
+    def braam(d=3.2):
+        x = tvec(d)
+        sig = sum(sum(np.sin(2 * np.pi * f * (1 + dt) * x * h) / h for h in range(1, 12)) for f in (55, 110, 82.41, 65.41) for dt in (-.004, .004))
+        y = np.zeros(len(x)); blk = 1024
+        for i in range(0, len(x), blk):
+            k = i / len(x); fc = 250 + 1700 * np.sin(np.pi * min(1, k * 1.6)) ** 2
+            y[i:i + blk] = sig[i:i + blk]
+        y = sweep_filter(y, 1600, 220, 'low')
+        e = np.minimum(1, x / .06) * np.exp(-x * .9)
+        return reverb(norm(np.tanh(y * e * .5), .9), .45)
+    br = braam()
+    for x, g in ((0.0, .8), (7.3, .7), (15.5, .75), (28.15, .9), (37.6, 1.0), (47.42, 1.0), (54.9, .9)):
+        place(out, br * g * .55, x)
+
+    # Fundidos
+    out[:int(.3 * SR)] *= np.linspace(0, 1, int(.3 * SR))[:, None]
+    fo0 = int(62.85 * SR); out[fo0:] *= np.exp(-np.arange(N - fo0) / SR * 1.2)[:, None]
     return out
 
 
@@ -327,8 +355,8 @@ if __name__ == '__main__':
     fc = (
         "[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0,highpass=f=70,acompressor=threshold=-20dB:ratio=3:attack=5:release=120,"
         "volume=1.0,asplit=2[v][vsc];"
-        "[1:a]volume=-16dB[m];"
-        "[m][vsc]sidechaincompress=threshold=0.03:ratio=6:attack=40:release=500[md];"
+        "[1:a]volume=-12dB[m];"
+        "[m][vsc]sidechaincompress=threshold=0.04:ratio=4:attack=30:release=400[md];"
         "[2:a]volume=-9dB[s];"
         "[v][md][s]amix=inputs=3:normalize=0:duration=longest,"
         "loudnorm=I=-14:TP=-1.0:LRA=11,aresample=44100[out]"
