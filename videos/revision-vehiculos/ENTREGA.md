@@ -37,7 +37,7 @@ Ojo: si la ley lo autoriza o hay causa probable, la revisión es legal.
 
 Contenido informativo; no sustituye una asesoría legal.
 
-🎵 Música: "Darkest Child", de Kevin MacLeod (incompetech.com). Licencia CC BY 4.0.
+🎵 Música: "Interloper", de Kevin MacLeod (incompetech.com). Licencia CC BY 4.0.
 
 **Hashtags:** #SandovalLegal #CodigoPenal #Ley7425 #RepublicaDominicana #TusDerechos
 
@@ -47,7 +47,7 @@ Contenido informativo; no sustituye una asesoría legal.
 
 | Elemento | Fuente | Licencia |
 |---|---|---|
-| Música de fondo (ambiente dramático): **"Darkest Child"**, de Kevin MacLeod | https://incompetech.com · descarga directa: https://incompetech.com/music/royalty-free/mp3-royaltyfree/Darkest%20Child.mp3 | Creative Commons Atribución 4.0 (https://creativecommons.org/licenses/by/4.0/). **Hay que dar el crédito en la descripción** (ya viene en el texto de arriba). |
+| Música de fondo (suspenso): **"Interloper"**, de Kevin MacLeod | https://incompetech.com · descarga directa: https://incompetech.com/music/royalty-free/mp3-royaltyfree/Interloper.mp3 | Creative Commons Atribución 4.0 (https://creativecommons.org/licenses/by/4.0/). **Hay que dar el crédito en la descripción** (ya viene en el texto de arriba). |
 | Whoosh (transiciones) | Creado digitalmente para este video (ruido filtrado), en `efectos/sfx_whoosh.wav` | Propio, sin restricciones |
 | Golpe de mazo ("PRISIÓN" y "sube") | Creado digitalmente para este video, en `efectos/sfx_mazo.wav` | Propio, sin restricciones |
 | Golpe de sello ("FUERA DE LA LEY", "SIN CAUSA PROBABLE", "OJO") | Creado digitalmente para este video, en `efectos/sfx_sello.wav` | Propio, sin restricciones |

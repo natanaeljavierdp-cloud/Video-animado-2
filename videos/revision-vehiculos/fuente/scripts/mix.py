@@ -7,7 +7,7 @@ s=np.zeros((L,2),np.float32); s[:min(L,len(sfx))]=sfx[:L]
 t=np.arange(L)/SR
 def smoothstep(a,b,x): u=np.clip((x-a)/(b-a),0,1); return u*u*(3-2*u)
 # music gain envelope (linear)
-g=np.full(L,0.36)
+g=np.full(L,0.43)
 g+=0.22*(smoothstep(-.1,.3,t)-smoothstep(2.4,3.4,t))   # hook lift
 g+=0.18*(smoothstep(5.6,6.6,t)-smoothstep(7.3,8.2,t))  # prision lift
 g+=0.22*(smoothstep(25.0,25.4,t)-smoothstep(26.5,27.6,t)) # pena lift
