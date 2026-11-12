@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Playfair;font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2)}
+@font-face{font-family:Playfair;font-weight:900;src:url(fonts/playfair-display-latin-900-normal.woff2)}
+@font-face{font-family:Playfair;font-weight:400;font-style:italic;src:url(fonts/playfair-display-latin-400-italic.woff2)}
+@font-face{font-family:Cinzel;font-weight:600;src:url(fonts/cinzel-latin-600-normal.woff2)}
+@font-face{font-family:Cinzel;font-weight:700;src:url(fonts/cinzel-latin-700-normal.woff2)}
+@font-face{font-family:Mont;font-weight:500;src:url(fonts/montserrat-latin-500-normal.woff2)}
+@font-face{font-family:Mont;font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2)}
+@font-face{font-family:Mont;font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2)}
+@font-face{font-family:Mont;font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2)}
+:root{--navy:#0B1526;--navy2:#111F3A;--gold:#D6B270;--gold2:#B8924A;--silver:#B9B9B9;--cream:#F0E8D6;--red:#C4524A}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:var(--navy);overflow:hidden}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--navy);font-family:Mont;color:var(--cream)}
+.abs{position:absolute}
+.bg{position:absolute;inset:0;opacity:0;overflow:hidden}
+.bg img{width:100%;height:100%;object-fit:cover;transform-origin:50% 50%}
+#tint{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(11,21,38,.92) 0%,rgba(11,21,38,.55) 18%,rgba(11,21,38,.35) 45%,rgba(11,21,38,.55) 75%,rgba(11,21,38,.95) 100%)}
+#police{position:absolute;inset:0;mix-blend-mode:screen;pointer-events:none}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse 75% 60% at 50% 48%,rgba(0,0,0,0) 45%,rgba(3,7,15,.78) 100%)}
+#grain{position:absolute;inset:-64px;opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+#flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(255,240,210,1),rgba(214,178,112,.6) 60%,rgba(214,178,112,0));opacity:0;pointer-events:none;mix-blend-mode:screen}
+#content{position:absolute;inset:0}
+.scene{position:absolute;inset:0;opacity:0}
+.el{position:absolute;opacity:0;will-change:transform,opacity}
+.center{left:0;right:0;text-align:center}
+.title{font-family:Playfair;font-weight:900;color:var(--cream);text-shadow:0 6px 30px rgba(0,0,0,.65)}
+.gold{color:var(--gold)}
+.cinzel{font-family:Cinzel;font-weight:700;letter-spacing:.06em}
+.card{background:linear-gradient(160deg,rgba(17,31,58,.94),rgba(11,21,38,.94));border:2px solid var(--gold);box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 0 0 6px rgba(11,21,38,.9),inset 0 0 0 7px rgba(214,178,112,.35);border-radius:6px}
+.src{font-family:Mont;font-weight:500;font-size:25px;color:var(--silver);letter-spacing:.01em}
+.quote{font-family:Playfair;font-style:italic;font-weight:400;color:var(--cream)}
+.ico{width:100%;height:100%;fill:none;stroke:var(--gold);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.icirc{border-radius:50%;border:2.5px solid var(--gold);background:radial-gradient(circle at 50% 35%,#16284a,#0B1526 70%);box-shadow:0 0 0 8px rgba(214,178,112,.10),0 14px 40px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
+.lbl{font-family:Cinzel;font-weight:700;color:var(--cream);letter-spacing:.08em;text-align:center}
+.stamp{border:6px double var(--red);color:var(--red);font-family:Cinzel;font-weight:700;text-align:center;letter-spacing:.06em;background:rgba(11,21,38,.55);border-radius:8px;padding:18px 10px;line-height:1.05;box-shadow:0 0 30px rgba(196,82,74,.25)}
+/* frame */
+#frame{position:absolute;inset:22px;border:2px solid rgba(185,185,185,.85);border-radius:4px;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.4)}
+.corner{position:absolute;width:64px;height:64px;border-color:var(--gold);border-style:solid;border-width:0}
+.c-tl{left:14px;top:14px;border-left-width:5px;border-top-width:5px}
+.c-tr{right:14px;top:14px;border-right-width:5px;border-top-width:5px}
+.c-bl{left:14px;bottom:14px;border-left-width:5px;border-bottom-width:5px}
+.c-br{right:14px;bottom:14px;border-right-width:5px;border-bottom-width:5px}
+#tag{position:absolute;left:52px;top:50px;font-family:Cinzel;font-weight:700;font-size:28px;letter-spacing:.12em;color:var(--gold);padding:10px 20px 8px;border:1.5px solid rgba(214,178,112,.7);background:rgba(11,21,38,.75);border-radius:3px}
+#bar{position:absolute;left:24px;right:24px;bottom:24px;height:120px;background:linear-gradient(180deg,#111F3A,#0B1526);border-top:2px solid rgba(214,178,112,.75);display:flex;align-items:center;padding:0 34px}
+#bar img{width:92px;height:92px;border-radius:50%;box-shadow:0 0 0 2px rgba(185,185,185,.6)}
+#bar .bn{font-family:Cinzel;font-weight:700;font-size:38px;color:var(--gold);letter-spacing:.1em;margin-left:22px}
+#bar .bh{margin-left:auto;font-family:Mont;font-weight:600;font-size:30px;color:var(--silver)}
+/* subtitles */
+#subs{position:absolute;left:60px;right:60px;top:128px;height:150px;display:flex;align-items:center;justify-content:center;text-align:center}
+#subs .line{text-wrap:balance;font-family:Mont;font-weight:800;font-size:54px;line-height:1.2;color:var(--cream);text-shadow:0 3px 0 rgba(0,0,0,.55),0 0 22px rgba(0,0,0,.85)}
+#subs span{display:inline-block;margin:0 .07em;transition:none}
+#subs span.on{color:var(--gold)}
+.bartrack{position:absolute;height:64px;border-radius:4px;background:rgba(185,185,185,.12);overflow:hidden}
+.barfill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px}
+.optrow{position:absolute;left:50px;right:50px;height:110px;border:2px solid rgba(214,178,112,.7);border-radius:55px;overflow:hidden;background:rgba(11,21,38,.6)}
+.optfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(214,178,112,.55),rgba(214,178,112,.25))}
+.optlbl{position:absolute;left:40px;top:0;bottom:0;display:flex;align-items:center;font-family:Mont;font-weight:800;font-size:44px;color:var(--cream)}
+.optpct{position:absolute;right:40px;top:0;bottom:0;display:flex;align-items:center;font-family:Playfair;font-weight:900;font-size:48px;color:var(--gold)}
+
+#cv{position:absolute;inset:0}
+</style></head><body><div id="stage">
+ <div class="bg" style="opacity:1"><img src="assets/04-luces-patrulla.jpg" style="object-position:38% 50%;transform:scale(1.15);filter:brightness(.6) saturate(.8) contrast(1.1)"></div>
+ <div id="tint" style="background:linear-gradient(180deg,rgba(11,21,38,.85) 0%,rgba(11,21,38,.25) 30%,rgba(11,21,38,.55) 55%,rgba(11,21,38,.97) 100%)"></div>
+ <div id="vig"></div>
+ <div class="abs center" style="top:660px">
+   <div class="cinzel gold" style="font-size:34px;letter-spacing:.32em;margin-bottom:26px">TUS DERECHOS · RD</div>
+   <div class="title" style="font-family:Playfair;font-weight:700;font-size:84px;line-height:1.1">¿Te pueden revisar<br>el vehículo</div>
+   <div class="title" style="font-size:126px;line-height:1.05;margin-top:14px;white-space:nowrap;color:#F0E8D6">SIN MOTIVO?</div>
+   <div style="width:560px;height:3px;margin:34px auto;background:linear-gradient(90deg,transparent,#D6B270,transparent)"></div>
+   <div style="display:inline-flex;align-items:center;gap:22px;padding:18px 44px;border:3px solid #D6B270;background:rgba(11,21,38,.85);border-radius:6px;box-shadow:0 0 40px rgba(214,178,112,.35)">
+     <svg viewBox="0 0 64 64" style="width:74px;height:74px;fill:none;stroke:#D6B270;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round"><path d="M32 8v44M20 55h24M24 52h16M9 17h46"/><circle cx="32" cy="10" r="2.5"/><path d="M9 17 3 33M9 17l6 16M55 17l-6 16M55 17l6 16"/><path d="M2 33h14a7 5 0 0 1-14 0zM48 33h14a7 5 0 0 1-14 0z"/></svg>
+     <div class="title gold" style="font-size:92px;line-height:1;text-shadow:none">Art. 276</div></div>
+ </div>
+ <div id="frame"><div class="corner c-tl"></div><div class="corner c-tr"></div><div class="corner c-bl"></div><div class="corner c-br"></div></div>
+ <div id="tag">CÓDIGO PENAL · LEY 74-25</div>
+ <div id="bar"><img src="assets/logo.png"><div class="bn">SANDOVAL LEGAL</div><div class="bh">@sandoval_legal</div></div>
+</div></body></html>
