@@ -32,6 +32,7 @@
     cues.forEach((q) => { q.char = WHO[q.who] || CLIPWHO[q.clip] || null; });
     buildActions();
     buildCamera();
+    M.C.init();
   };
 
   // ------------------------------------------------------------ llegada
@@ -230,92 +231,151 @@
     return P;
   };
 
-  // ------------------------------------------------------------ cámara
+  // ------------------------------------------------------------ cámara (lenguaje de cine)
   let SHOTS = [];
+  const V = (x, y, z, o = {}) => Object.assign({ x, y, z, f: 1.5, rot: 0, focus: 0 }, o);
   function buildCamera() {
     const q = (who, n = 0) => cues.filter((x) => x.who === who)[n];
-    const C = (id, z, dy = -300, dx = 0) => ({ x: BY[id].home[0] + dx, y: BY[id].home[1] + dy, z });
-    const GROUP = (z = 0.95) => ({ x: 690, y: 1420, z });
+    const H = (id) => BY[id].home;
     const S = [];
-    const shot = (t0, from, to, shake = 0, easing = 'ease') => S.push({ t0, from, to, shake, easing });
-    shot(0, { x: 860, y: 1260, z: 0.56 }, { x: 700, y: 1400, z: 0.8 }, 0, 'ease');
+    const shot = (t0, from, to, o = {}) => S.push(Object.assign({ t0, from, to, easing: 'ease', shake: 0, dof: 1, fg: [], rays: 0.5, whip: false, dark: false }, o));
+    // 1. grúa bajando desde las flores del árbol hasta el cruce
+    shot(0, V(520, 380, 1.25, { f: 0.9 }), V(720, 1330, 0.66, { f: 0.9 }), { dof: 0.25, fg: [{ type: 'branches' }, { type: 'petals' }], rays: 1 });
+    // 2. travelling lateral mientras van llegando
+    shot(4.4, V(640, 1380, 0.68, { f: 1.0 }), V(820, 1420, 0.8, { f: 1.0 }), { easing: 'linear', dof: 0.35, rays: 0.8, fg: [{ type: 'petals' }] });
+    // 3. presentación: primeros planos con tele y travelling lateral (barrido entre cada uno)
     const cs = TL.cards_start, cl = TL.card_len;
-    CAST.forEach((c, i) => shot(cs + i * cl, C(c.id, 2.55, -315), C(c.id, 2.75, -320), 0, 'linear'));
-    const mik = q('MIKIBIRY'), mar = q('MARINO EL EPC'), nj = q('EL NJ');
-    shot(cs + 7 * cl, { x: 245, y: 1420, z: 1.45 }, { x: 245, y: 1410, z: 1.6 }, 1.2, 'linear');
-    shot(mar.start, C('mar', 1.9, -270), C('mar', 2.05, -275), 1.4, 'linear');
-    shot(nj.start, GROUP(1.0), GROUP(1.06), 1.4, 'linear');
-    shot(TL.dp_start, { x: 870, y: 1400, z: 1.2 }, C('dp', 2.4, -290), 0, 'ease');
-    shot(TL.dp_start + 2.2, C('dp', 2.4, -290), C('dp', 2.6, -300), 0, 'linear');
-    shot(TL.bolen_reveal, GROUP(0.98), { x: 690, y: 1400, z: 1.35 }, 0, 'ease');
+    CAST.forEach((c, i) => {
+      const d = i % 2 ? 1 : -1, [hx, hy] = c.home;
+      shot(cs + i * cl, V(hx + 35 * d, hy - 312, 2.5, { f: 2.6, rot: d * 1.5 }), V(hx - 35 * d, hy - 318, 2.7, { f: 2.6, rot: -d * 0.5 }),
+        { easing: 'linear', whip: i > 0, dof: 1.1, rays: 0.4 });
+    });
+    // 4. la pelea: cámara en mano, planos holandeses, sobre el hombro, barridos
+    const mik = q('MIKIBIRY'), sic = q('EL SICARIO'), mar = q('MARINO EL EPC'), nj = q('EL NJ');
+    shot(cs + 7 * cl, V(150, 1330, 2.3, { f: 2.2, rot: -3 }), V(165, 1320, 2.5, { f: 2.2, rot: -4.5 }), { easing: 'linear', shake: 1.6, whip: true, fg: [{ type: 'ots', id: 'sic', side: 'R' }] });
+    shot(sic.start, V(330, 1330, 2.3, { f: 2.2, rot: 3 }), V(320, 1320, 2.5, { f: 2.2, rot: 4.5 }), { easing: 'linear', shake: 1.6, whip: true, fg: [{ type: 'ots', id: 'mik', side: 'L' }] });
+    shot(mar.start, V(510, 1360, 1.9, { f: 1.2, rot: -5 }), V(510, 1340, 2.4, { f: 1.2, rot: -3 }), { easing: 'linear', shake: 2.2, whip: true });
+    shot(nj.start, V(700, 1430, 1.0, { f: 1.0, rot: 2.5 }), V(700, 1420, 1.1, { f: 1.0, rot: -2 }), { easing: 'linear', shake: 2.2, whip: true, dof: 0.6 });
+    // 5. Doble P: zoom brusco "¡Hagan silencio!" y empuje lento
+    shot(TL.dp_start, V(870, 1430, 1.25, { f: 1.4 }), V(870, 1305, 2.6, { f: 1.9 }), { easing: 'snap', rays: 0.3 });
+    shot(TL.dp_start + 2.2, V(870, 1300, 2.6, { f: 2.2 }), V(870, 1288, 3.05, { f: 2.4 }), { easing: 'linear', dof: 1.2, rays: 0.3 });
+    // 6. "Sabemo' que fue El Bolen": efecto vértigo (dolly zoom) sobre El Bolen
+    shot(TL.bolen_reveal, V(690, 1350, 1.45, { f: 0.75 }), V(690, 1325, 1.7, { f: 3.4 }), { easing: 'ease', dof: 0.9, rays: 0.2 });
+    // 7. El Bolen: zoom brusco cómico
     const b = q('EL BOLEN');
-    shot(b.start - 0.15, C('bol', 2.5, -300), C('bol', 2.9, -310), 2.2, 'linear');
+    shot(b.start - 0.15, V(690, 1330, 1.8, { f: 2.0 }), V(690, 1298, 3.1, { f: 2.4, rot: -2 }), { easing: 'snap', shake: 2.6 });
+    // 8. El Doblón, calmado: sobre el hombro de Doble P
     const d1 = q('EL DOBLÓN');
-    shot(d1.start - 0.2, C('dob', 2.0, -280), C('dob', 2.5, -300), 0, 'ease');
+    shot(d1.start - 0.2, V(1040, 1325, 2.2, { f: 2.6 }), V(1035, 1310, 2.6, { f: 2.6 }), { dof: 1.2, rays: 0.7, fg: [{ type: 'ots', id: 'dp', side: 'L' }, { type: 'petals' }] });
+    // 9. "Sí, e' verdá" / "¡Vamo' a darle!": grupo, pequeña grúa
     const v = q('TODOS', 0);
-    shot(v.start - 0.1, GROUP(0.98), GROUP(1.08), 0.6, 'linear');
+    shot(v.start - 0.1, V(690, 1500, 1.0, { f: 1.0 }), V(690, 1430, 1.1, { f: 1.0 }), { dof: 0.6, rays: 0.8, whip: true });
+    // 10. El NJ conciliador: sobre el hombro de El Doblón
     const n2 = q('EL NJ', 1);
-    shot(n2.start - 0.2, C('nj', 2.1, -290, -30), C('nj', 2.5, -300, -30), 0, 'ease');
+    shot(n2.start - 0.2, V(1225, 1325, 2.2, { f: 2.4 }), V(1215, 1310, 2.5, { f: 2.4 }), { dof: 1.2, rays: 0.5, fg: [{ type: 'ots', id: 'dob', side: 'L' }] });
+    // 11. El Sicario: empuje lento, tele, oscuro
     const s2 = q('EL SICARIO', 1);
-    shot(s2.start - 0.2, C('sic', 2.2, -290), C('sic', 2.95, -310), 0, 'ease');
-    shot(TL.laugh1, GROUP(0.98), GROUP(1.04), 1.6, 'linear');
+    shot(s2.start - 0.2, V(330, 1325, 2.2, { f: 3.0 }), V(330, 1292, 3.25, { f: 3.0 }), { dof: 1.4, rays: 0, dark: true });
+    // 12. risas: barrido al grupo
+    shot(TL.laugh1, V(690, 1430, 1.0, { f: 1.1, rot: 1.5 }), V(690, 1425, 1.07, { f: 1.1, rot: -1.5 }), { easing: 'linear', shake: 2.2, whip: true, dof: 0.6, rays: 0.8 });
+    // 13. Marino burlándose del Sicario
     const m2 = q('MARINO EL EPC', 1);
-    shot(m2.start - 0.1, C('mar', 2.1, -290, -40), C('mar', 2.4, -300, -60), 0.6, 'ease');
-    shot(TL.laugh2, GROUP(1.0), { x: 600, y: 1410, z: 1.12 }, 1.6, 'linear');
-    shot(TL.laugh2 + 2.3, C('sic', 2.3, -280), C('sic', 2.5, -290), 0, 'linear');
+    shot(m2.start - 0.1, V(450, 1345, 2.0, { f: 1.8 }), V(430, 1330, 2.25, { f: 1.8 }), { dof: 1.0, rays: 0.5, whip: true, fg: [{ type: 'petals' }] });
+    // 14. risas más duras, y el Sicario serio (golpe cómico)
+    shot(TL.laugh2, V(690, 1440, 1.0, { f: 1.0, rot: -2 }), V(640, 1430, 1.15, { f: 1.0, rot: 2 }), { easing: 'linear', shake: 2.2, dof: 0.6, rays: 0.8 });
+    shot(TL.laugh2 + 2.3, V(330, 1312, 2.4, { f: 2.6 }), V(330, 1300, 2.9, { f: 2.6 }), { easing: 'linear', dof: 1.3, dark: true, rays: 0 });
+    // 15. El Doblón cierra: sobre el hombro de El NJ
     const d2 = q('EL DOBLÓN', 1);
-    shot(d2.start, C('dob', 2.1, -285), C('dob', 2.45, -300), 0, 'ease');
-    shot(d2.end + 0.05, GROUP(0.98), GROUP(1.0), 0, 'linear');
-    shot(SIT_T() + 0.2, GROUP(1.0), { x: 690, y: 1470, z: 1.25 }, 0, 'ease');
-    shot(SIT_T() + 2.6, { x: 690, y: 1470, z: 1.25 }, { x: 800, y: 1290, z: 0.62 }, 0, 'ease');
-    S.forEach((s, k) => { s.t1 = k + 1 < S.length ? S[k + 1].t0 : T; });
+    shot(d2.start, V(1050, 1325, 2.25, { f: 2.5 }), V(1045, 1310, 2.6, { f: 2.5 }), { dof: 1.2, rays: 0.6, whip: true, fg: [{ type: 'ots', id: 'nj', side: 'R' }] });
+    shot(d2.end + 0.05, V(690, 1450, 1.05, { f: 1.3 }), V(690, 1445, 1.12, { f: 1.3 }), { easing: 'linear', dof: 0.7, rays: 0.7 });
+    // 16. travelling por el grupo sentado escribiendo
+    shot(SIT_T() + 0.6, V(260, 1480, 1.65, { f: 1.6 }), V(1120, 1480, 1.65, { f: 1.6 }), { easing: 'linear', dof: 1.0, rays: 0.6, fg: [{ type: 'petals' }] });
+    // 17. grúa subiendo y alejándose entre las ramas: título
+    shot(SIT_T() + 3.4, V(800, 1440, 1.1, { f: 1.0 }), V(740, 820, 0.56, { f: 0.9 }), { dof: 0.35, rays: 1, fg: [{ type: 'branches' }, { type: 'petals' }] });
+    S.forEach((s, k) => { s.t1 = k + 1 < S.length ? S[k + 1].t0 : T; s.prev = S[k - 1]; });
     SHOTS = S;
+    // motores que pasan por la calle de atrás (coinciden con el sonido)
+    M.backMotos = [
+      { t0: 1.0, len: 7, dir: 1, color: '#C62828', shirt: '#1565C0' }, { t0: 17.5, len: 6.5, dir: -1, color: '#263238', shirt: '#F9A825' },
+      { t0: 38.5, len: 7, dir: 1, color: '#1E5AA8', shirt: '#EF6C00' }, { t0: 55.5, len: 6, dir: -1, color: '#2E7D32', shirt: '#ECEFF1' },
+      { t0: 66.5, len: 7, dir: 1, color: '#6A1B9A', shirt: '#8D6E63' }, { t0: T - 10.5, len: 7, dir: -1, color: '#C62828', shirt: '#26A69A' },
+    ];
   }
 
+  function shotAt(t) { let s = SHOTS[0]; for (const x of SHOTS) if (t >= x.t0) s = x; return s; }
+
   E.camera = function (t) {
-    let s = SHOTS[0];
-    for (const x of SHOTS) if (t >= x.t0) s = x;
-    const k0 = (t - s.t0) / (s.t1 - s.t0);
-    const k = s.easing === 'ease' ? ease(Math.min(1, k0 * 1.15)) : clamp(k0, 0, 1);
-    const cam = { x: lerp(s.from.x, s.to.x, k), y: lerp(s.from.y, s.to.y, k), z: lerp(s.from.z, s.to.z, k) };
-    // cámara en mano muy suave + sacudida
-    const hs = 1.5 + s.shake * 5;
-    cam.x += (Math.sin(t * 0.9) * 0.6 + Math.sin(t * 2.3) * 0.4) * hs / cam.z;
-    cam.y += (Math.sin(t * 1.1 + 1) * 0.6 + Math.sin(t * 2.9) * 0.4) * hs / cam.z;
+    const s = shotAt(t);
+    const k0 = clamp((t - s.t0) / (s.t1 - s.t0), 0, 1);
+    const k = s.easing === 'ease' ? ease(Math.min(1, k0 * 1.1))
+      : s.easing === 'snap' ? 1 - Math.pow(1 - clamp((t - s.t0) / 0.5, 0, 1), 3) : k0;
+    const cam = {};
+    for (const key of ['x', 'y', 'z', 'f', 'rot', 'focus']) cam[key] = lerp(s.from[key], s.to[key], k);
+    // cámara en mano: respiración suave + sacudida en momentos de tensión
+    const hs = 1.6 + s.shake * 6;
+    cam.x += (Math.sin(t * 0.9) * 0.6 + Math.sin(t * 2.3 + 1) * 0.3 + Math.sin(t * 5.1) * 0.1 * s.shake) * hs / cam.z;
+    cam.y += (Math.sin(t * 1.1 + 1) * 0.6 + Math.sin(t * 2.9) * 0.3 + Math.sin(t * 6.3) * 0.1 * s.shake) * hs / cam.z;
+    cam.rot += Math.sin(t * 0.7) * 0.25 + Math.sin(t * 3.1) * 0.12 * s.shake;
+    // el plano holandés recorta las esquinas: un poquito más de zoom
+    cam.z *= 1 + Math.abs(cam.rot) * 0.012;
+    cam.dof = s.dof;
     return cam;
   };
 
   // ------------------------------------------------------------ cuadro
-  E.render = function (ctx, t) {
-    const cam = E.camera(t);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#9CCBEA'; ctx.fillRect(0, 0, M.W, M.H);
-    ctx.setTransform(cam.z, 0, 0, cam.z, M.W / 2 - cam.x * cam.z, M.H / 2 - cam.y * cam.z);
-    M.drawBackground(ctx, t);
-    M.drawCanopy(ctx, t);
-    // objetos con profundidad: personajes, motores parqueados
+  function drawMid(g, t) {
+    M.drawGround(g, t);
     const items = [];
-    items.push({ y: 1575, f: () => M.drawMoto(ctx, -330, 1575, false, '#1E5AA8') });
-    items.push({ y: 1590, f: () => M.drawMoto(ctx, 1560, 1590, true, '#C62828') });
-    items.push({ y: 1505, f: () => M.drawMoto(ctx, 1380, 1505, true, '#2E7D32') });
+    items.push({ y: 1575, f: () => M.drawMoto(g, -330, 1575, false, '#1E5AA8') });
+    items.push({ y: 1590, f: () => M.drawMoto(g, 1560, 1590, true, '#C62828') });
+    items.push({ y: 1505, f: () => M.drawMoto(g, 1380, 1505, true, '#2E7D32') });
     const mx = motoX(t);
-    items.push({ y: MOTO.y, f: () => M.drawMoto(ctx, mx, MOTO.y, false, '#F9A825', t, t < MOTO.t1 + 0.2) });
+    items.push({ y: MOTO.y, f: () => M.drawMoto(g, mx, MOTO.y, false, '#F9A825', t, t < MOTO.t1 + 0.2) });
+    const poses = CAST.map((c) => E.pose(c, t));
     for (const c of CAST) {
-      // silla plástica detrás de cada uno, en su puesto bajo el árbol
-      items.push({ y: c.home[1] - 0.5, f: () => { ctx.save(); ctx.translate(c.home[0], c.home[1]); ctx.scale(M.S, M.S); ctx.translate(-200, -760); M.drawChairVB(ctx, c.chair); ctx.restore(); } });
-      const P = E.pose(c, t);
-      items.push({ y: P.riding ? MOTO.y - 1 : P.y, f: () => M.drawCharacter(ctx, c.ch, P) });
+      items.push({ y: c.home[1] - 0.5, f: () => { g.save(); g.translate(c.home[0], c.home[1]); g.scale(M.S, M.S); g.translate(-200, -760); M.drawChairVB(g, c.chair); g.restore(); } });
     }
+    // sombras de contacto primero
+    CAST.forEach((c, i) => { const P = poses[i]; if (!P.riding) M.drawContactShadow(g, P.x, P.y, 1 - 0.4 * P.sit); });
+    CAST.forEach((c, i) => { const P = poses[i]; items.push({ y: P.riding ? MOTO.y - 1 : P.y, f: () => M.drawCharacter(g, c.ch, P) }); });
     items.sort((a, b) => a.y - b.y).forEach((it) => it.f());
-    // ---- capa de pantalla
+    M.drawDapple(g, t);
+    M.drawCanopy(g, t);
+    M.drawPetals(g, t);
+  }
+
+  E.render = function (ctx, t) {
+    const C = M.C;
+    const s = shotAt(t);
+    const cam = E.camera(t);
+    const m = C.mainCtx;
+    m.setTransform(1, 0, 0, 1, 0, 0);
+    m.fillStyle = '#9CCBEA'; m.fillRect(0, 0, M.W, M.H);
+    C.layer(m, cam, 9, (g) => M.drawSky(g, t));
+    C.layer(m, cam, 2.4, (g) => M.drawFar(g, t), 'rgba(205,228,240,0.30)');
+    C.layer(m, cam, 0.9, (g) => M.drawBuild(g, t), 'rgba(215,232,240,0.10)');
+    C.layer(m, cam, 0.4, (g) => M.drawStreet(g, t), 'rgba(215,232,240,0.04)');
+    C.layer(m, cam, 0, (g) => drawMid(g, t));
+    // primer plano
+    for (const fg of s.fg) {
+      if (fg.type === 'branches') {
+        const par = { x: -(cam.x - s.from.x) * cam.z * 1.8, y: -(cam.y - s.from.y) * cam.z * 1.8 };
+        C.fgBranches(m, cam, t, par);
+      } else if (fg.type === 'petals') C.fgPetals(m, t);
+      else if (fg.type === 'ots') C.ots(m, BY[fg.id].ch, E.pose(BY[fg.id], t), fg.side, cam);
+    }
+    C.sunRays(m, t, s.rays * clamp(1.4 - cam.z * 0.35, 0.25, 1));
+    C.grade(ctx, t, { dark: s.dark, sun: s.rays });
+    // barrido rápido entre planos
+    if (s.whip && s.prev) {
+      const a = 1 - clamp((t - s.t0) / 0.16, 0, 1);
+      C.motionBlur(ctx, a, Math.sign(s.from.x - (s.prev.to.x)) || 1);
+    }
+    // ---- capa de pantalla (textos nítidos)
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const vg = ctx.createRadialGradient(540, 900, 600, 540, 960, 1250);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(10,5,0,0.35)');
-    ctx.fillStyle = vg; ctx.fillRect(0, 0, M.W, M.H);
     drawCards(ctx, t);
     drawSubs(ctx, t);
     drawTitle(ctx, t);
-    // fundido de entrada
     if (t < 0.8) { ctx.fillStyle = `rgba(0,0,0,${1 - t / 0.8})`; ctx.fillRect(0, 0, M.W, M.H); }
   };
 

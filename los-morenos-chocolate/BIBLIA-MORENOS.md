@@ -98,6 +98,16 @@ redondeadas, sin texturas realistas). Basado en las fotos de `referencias-lugar/
 
 - `produccion/motor/motor.js` — escenario fijo, personajes por piezas, motores, sillas,
   libretas/celulares y subtítulos. **No cambiar el escenario entre episodios.**
+- `produccion/motor/cine.js` — **estilo cinematográfico obligatorio** (desde el Ep. 1 v2):
+  cámara 2.5D con capas a distintas profundidades (cielo, árboles lejanos, edificios, plano
+  intermedio con vida del pueblo, isleta/personajes, primer plano) y parallax real; lentes
+  (gran angular en planos abiertos, tele en primeros planos); profundidad de campo (fondo
+  desenfocado); sombras moteadas de las hojas; rayos de sol y polvo; pétalos cayendo;
+  gradación de color de cine, viñeta y grano de película.
+- Lenguaje de cámara de la serie: grúa al abrir y al cerrar, travelling lateral, primeros
+  planos con tele, planos sobre el hombro (silueta desenfocada del que escucha), planos
+  holandeses y cámara en mano en las peleas, zoom brusco cómico, barridos con desenfoque de
+  movimiento entre personajes, efecto vértigo (dolly zoom) en las revelaciones.
 - `produccion/motor/render.mjs` — dibuja cada cuadro en Chromium y lo codifica con ffmpeg.
 - `produccion/epN/` — por episodio: `audio/` (voces descargadas de ElevenLabs),
   `audio_epN.py` (línea de tiempo + mezcla + ambiente sintetizado sin derechos) y `epN.js`
@@ -109,3 +119,5 @@ redondeadas, sin texturas realistas). Basado en las fotos de `referencias-lugar/
   Narrador `#F5C542`.
 - Puestos fijos bajo el árbol (de izquierda a derecha): Mikibiry, El Sicario, Marino el EPC,
   El Bolen, Doble P, El Doblón, El NJ. Mikibiry tiene motor amarillo.
+- Entrega: recodificar el MP4 final a ~7.8 Mbps en dos pasadas (`-b:v 7800k -pass 1/2`), porque el
+  grano de película lo hace pesar >100 MB y GitHub no acepta archivos tan grandes.

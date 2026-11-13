@@ -18,7 +18,7 @@ const workers = parseInt(opt('--workers') || '3', 10);
 const TL = JSON.parse(fs.readFileSync(tlJson, 'utf8'));
 const FPS = TL.fps;
 const NF = Math.round(TL.total * FPS);
-const motor = fs.readFileSync(path.join(HERE, 'motor.js'), 'utf8');
+const motor = fs.readFileSync(path.join(HERE, 'motor.js'), 'utf8') + '\n' + fs.readFileSync(path.join(HERE, 'cine.js'), 'utf8');
 const ep = fs.readFileSync(epJs, 'utf8');
 
 async function openPage(browser) {

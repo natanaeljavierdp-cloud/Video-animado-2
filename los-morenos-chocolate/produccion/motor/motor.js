@@ -232,9 +232,9 @@ function buildScene() {
     scene.flowers.push({ x: cx + Math.cos(a) * rx * d * 0.98, y: cy + Math.sin(a) * ry * d * 0.9 - 20, rad: 4 + r() * 6, ph: r() * 6.28, c: r() < 0.5 ? '#F4C430' : '#F9DC5C' });
   }
   scene.bgTrees = [];
-  for (let i = 0; i < 70; i++) scene.bgTrees.push({ x: -700 + r() * 3200, y: 880 + r() * 150, rad: 70 + r() * 90, c: ['#2F6B34', '#3B7D3C', '#4A8F45'][Math.floor(r() * 3)] });
+  for (let i = 0; i < 170; i++) scene.bgTrees.push({ x: -3200 + r() * 8200, y: 880 + r() * 150, rad: 70 + r() * 90, c: ['#2F6B34', '#3B7D3C', '#4A8F45'][Math.floor(r() * 3)] });
   scene.clouds = [];
-  const cl = [[-300, -300, 1.2], [450, -420, 1.4], [1250, -250, 1.3], [1900, -380, 1.1], [150, 120, 0.9], [1050, 160, 1.0], [1750, 260, 0.8], [700, 420, 0.7]];
+  const cl = [[-300, -300, 1.2], [450, -420, 1.4], [1250, -250, 1.3], [1900, -380, 1.1], [150, 120, 0.9], [1050, 160, 1.0], [1750, 260, 0.8], [700, 420, 0.7], [-1500, -100, 1.3], [-2300, 200, 1.0], [2700, -150, 1.4], [3500, 150, 1.1], [-900, -700, 1.5], [2400, -800, 1.6], [900, -900, 1.5]];
   for (const [x, y, s] of cl) {
     const puffs = [];
     for (let i = 0; i < 9; i++) puffs.push({ dx: (r() - 0.5) * 420 * s, dy: (r() - 0.5) * 90 * s, rad: (80 + r() * 90) * s });
@@ -253,7 +253,8 @@ M.drawSky = function (ctx, t) {
   if (!scene.built) buildScene();
   const g = ctx.createLinearGradient(0, -900, 0, 1060);
   g.addColorStop(0, '#5FA8DA'); g.addColorStop(0.55, '#97CBEB'); g.addColorStop(1, '#D9EEF8');
-  ctx.fillStyle = g; ctx.fillRect(-1500, -1500, 5200, 2600);
+  ctx.fillStyle = g; ctx.fillRect(-30000, -30000, 60000, 31060);
+  ctx.fillStyle = '#D9EEF8'; ctx.fillRect(-30000, 1059, 60000, 30000);
   for (const c of scene.clouds) {
     const ox = c.x + t * 6 * c.s;
     ctx.fillStyle = c.grey ? '#B9C4CF' : '#FFFFFF';
@@ -265,15 +266,23 @@ M.drawSky = function (ctx, t) {
   }
 };
 
-M.drawBackground = function (ctx, t) {
-  M.drawSky(ctx, t);
-  // árboles del fondo
-  for (const b of scene.bgTrees) { ctx.fillStyle = b.c; ctx.beginPath(); blob(ctx, b.x, b.y, b.rad); ctx.fill(); }
+// capa lejana: árboles del fondo
+M.drawFar = function (ctx, t) {
+  if (!scene.built) buildScene();
+  for (const b of scene.bgTrees) { ctx.fillStyle = b.c; ctx.beginPath(); blob(ctx, b.x + Math.sin(t * 0.5 + b.x) * 2, b.y, b.rad); ctx.fill(); }
+  ctx.fillStyle = '#2F6B34'; ctx.fillRect(-30000, 1000, 60000, 400);
+};
+
+// capa media: locales, colmado, casa, cables, acera (y vida al fondo)
+M.drawBuild = function (ctx, t) {
+  if (!scene.built) buildScene();
+  // franja de arena propia (tapa la unión con el suelo cuando hay parallax)
+  ctx.fillStyle = '#E2CFA6'; ctx.fillRect(-30000, 1080, 60000, 2400);
   // ---- hilera de locales verdes
   const shopColors = ['#EDEBE2', '#86CC96', '#9AD8A8', '#7DC48C', '#94D3A2', '#82C993', '#9BD9A9'];
-  for (let i = 0; i < 7; i++) {
+  for (let i = -6; i < 7; i++) {
     const x = -400 + i * 200;
-    ctx.fillStyle = shopColors[i]; ctx.fillRect(x, 895, 200, 165);
+    ctx.fillStyle = shopColors[((i % 7) + 7) % 7]; ctx.fillRect(x, 895, 200, 165);
     ctx.fillStyle = 'rgba(0,0,0,0.08)'; ctx.fillRect(x + 192, 895, 8, 165);
     // puerta enrollable
     ctx.fillStyle = '#A3A9AE'; ctx.fillRect(x + 28, 948, 144, 112);
@@ -282,8 +291,9 @@ M.drawBackground = function (ctx, t) {
     ctx.fillStyle = '#7E848A'; ctx.fillRect(x + 28, 940, 144, 10);
   }
   // alero/parapeto crema
-  ctx.fillStyle = '#E9DDAE'; ctx.fillRect(-420, 878, 1430, 24);
-  ctx.fillStyle = '#D2C48F'; ctx.fillRect(-420, 900, 1430, 6);
+  ctx.fillStyle = '#E9DDAE'; ctx.fillRect(-1620, 878, 2630, 24);
+  ctx.fillStyle = '#D2C48F'; ctx.fillRect(-1620, 900, 2630, 6);
+  M.drawExtraBuildings(ctx, t);
   // ---- colmado
   ctx.fillStyle = '#6DBE7E'; ctx.fillRect(1000, 870, 260, 190);
   ctx.fillStyle = '#E9DDAE'; ctx.fillRect(990, 860, 280, 18);
@@ -356,21 +366,28 @@ M.drawBackground = function (ctx, t) {
   cab(400, 404, 402, 110); cab(408, 412, 410, 150); cab(404, 408, 406, 190);
   ctx.beginPath(); ctx.moveTo(-900, -500); ctx.quadraticCurveTo(400, -120, 2800, -650); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(-900, -440); ctx.quadraticCurveTo(500, -40, 2800, -560); ctx.stroke();
-  // ---- acera y suelo de arena
-  ctx.fillStyle = '#D3CBB8'; ctx.fillRect(-1500, 1058, 5200, 30);
-  ctx.fillStyle = '#BDB4A0'; ctx.fillRect(-1500, 1086, 5200, 6);
-  const sg = ctx.createLinearGradient(0, 1090, 0, 2900);
-  sg.addColorStop(0, '#E2CFA6'); sg.addColorStop(1, '#EBDCBB');
-  ctx.fillStyle = sg; ctx.fillRect(-1500, 1090, 5200, 2400);
+  // ---- acera
+  ctx.fillStyle = '#D3CBB8'; ctx.fillRect(-30000, 1058, 60000, 30);
+  ctx.fillStyle = '#BDB4A0'; ctx.fillRect(-30000, 1086, 60000, 6);
+  M.drawBackLife(ctx, t);
+};
+
+// capa principal: suelo, isleta y tronco (mismo plano que los personajes)
+M.drawGround = function (ctx, t) {
+  if (!scene.built) buildScene();
+  const sg = ctx.createLinearGradient(0, 1370, 0, 2900);
+  sg.addColorStop(0, 'rgba(226,207,166,0)'); sg.addColorStop(0.05, '#E3D0A8'); sg.addColorStop(1, '#EBDCBB');
+  ctx.fillStyle = sg; ctx.fillRect(-8000, 1370, 18000, 6000);
   ctx.strokeStyle = 'rgba(160,130,90,0.20)'; ctx.lineWidth = 10; ctx.lineCap = 'round';
   for (const k of scene.tracks) {
+    if (k.y < 1480) continue;
     ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.a);
     ctx.beginPath(); ctx.moveTo(-k.w / 2, 0); ctx.quadraticCurveTo(0, 30, k.w / 2, 0); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(-k.w / 2, 26); ctx.quadraticCurveTo(0, 56, k.w / 2, 26); ctx.stroke();
     ctx.restore();
   }
   ctx.fillStyle = 'rgba(150,120,85,0.35)';
-  for (const p of scene.pebbles) { ctx.beginPath(); blob(ctx, p.x, p.y, p.rad); ctx.fill(); }
+  for (const p of scene.pebbles) { if (p.y < 1460) continue; ctx.beginPath(); blob(ctx, p.x, p.y, p.rad); ctx.fill(); }
   // ---- isleta triangular de cemento
   const isle = () => {
     ctx.beginPath();
@@ -456,5 +473,158 @@ M.drawSubtitle = function (ctx, who, color, text, k) {
     ctx.strokeText(ln, 540, y);
     ctx.fillStyle = '#FFFFFF'; ctx.fillText(ln, 540, y);
   });
+  ctx.restore();
+};
+
+// ---------------------------------------------------------------- más pueblo a los lados
+M.drawExtraBuildings = function (ctx, t) {
+  // pared crema con portón y casita rosada a la derecha de la casa verde
+  ctx.fillStyle = '#EFE6CF'; ctx.fillRect(1790, 940, 520, 120);
+  ctx.fillStyle = '#D9CDAF'; ctx.fillRect(1790, 930, 520, 14);
+  ctx.fillStyle = '#3E4A52'; ctx.fillRect(1960, 960, 150, 100);
+  ctx.strokeStyle = '#2A3238'; ctx.lineWidth = 3;
+  for (let x = 1965; x < 2110; x += 12) { ctx.beginPath(); ctx.moveTo(x, 960); ctx.lineTo(x, 1060); ctx.stroke(); }
+  ctx.fillStyle = '#F2B8B0'; ctx.fillRect(2310, 860, 520, 200);
+  ctx.fillStyle = '#E9A096'; ctx.fillRect(2295, 845, 550, 22);
+  ctx.fillStyle = '#7A5136'; ctx.fillRect(2520, 950, 80, 110);
+  for (const wx of [2360, 2680]) {
+    ctx.fillStyle = '#6E8C93'; ctx.fillRect(wx, 920, 90, 80);
+    ctx.strokeStyle = '#2B2B2B'; ctx.lineWidth = 3;
+    for (let k = 0; k <= 6; k++) { ctx.beginPath(); ctx.moveTo(wx + k * 15, 920); ctx.lineTo(wx + k * 15, 1000); ctx.stroke(); }
+  }
+  ctx.fillStyle = '#9CD3E8'; ctx.fillRect(2830, 900, 420, 160);
+  ctx.fillStyle = '#E9DDAE'; ctx.fillRect(2820, 885, 440, 20);
+  ctx.fillStyle = '#A3A9AE'; ctx.fillRect(2880, 950, 140, 110); ctx.fillRect(3060, 950, 140, 110);
+  // más allá a la izquierda: casita amarilla
+  ctx.fillStyle = '#F3D77A'; ctx.fillRect(-2200, 870, 600, 190);
+  ctx.fillStyle = '#C9A548'; ctx.fillRect(-2215, 855, 630, 20);
+  ctx.fillStyle = '#7A5136'; ctx.fillRect(-1950, 955, 80, 105);
+  ctx.fillStyle = '#6E8C93'; ctx.fillRect(-2120, 920, 100, 80); ctx.fillRect(-1780, 920, 100, 80);
+};
+
+// gente y motores que pasan por la calle de atrás (para que el pueblo esté vivo)
+M.backMotos = [];
+M.drawBackLife = function (ctx, t) {
+  const walkers = [
+    { x0: -900, v: 38, c: '#3F51B5', p: '#2B2B2B', s: 0 }, { x0: 2600, v: -30, c: '#E91E63', p: '#37474F', s: 1 },
+    { x0: 300, v: 24, c: '#FFFFFF', p: '#5D4037', s: 2 }, { x0: 1900, v: -42, c: '#FF9800', p: '#263238', s: 3 },
+  ];
+  for (const w of walkers) {
+    const x = w.x0 + w.v * t, y = 1080, ph = t * 7 + w.s;
+    ctx.save(); ctx.translate(x, y - Math.abs(Math.sin(ph)) * 3);
+    ctx.fillStyle = w.p;
+    ctx.save(); ctx.translate(-6, -60); ctx.rotate(Math.sin(ph) * 0.35); ctx.fillRect(-5, 0, 10, 60); ctx.restore();
+    ctx.save(); ctx.translate(6, -60); ctx.rotate(-Math.sin(ph) * 0.35); ctx.fillRect(-5, 0, 10, 60); ctx.restore();
+    ctx.fillStyle = w.c; M.rr(ctx, -18, -125, 36, 70, 12); ctx.fill();
+    ctx.fillStyle = '#6B3F26'; ctx.beginPath(); ctx.arc(0, -140, 17, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+  for (const m of M.backMotos) {
+    const k = (t - m.t0) / m.len;
+    if (k < 0 || k > 1) continue;
+    const x = m.dir > 0 ? M.lerp(-1800, 3400, k) : M.lerp(3400, -1800, k);
+    ctx.save(); ctx.translate(x, 1100); ctx.scale(0.42, 0.42);
+    M.drawMoto(ctx, 0, 0, m.dir < 0, m.color, t, true);
+    // motoconchista (silueta sencilla)
+    ctx.fillStyle = m.shirt; M.rr(ctx, -70, -400, 90, 170, 30); ctx.fill();
+    ctx.fillStyle = '#5A3A24'; ctx.beginPath(); ctx.arc(-25, -440, 42, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#263238'; ctx.fillRect(-70, -240, 120, 60);
+    ctx.restore();
+  }
+};
+
+// pétalos amarillos cayendo del árbol (en el plano de los personajes)
+M.drawPetals = function (ctx, t) {
+  const r = rng(77);
+  for (let i = 0; i < 46; i++) {
+    const x0 = -200 + r() * 1500, sp = 55 + r() * 50, off = r() * 2000, ph = r() * 6.28, sz = 6 + r() * 6;
+    const y = 700 + ((t * sp + off) % 1150);
+    const x = x0 + Math.sin(t * 1.3 + ph) * 40 + t * 8;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(t * 2 + ph);
+    ctx.fillStyle = r() < 0.5 ? '#F4C430' : '#FADB5F';
+    ctx.beginPath(); ctx.ellipse(0, 0, sz, sz * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+};
+
+// sombra moteada de las hojas: sombra general bajo la copa + manchas de sol que se mueven
+M.drawDapple = function (ctx, t) {
+  ctx.save();
+  ctx.beginPath(); ctx.ellipse(520, 1420, 820, 360, 0, 0, Math.PI * 2); ctx.clip();
+  ctx.globalCompositeOperation = 'multiply';
+  const g = ctx.createRadialGradient(520, 1420, 200, 520, 1420, 820);
+  g.addColorStop(0, 'rgba(110,120,150,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.save(); ctx.translate(520, 1420); ctx.scale(1, 360 / 820); ctx.translate(-520, -1420);
+  ctx.fillStyle = g; ctx.fillRect(-400, 600, 1900, 1700); ctx.restore();
+  ctx.globalCompositeOperation = 'screen';
+  const r = rng(99);
+  for (let i = 0; i < 70; i++) {
+    const bx = -250 + r() * 1550, by = 1470 + r() * 330, rad = 14 + r() * 38, ph = r() * 6.28;
+    const x = bx + Math.sin(t * 0.7 + ph) * 22 + Math.sin(t * 1.9 + ph * 2) * 8;
+    const y = by + Math.cos(t * 0.6 + ph) * 10;
+    const lg = ctx.createRadialGradient(x, y, 0, x, y, rad);
+    lg.addColorStop(0, 'rgba(255,214,150,0.30)'); lg.addColorStop(1, 'rgba(255,214,150,0)');
+    ctx.fillStyle = lg; ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  ctx.restore();
+};
+
+// sombra de contacto de un personaje (el sol viene de arriba a la derecha)
+M.drawContactShadow = function (ctx, x, y, k = 1) {
+  ctx.save();
+  ctx.fillStyle = `rgba(60,40,20,${0.28 * k})`;
+  ctx.beginPath(); ctx.ellipse(x - 22, y + 2, 78, 15, -0.05, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = `rgba(60,40,20,${0.16 * k})`;
+  ctx.beginPath(); ctx.ellipse(x - 70, y + 6, 120, 20, -0.08, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+};
+
+// plano intermedio (entre la calle de atrás y la isleta): vida del pueblo
+function person(ctx, x, y, h, shirt, pants, skin, t, ph, sway = 1) {
+  ctx.save(); ctx.translate(x, y); const k = h / 300; ctx.scale(k, k);
+  ctx.rotate(Math.sin(t * 0.9 + ph) * 0.02 * sway);
+  ctx.fillStyle = pants; M.rr(ctx, -36, -150, 32, 150, 12); ctx.fill(); M.rr(ctx, 4, -150, 32, 150, 12); ctx.fill();
+  ctx.fillStyle = shirt; M.rr(ctx, -46, -265, 92, 130, 30); ctx.fill();
+  ctx.save(); ctx.translate(-42, -250); ctx.rotate(0.12 + Math.sin(t * 1.7 + ph) * 0.15 * sway); ctx.fillStyle = skin; M.rr(ctx, -12, 0, 22, 115, 11); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.translate(42, -250); ctx.rotate(-0.12 - Math.sin(t * 1.3 + ph) * 0.2 * sway); ctx.fillStyle = skin; M.rr(ctx, -10, 0, 22, 115, 11); ctx.fill(); ctx.restore();
+  ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(0, -300 + Math.sin(t * 2 + ph) * 2, 40, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1E1510'; ctx.beginPath(); ctx.arc(0, -312, 38, Math.PI, 0); ctx.fill();
+  ctx.restore();
+}
+M.drawStreet = function (ctx, t) {
+  // camioneta parqueada
+  ctx.save(); ctx.translate(-420, 1300);
+  ctx.fillStyle = 'rgba(60,40,20,0.25)'; ctx.beginPath(); ctx.ellipse(0, 4, 330, 22, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#E8E4DA'; M.rr(ctx, -320, -200, 640, 140, 24); ctx.fill();
+  ctx.fillStyle = '#D9D3C5'; M.rr(ctx, -40, -330, 260, 150, 30); ctx.fill();
+  ctx.fillStyle = '#5E7A86'; M.rr(ctx, -10, -305, 95, 95, 12); ctx.fill(); M.rr(ctx, 100, -305, 95, 95, 12); ctx.fill();
+  ctx.fillStyle = '#B7462E'; ctx.fillRect(-320, -120, 640, 14);
+  for (const wx of [-200, 210]) {
+    ctx.fillStyle = '#1E1E22'; ctx.beginPath(); ctx.arc(wx, -55, 58, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#9AA1A8'; ctx.beginPath(); ctx.arc(wx, -55, 26, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+  // carretilla de plátanos con su vendedor
+  ctx.save(); ctx.translate(1180, 1290);
+  ctx.fillStyle = 'rgba(60,40,20,0.25)'; ctx.beginPath(); ctx.ellipse(0, 4, 200, 16, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#8D5A34'; M.rr(ctx, -170, -170, 300, 90, 10); ctx.fill();
+  ctx.fillStyle = '#6E4426'; ctx.fillRect(-170, -100, 300, 12); ctx.fillRect(120, -170, 110, 10);
+  ctx.fillStyle = '#1E1E22'; ctx.beginPath(); ctx.arc(-70, -48, 46, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#B08A5A'; ctx.beginPath(); ctx.arc(-70, -48, 18, 0, Math.PI * 2); ctx.fill();
+  for (let i = 0; i < 9; i++) { ctx.fillStyle = i % 3 ? '#6FA83A' : '#8CC04B'; ctx.beginPath(); ctx.ellipse(-140 + i * 30, -185 - (i % 2) * 14, 34, 18, -0.4 + (i % 3) * 0.3, 0, Math.PI * 2); ctx.fill(); }
+  ctx.fillStyle = '#F2C94C'; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(-120 + i * 60, -215, 26, 13, 0.3, 0, Math.PI * 2); ctx.fill(); }
+  ctx.restore();
+  person(ctx, 1450, 1290, 300, '#F4F4F4', '#5D4037', '#6B3F26', t, 1);
+  // gente conversando frente a la casa
+  person(ctx, 1660, 1240, 280, '#E57373', '#37474F', '#7A4A2E', t, 2);
+  person(ctx, 1760, 1245, 290, '#4DB6AC', '#3E2723', '#5A3A24', t, 3);
+  // perro echado a la sombra
+  ctx.save(); ctx.translate(120, 1360);
+  ctx.fillStyle = 'rgba(60,40,20,0.25)'; ctx.beginPath(); ctx.ellipse(0, 4, 90, 12, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#B07A45'; ctx.beginPath(); ctx.ellipse(0, -25, 80, 30, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(70, -45 + Math.sin(t * 0.8) * 2, 30, 24, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#8A5A30'; ctx.beginPath(); ctx.ellipse(62, -62, 12, 18, 0.5, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#B07A45'; ctx.lineWidth = 10; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-78, -25); ctx.quadraticCurveTo(-110, -40 + Math.sin(t * 3) * 10, -120, -10); ctx.stroke();
   ctx.restore();
 };
