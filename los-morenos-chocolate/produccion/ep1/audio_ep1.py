@@ -224,12 +224,37 @@ for c in cues:
     duck[a:b] = 0.6
 duck = onepole(duck, 2)
 final = mix + mix_amb * duck
+
+# --- música animada (ElevenLabs Music, instrumental original) ----------------
+MUS = os.path.join(AUD, "musica_ep1.mp3")
+if os.path.exists(MUS):
+    MUS_DELAY = 1.5  # el golpe final de la música cae con el título
+    mus = np.concatenate([np.zeros(int(MUS_DELAY * SR), np.float32), load(MUS)])[:N]
+    mus = np.pad(mus, (0, N - len(mus)))
+    rms = np.sqrt(np.mean(mus[mus != 0] ** 2)) if (mus != 0).any() else 1
+    mus = mus / max(rms, 1e-5) * 10 ** (-20 / 20)
+    # volumen: alto cuando nadie habla, bajito debajo de las voces
+    mg = np.full(N, 0.85, dtype=np.float32)
+    for c in cues:
+        a, b = int((c["start"] - 0.25) * SR), int((c["end"] + 0.2) * SR)
+        mg[max(a, 0):b] = 0.30
+    # "¡Hagan silencio!": la música se corta en seco (golpe cómico) y vuelve con El Doblón
+    cut0 = int((DP_START + 0.05) * SR)
+    back = int(next(c["start"] for c in cues if c["clip"] == "07_dob_a") * SR)
+    mg[cut0:back] = 0.0
+    mg[int((DOB2_END + 0.3) * SR):] = 1.0  # cierre: música arriba
+    mg = onepole(mg, 3)
+    mg[cut0:cut0 + int(0.04 * SR)] *= np.linspace(1, 0, int(0.04 * SR))
+    mg[cut0 + int(0.04 * SR):back] = 0
+    final = final + mus * mg
 # fade in/out
 fi = int(0.8 * SR)
 final[:fi] *= np.linspace(0, 1, fi)
 fo = int(2.0 * SR)
 final[-fo:] *= np.linspace(1, 0, fo)
-final = np.clip(final, -0.98, 0.98)
+# limitador suave: picos a -1.5 dBFS
+ceil = 10 ** (-1.5 / 20)
+final = np.where(np.abs(final) > ceil * 0.8, np.sign(final) * (ceil * 0.8 + (ceil * 0.2) * np.tanh((np.abs(final) - ceil * 0.8) / (ceil * 0.2))), final)
 
 wav = os.path.join(OUT, "mezcla_ep1.wav")
 subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "-",

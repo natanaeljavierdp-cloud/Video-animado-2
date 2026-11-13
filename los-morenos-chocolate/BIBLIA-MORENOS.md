@@ -81,7 +81,12 @@ redondeadas, sin texturas realistas). Basado en las fotos de `referencias-lugar/
 - El que habla se resalta: la cámara se acerca, mueve cabeza y brazos, y sale un **subtítulo
   grande** con su **nombre** y lo que dice.
 - Estilo cinematográfico: planos abiertos, acercamientos, movimientos de cámara suaves.
-- Sonido de ambiente bajito (brisa, motores, gente a lo lejos). **Sin música con derechos.**
+- Sonido de ambiente bajito (brisa, motores, gente a lo lejos). **Sin música con derechos de terceros.**
+- **Música animada original** generada con ElevenLabs Music (modelo `eleven_music_v2_5`),
+  siempre **instrumental**, estilo merengue/caribeño juguetón (güira, tambora, acordeón, bajo,
+  guitarra). Se verifica que no tenga voces cantadas. En la mezcla: alta cuando nadie habla,
+  bajita debajo de los diálogos, **se corta en seco en los momentos de tensión cómica** (ej. "¡Hagan
+  silencio!") y vuelve después; sube al cierre y su golpe final cae con el título.
 - Cierre con el título **"LOS MORENOS CHOCOLATE – Episodio N"**.
 
 ---
