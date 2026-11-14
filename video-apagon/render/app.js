@@ -846,14 +846,14 @@ function outro(t) {
   if (kbg <= 0) return;
   ctx.save(); ctx.globalAlpha = kbg;
   const g = ctx.createRadialGradient(W / 2, 860, 50, W / 2, 900, 1100);
-  g.addColorStop(0, '#F7F8FB'); g.addColorStop(1, '#D7DCE6');
+  g.addColorStop(0, '#163A6E'); g.addColorStop(.55, NAVY); g.addColorStop(1, NAVY_D);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.restore();
   const kl = eBack(prog(t, t0 + .1, .45));
   if (kl > 0) pop(W / 2, 820, kl, () => {
     ctx.save(); ctx.translate(W / 2, 820); ctx.rotate((1 - kl) * -.6); ctx.translate(-W / 2, -820);
-    ctx.save(); ctx.shadowColor = 'rgba(11,31,58,.35)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 14;
-    drawLogoMark(W / 2 - 40, 790, 1.55, { ring: NAVY, lens: '#FFFFFF' }); ctx.restore();
+    ctx.save(); ctx.shadowColor = 'rgba(58,120,220,.55)'; ctx.shadowBlur = 70;
+    drawLogoMark(W / 2 - 40, 790, 1.55, { ring: '#2F6FD0', lens: '#FFFFFF' }); ctx.restore();
     ctx.restore();
   });
   const kn = eOut(prog(t, t0 + .3, .35));
@@ -862,13 +862,13 @@ function outro(t) {
     const w1 = measure('CAPITAL ', F, 3), w2 = measure('CURIOSO', F, 3);
     const x0 = W / 2 - (w1 + w2) / 2;
     ctx.save(); ctx.translate(0, (1 - kn) * 40);
-    text('CAPITAL ', x0, 1150, { font: F, ls: 3, align: 'left', color: NAVY, shadow: false });
+    text('CAPITAL ', x0, 1150, { font: F, ls: 3, align: 'left', color: WHITE, shadow: false });
     text('CURIOSO', x0 + w1, 1150, { font: F, ls: 3, align: 'left', color: RED, shadow: false });
     ctx.restore();
   });
   const kh = eOut(prog(t, t0 + .5, .35));
   withA(kh, () => {
-    rrect(W / 2 - 230, 1245, 460, 80, 40, NAVY);
+    rrect(W / 2 - 230, 1245, 460, 80, 40, '#2F6FD0');
     text('@capitalcuriosoo', W / 2, 1287, { font: font('InterX', 44, 700), shadow: false });
   });
 }

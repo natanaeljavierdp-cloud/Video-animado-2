@@ -2,11 +2,13 @@
 import { createRequire } from 'module'; import { spawn } from 'child_process';
 import path from 'path'; import fs from 'fs';
 const { chromium } = createRequire(import.meta.url)('playwright');
-const [out, nw = 4] = process.argv.slice(2); fs.mkdirSync(out, { recursive: true });
+// argumento opcional `only`: re-renderizar solo un segmento
+const [out, nw = 4, only] = process.argv.slice(2); fs.mkdirSync(out, { recursive: true });
 const FPS = 30, DUR = 75.232653, N = Math.ceil(DUR * FPS);
 const per = Math.ceil(N / nw);
 const b = await chromium.launch();
 await Promise.all([...Array(+nw)].map(async (_, w) => {
+  if (only != null && w !== +only) return;
   const a = w * per, z = Math.min(N, a + per);
   const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
   p.on('pageerror', e => console.log('ERR', e.message));
