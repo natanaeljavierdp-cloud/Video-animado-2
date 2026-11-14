@@ -209,7 +209,18 @@ v = norm(v, .89)
 # ducking: la música baja cuando habla la voz
 envv = np.convolve(np.abs(v), np.ones(int(.15 * SR)) / int(.15 * SR), 'same')
 duck = 1 - .45 * np.clip(envv / (np.percentile(envv, 90) + 1e-9), 0, 1)
-music = norm(music, 1) * 0.13 * duck[:, None]
+import os, sys
+TRACK = sys.argv[1] if len(sys.argv) > 1 else None
+if TRACK and os.path.exists(TRACK):
+    # pista descargada: se recorta a la duración, con fundidos, hueco en "PERO NO ES EL ÚNICO" y ducking
+    tr = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-i', TRACK, '-ac', '2', '-ar', str(SR), '-f', 'f32le', '-'],
+                                      capture_output=True).stdout, dtype=np.float32).astype(np.float64).reshape(-1, 2)
+    m = np.zeros((N, 2)); m[:min(N, len(tr))] = tr[:N]
+    m /= np.sqrt((m ** 2).mean()) + 1e-9
+    shape = np.interp(t, [0, 1.2, DUR - 2.8, DUR], [0, 1, 1, 0]) * gap
+    music = m * 0.055 * shape[:, None] * duck[:, None]
+else:
+    music = norm(music, 1) * 0.13 * duck[:, None]
 sfx = sfx * 0.5
 mix = music + sfx + v[:, None]
 # limitador suave

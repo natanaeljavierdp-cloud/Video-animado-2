@@ -12,7 +12,7 @@ Video vertical 1080×1920, 30 fps, ~66 s, para @capitalcuriosoo.
 python3 build/transcribe.py narracion.mp3 build/words_raw.json   # tiempos palabra por palabra (faster-whisper)
 python3 build/align.py 65.41                                     # alinea el guion exacto → words.json + timeline.json
 node build/render.mjs video                                      # dibuja los cuadros (Canvas en Chromium) → build/parts/
-python3 build/audio.py                                           # música de suspenso + efectos sintetizados + voz → build/mezcla.wav
+python3 build/audio.py musica/Hidden_Agenda.mp3                  # música + efectos + voz → build/mezcla.wav (sin argumento: música sintetizada)
 ffmpeg -f concat -i build/parts/list.txt -i build/mezcla.wav -c:v copy -c:a aac -b:a 192k -shortest capital_curioso_bases_militares.mp4
 ```
 
@@ -21,4 +21,11 @@ Vista previa de cuadros sueltos: `node build/render.mjs preview 12.5 30 55` → 
 Si agregas `imagenes/anacostia.jpg` o `imagenes/fortmyer.jpg`, se usan automáticamente como foto de fondo
 de las escenas 5 y 6 (sin ellas se muestra un fondo de textura). Vuelve a ejecutar `render.mjs video` y el `ffmpeg` final.
 
-La música y los efectos están sintetizados por código (sin licencias de terceros).
+Música: "Hidden Agenda" — Kevin MacLeod (incompetech.com), licencia Creative Commons: By Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/). Los efectos de sonido están sintetizados por código.
+
+**Crédito obligatorio en la descripción de la publicación:**
+
+```
+Música: "Hidden Agenda" — Kevin MacLeod (incompetech.com)
+Licencia CC BY 4.0: creativecommons.org/licenses/by/4.0/
+```
