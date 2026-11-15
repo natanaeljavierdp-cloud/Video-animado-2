@@ -1,0 +1,17 @@
+# Storyboard — El costo de congelar los combustibles
+
+Formato 1080×1920, 30 fps, 66.4 s. Tiempos en segundos del vídeo final; cada corte cae en una pausa de la voz (sin cortes a mitad de frase). Transiciones: fundido de 0.4 s con leve acercamiento de la escena entrante + barrido sonoro suave.
+
+Elementos fijos: marca (lupa + CAPITAL CURIOSO) arriba a la izquierda (y≈232) con antetítulo por escena; subtítulos centrados (y≈1320–1470); viñeteado discreto. Zona inferior 1500–1920 y franja derecha libres de información para la interfaz de TikTok, Reels y Facebook.
+
+| # | Tiempo | Narración | Imagen | Gráficos / animación | Sonido |
+|---|---|---|---|---|---|
+| 1 | 0.0–10.7 | "¿La gasolina no subirá…? Hay un detalle… el Gobierno puso un límite…" | Surtidor (05), acercamiento lento con paneo | Titular **¿GASOLINA CONGELADA HASTA ENERO?** entra línea por línea; 4.3 s "Un detalle que cambia la historia"; 8.2 s franja roja **EL GOBIERNO PUSO UN LÍMITE** | Pad en re menor, entrada suave; golpe suave al aparecer la franja |
+| 2 | 10.7–21.7 | "El anuncio contempla… hasta el 7 de enero de 2027, siempre que… RD$1,500 millones semanales" | Mapa de RD (04) que se oscurece | Tarjeta de fecha: **7** aparece al decir "siete", luego **ENERO** y **2027**. 17.2 s tarjeta dorada **CONDICIÓN · TOPE DEL SUBSIDIO**, contador 0 → **RD$1,500 MILLONES**, luego **SEMANALES** | Pulso grave tipo reloj; golpes en la fecha y la cifra |
+| 3 | 21.7–29.0 | "Para la semana del 14 al 20 de noviembre, el Estado destinó 796.4 millones" | Fondo grafito con retícula | Barras proporcionales: tope 1,500 (rojo) vs. 796.4 (blanco, 53.09 % de altura); línea punteada del tope; **53.1 % DEL TOPE** dentro de la barra; fuente al pie | Arpegios discretos; golpe en "796.4" |
+| 4 | 29.0–30.6 | "¿Qué significa esto?" | Signo de interrogación (01) | **¿QUÉ SIGNIFICA ESTO?** | La música respira; impacto grave suave |
+| 5 | 30.6–39.7 | "Cuando el mercado internacional encarece… el Gobierno puede asumir parte del costo… en lugar de trasladarlo…" | Gráfico de mercado (03) en la parte superior | Etiqueta **MERCADO INTERNACIONAL**; barra **COSTO DEL COMBUSTIBLE** se alarga; el tramo nuevo se vuelve rojo = **SUBSIDIO – lo asume el Estado**; tramo blanco = **PRECIO AL CONSUMIDOR – se mantiene estable**. "Esquema ilustrativo: no representa montos reales" | |
+| 6 | 39.7–48.3 | "Pero mantener los precios congelados no significa que desaparezca el costo… recursos públicos" | Camión cisterna (02) | **PRECIO CONGELADO / EL COSTO NO DESAPARECE**; flujo **SUBSIDIO → RECURSOS PÚBLICOS** (icono de edificio público) | |
+| 7 | 48.3–56.9 | "Y si el subsidio supera el límite… deja de estar garantizado. Eso no significa que los precios aumenten automáticamente." | Fondo grafito | Tarjeta **SI EL SUBSIDIO SEMANAL SUPERA RD$1,500 MILLONES** → **EL CONGELAMIENTO DEJA DE ESTAR GARANTIZADO** → tarjeta blanca **NO SIGNIFICA QUE LOS PRECIOS AUMENTEN AUTOMÁTICAMENTE**. Sin flechas de precios al alza | |
+| 8 | 56.9–61.0 | "La pregunta es: ¿qué tan sostenible resulta mantener esta medida?" | Surtidor (05) oscurecido, alejamiento | **LA PREGUNTA ES / ¿QUÉ TAN SOSTENIBLE ES ESTA MEDIDA?** | Ascenso suave hacia el cierre |
+| 9 | 61.0–66.4 | "Capital Curioso. La historia detrás de los números." | Cierre oficial `capital_curioso_cierre.mp4` (sin modificar), último fotograma sostenido | Lema **La historia detrás de los números.** bajo el logo | Resolución en fa mayor + campanita al aparecer el logo |
