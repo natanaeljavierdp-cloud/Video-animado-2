@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cumbre Trump Xi Putin — escenas</title>
+<style>
+  :root{--bg:#1b1e25;--bg2:#252a34;--navy:#1f3d7a;--navy2:#2d5bb3;--red:#d62839;--white:#f4f5f7;--muted:#9aa3b2;--gold:#f2c14e;--green:#2bb673}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:Inter,"Inter Display",system-ui,sans-serif;color:var(--white)}
+  #stage{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,#2a303c 0%,var(--bg) 70%)}
+  .scene{position:absolute;inset:0;opacity:0}
+  .abs{position:absolute}
+  .full{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .shadow{box-shadow:0 18px 40px rgba(0,0,0,.45)}
+  .chip{position:absolute;left:60px;top:250px;padding:14px 26px;background:var(--red);font-weight:800;font-size:40px;letter-spacing:2px;text-transform:uppercase;border-radius:6px}
+  .title{position:absolute;left:60px;right:60px;top:330px;font-weight:900;font-size:78px;line-height:1.02;letter-spacing:-1px;text-shadow:0 4px 18px rgba(0,0,0,.6)}
+  .card{position:absolute;background:rgba(20,24,32,.92);border-left:10px solid var(--red);padding:26px 34px;border-radius:10px;font-size:44px;font-weight:700;line-height:1.2}
+  .card small{display:block;font-size:30px;font-weight:600;color:var(--muted);margin-top:8px;letter-spacing:1px;text-transform:uppercase}
+  .stamp{position:absolute;padding:14px 34px;border:10px solid var(--red);color:var(--red);font-weight:900;font-size:76px;letter-spacing:4px;border-radius:14px;text-transform:uppercase;background:rgba(255,255,255,.04);white-space:nowrap}
+  .stamp.green{border-color:var(--green);color:var(--green)}
+  .portrait{position:absolute;border-radius:50%;overflow:hidden;border:10px solid var(--white);background:#333}
+  .portrait img{width:100%;height:100%;object-fit:cover}
+  .name{position:absolute;font-weight:800;font-size:38px;text-align:center;letter-spacing:2px;text-transform:uppercase}
+  .flag{position:absolute;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,.5);object-fit:cover}
+  /* barra superior y subtítulos */
+  #topbar{position:absolute;left:0;right:0;top:0;height:180px;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,0));z-index:50}
+  #brand{position:absolute;left:60px;top:90px;font-weight:800;font-size:32px;letter-spacing:4px;color:var(--white);display:flex;align-items:center;gap:16px}
+  #brand i{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--red)}
+  #progress{position:absolute;left:60px;right:60px;top:150px;height:6px;background:rgba(255,255,255,.18);border-radius:3px;overflow:hidden}
+  #progress b{display:block;height:100%;width:0;background:var(--red)}
+  #captions{position:absolute;left:50px;right:50px;top:1440px;text-align:center;z-index:60;font-weight:900;font-size:66px;line-height:1.15;text-transform:uppercase;letter-spacing:.5px}
+  #captions span{display:inline-block;margin:0 9px;padding:2px 10px;border-radius:10px;-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:0 6px 16px rgba(0,0,0,.85)}
+  #captions span.on{color:var(--gold)}
+  #fade{position:absolute;inset:0;background:#000;opacity:0;z-index:100}
+  #credit{position:absolute;right:30px;bottom:30px;font-size:20px;color:rgba(255,255,255,.55);z-index:70;text-align:right}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1. GANCHO -->
+  <div class="scene" id="s1">
+    <img class="full" id="s1map" src="assets/mapa-mundo.png" style="opacity:.55">
+    <div class="chip" id="s1chip">Por primera vez</div>
+    <div class="title" id="s1title">La cumbre inédita</div>
+    <svg class="abs" style="left:0;top:820px" width="1080" height="700" viewBox="0 0 1080 700">
+      <ellipse cx="540" cy="420" rx="330" ry="120" fill="#13161c" opacity=".6"/>
+      <ellipse cx="540" cy="400" rx="320" ry="115" fill="#3a2a22"/>
+      <ellipse cx="540" cy="388" rx="320" ry="115" fill="#6b4a36"/>
+      <ellipse cx="540" cy="388" rx="290" ry="98" fill="#7d573f"/>
+      <!-- sillas -->
+      <g id="chairs" fill="#2b3240" stroke="#11141a" stroke-width="4">
+        <rect x="150" y="170" width="150" height="190" rx="22"/>
+        <rect x="465" y="90" width="150" height="190" rx="22"/>
+        <rect x="780" y="170" width="150" height="190" rx="22"/>
+      </g>
+    </svg>
+    <div id="s1spot" class="abs" style="left:140px;top:600px;width:800px;height:1000px;background:radial-gradient(ellipse at 50% 20%,rgba(255,255,255,.18),rgba(255,255,255,0) 65%)"></div>
+    <img class="flag" id="f1" src="assets/bandera-estados-unidos.png" style="width:180px;height:120px">
+    <img class="flag" id="f2" src="assets/bandera-china.png" style="width:180px;height:120px">
+    <img class="flag" id="f3" src="assets/bandera-rusia.png" style="width:180px;height:120px">
+    <div class="name" id="n1" style="left:120px;top:1330px;width:220px">EE.&nbsp;UU.</div>
+    <div class="name" id="n2" style="left:430px;top:1330px;width:220px">China</div>
+    <div class="name" id="n3" style="left:745px;top:1330px;width:220px">Rusia</div>
+  </div>
+
+  <!-- 2. ANUNCIO -->
+  <div class="scene" id="s2">
+    <div id="s2a" class="abs" style="inset:0">
+      <div class="abs" style="inset:0;background:linear-gradient(180deg,#1f3d7a 0%,#1b1e25 75%)"></div>
+      <svg class="abs" id="wh" style="left:40px;top:560px" width="1000" height="620" viewBox="0 0 1000 620">
+        <!-- Casa Blanca (vector plano, fachada norte) -->
+        <rect x="0" y="560" width="1000" height="60" fill="#2f6b3c"/>
+        <rect x="60" y="250" width="880" height="310" fill="#eef0f3"/>
+        <rect x="60" y="240" width="880" height="22" fill="#d9dce2"/>
+        <rect x="60" y="225" width="880" height="16" fill="#f7f8fa"/>
+        <g fill="#c9ced8">
+          <rect x="70" y="270" width="860" height="10"/>
+        </g>
+        <g fill="#5b6576">
+          <rect x="100" y="320" width="50" height="80"/><rect x="190" y="320" width="50" height="80"/><rect x="760" y="320" width="50" height="80"/><rect x="850" y="320" width="50" height="80"/>
+          <rect x="100" y="450" width="50" height="80"/><rect x="190" y="450" width="50" height="80"/><rect x="760" y="450" width="50" height="80"/><rect x="850" y="450" width="50" height="80"/>
+        </g>
+        <polygon points="300,215 500,110 700,215" fill="#f7f8fa"/>
+        <polygon points="330,207 500,128 670,207" fill="#dfe2e8"/>
+        <rect x="290" y="215" width="420" height="28" fill="#f7f8fa"/>
+        <g fill="#ffffff" stroke="#c9ced8" stroke-width="3">
+          <rect x="315" y="243" width="30" height="300"/><rect x="385" y="243" width="30" height="300"/><rect x="455" y="243" width="30" height="300"/>
+          <rect x="515" y="243" width="30" height="300"/><rect x="585" y="243" width="30" height="300"/><rect x="655" y="243" width="30" height="300"/>
+        </g>
+        <rect x="470" y="440" width="60" height="103" fill="#3d4757"/>
+        <rect x="280" y="543" width="440" height="20" fill="#d9dce2"/>
+        <rect x="495" y="40" width="6" height="72" fill="#c9ced8"/>
+        <rect x="501" y="40" width="70" height="40" fill="#d62839"/><rect x="501" y="40" width="30" height="22" fill="#1f3d7a"/>
+      </svg>
+      <div class="chip" style="background:var(--navy2)">Washington</div>
+      <div class="title" id="s2t1">La Casa Blanca lo confirma</div>
+      <div class="stamp" id="st1" style="left:250px;top:880px">Confirmado</div>
+      <div class="card shadow" id="s2c1" style="left:60px;top:1230px;right:60px">Viernes 13 de noviembre<small>Portavoz: Olivia Wales</small></div>
+    </div>
+    <div id="s2b" class="abs" style="inset:0">
+      <img class="full" id="s2moscu" src="assets/moscu.jpg" style="top:430px;height:820px">
+      <div class="abs" style="left:0;right:0;top:430px;height:820px;background:linear-gradient(180deg,var(--bg) 0%,rgba(27,30,37,0) 20%,rgba(27,30,37,0) 70%,var(--bg) 100%)"></div>
+      <div class="chip">Moscú</div>
+      <div class="title">El Kremlin da su visto bueno</div>
+      <div class="stamp green" id="st2" style="left:200px;top:880px">Visto bueno</div>
+      <div class="card shadow" id="s2c2" style="left:60px;top:1230px;right:60px">Un día después<small>Sábado 14 de noviembre</small></div>
+    </div>
+  </div>
+
+  <!-- 3. SHENZHEN -->
+  <div class="scene" id="s3">
+    <div id="s3a" class="abs" style="inset:0;overflow:hidden">
+      <div id="s3zoom" class="abs" style="left:0;top:0;width:1080px;height:1920px;transform-origin:687px 1240px">
+        <img src="assets/mapa-china.png" style="width:1080px;height:1920px">
+        <div id="pinpulse" class="abs" style="left:647px;top:1225px;width:80px;height:80px;border-radius:50%;border:5px solid var(--gold)"></div>
+      </div>
+      <div class="chip">La cita</div>
+      <div class="title">Shenzhen, China</div>
+      <!-- calendario -->
+      <div id="cal" class="abs shadow" style="left:640px;top:520px;width:340px;height:380px;border-radius:24px;overflow:hidden;background:#fff;color:#1b1e25;text-align:center;perspective:800px">
+        <div style="background:var(--red);color:#fff;font-weight:900;font-size:44px;padding:18px 0;letter-spacing:3px">NOVIEMBRE</div>
+        <div id="calnum" style="font-weight:900;font-size:190px;line-height:230px">18</div>
+        <div id="calday" style="font-weight:800;font-size:40px;color:#555;margin-top:-30px">MIÉRCOLES</div>
+      </div>
+    </div>
+    <div id="s3b" class="abs" style="inset:0">
+      <img class="full" id="s3img" src="assets/shenzhen.jpg" style="top:380px;height:1000px">
+      <div class="abs" style="left:0;right:0;top:380px;height:1000px;background:linear-gradient(180deg,var(--bg) 0%,rgba(27,30,37,0) 22%,rgba(27,30,37,0) 65%,var(--bg) 100%)"></div>
+      <div class="chip">Jueves 19 · Shenzhen</div>
+      <div class="card shadow" id="s3card" style="left:60px;right:60px;top:1060px;font-size:64px;font-weight:900;border-left-color:var(--gold)">APEC<small>Foro de Cooperación Económica Asia-Pacífico</small></div>
+    </div>
+  </div>
+
+  <!-- 4. NUCLEAR -->
+  <div class="scene" id="s4">
+    <div class="chip">Agenda · 1</div>
+    <div class="title" id="s4title">Reducir los arsenales nucleares</div>
+    <div class="portrait shadow" id="p4a" style="left:70px;top:560px;width:280px;height:280px"><img src="assets/trump.jpg" style="object-position:50% 22%"></div>
+    <div class="portrait shadow" id="p4b" style="left:400px;top:520px;width:280px;height:280px"><img src="assets/xi.jpg" style="object-position:50% 30%"></div>
+    <div class="portrait shadow" id="p4c" style="left:730px;top:560px;width:280px;height:280px"><img src="assets/putin.jpg" style="object-position:30% 30%"></div>
+    <svg class="abs" style="left:0;top:800px" width="1080" height="560" viewBox="0 0 1080 560">
+      <ellipse cx="540" cy="420" rx="460" ry="110" fill="#6b4a36"/>
+      <ellipse cx="540" cy="410" rx="440" ry="98" fill="#7d573f"/>
+      <defs>
+        <g id="warhead">
+          <path d="M0,-150 C40,-110 55,-60 55,0 L55,120 L-55,120 L-55,0 C-55,-60 -40,-110 0,-150Z" fill="#c9ced8" stroke="#11141a" stroke-width="6"/>
+          <rect x="-55" y="40" width="110" height="26" fill="#d62839"/>
+          <path d="M-55,120 L-85,170 L-55,160Z M55,120 L85,170 L55,160Z" fill="#8a93a3"/>
+          <circle cx="0" cy="-20" r="22" fill="#f2c14e" stroke="#11141a" stroke-width="4"/>
+          <path d="M0,-20 L0,-42 M0,-20 L19,-9 M0,-20 L-19,-9" stroke="#11141a" stroke-width="6"/>
+        </g>
+      </defs>
+      <g id="w1" transform="translate(300,340)"><use href="#warhead"/></g>
+      <g id="w2" transform="translate(540,340)"><use href="#warhead"/></g>
+      <g id="w3" transform="translate(780,340)"><use href="#warhead"/></g>
+      <g id="arrow" fill="#d62839"><rect x="940" y="140" width="40" height="170"/><polygon points="910,300 1010,300 960,390"/></g>
+    </svg>
+    <div class="card shadow" id="s4card" style="left:60px;right:60px;top:1290px;border-left-color:var(--gold)">Gran pacto de control de armas<small>Entre las tres potencias</small></div>
+  </div>
+
+  <!-- 5. IRÁN -->
+  <div class="scene" id="s5">
+    <div id="s5zoom" class="abs" style="left:0;top:0;width:1080px;height:1920px;transform-origin:697px 834px">
+      <img src="assets/mapa-iran.png" style="width:1080px;height:1920px">
+      <div id="irglow" class="abs" style="left:400px;top:560px;width:600px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(214,40,57,.75),rgba(214,40,57,0) 65%)"></div>
+    </div>
+    <div class="chip">Agenda · 2</div>
+    <div class="title">La guerra en Irán</div>
+    <svg class="abs warn" id="wa1" style="left:300px;top:640px" width="120" height="110" viewBox="0 0 120 110"><polygon points="60,5 115,105 5,105" fill="#f2c14e" stroke="#11141a" stroke-width="6"/><rect x="54" y="38" width="12" height="38" fill="#11141a"/><rect x="54" y="84" width="12" height="12" fill="#11141a"/></svg>
+    <svg class="abs warn" id="wa2" style="left:820px;top:960px" width="120" height="110" viewBox="0 0 120 110"><polygon points="60,5 115,105 5,105" fill="#f2c14e" stroke="#11141a" stroke-width="6"/><rect x="54" y="38" width="12" height="38" fill="#11141a"/><rect x="54" y="84" width="12" height="12" fill="#11141a"/></svg>
+    <svg class="abs warn" id="wa3" style="left:540px;top:1100px" width="120" height="110" viewBox="0 0 120 110"><polygon points="60,5 115,105 5,105" fill="#f2c14e" stroke="#11141a" stroke-width="6"/><rect x="54" y="38" width="12" height="38" fill="#11141a"/><rect x="54" y="84" width="12" height="12" fill="#11141a"/></svg>
+    <img class="flag" id="s5flag" src="assets/bandera-iran.png" style="left:780px;top:520px;width:220px;height:126px">
+    <div class="card shadow" id="s5card" style="left:60px;right:60px;top:1230px">Según un funcionario estadounidense<small>Trump también quiere abordarlo</small></div>
+  </div>
+
+  <!-- 6. UCRANIA -->
+  <div class="scene" id="s6">
+    <div class="title" id="s6q" style="top:300px;font-size:120px;color:var(--gold)">¿Lo curioso?</div>
+    <div id="folder" class="abs shadow" style="left:240px;top:620px;width:600px;height:440px">
+      <div class="abs" style="left:0;top:0;width:240px;height:60px;background:#c9a15a;border-radius:16px 16px 0 0"></div>
+      <div class="abs" style="left:0;top:40px;width:600px;height:400px;background:#e0b86b;border-radius:0 16px 16px 16px"></div>
+      <img src="assets/bandera-ucrania.png" class="abs" style="left:150px;top:120px;width:300px;height:200px;border-radius:6px">
+      <div class="abs" style="left:0;right:0;top:345px;text-align:center;font-weight:900;font-size:46px;color:#3a2a10;letter-spacing:3px">UCRANIA</div>
+    </div>
+    <div class="stamp" id="st6" style="left:90px;top:780px;font-size:70px">Fuera de agenda</div>
+    <div class="portrait shadow" id="p6" style="left:640px;top:1100px;width:300px;height:300px"><img src="assets/putin.jpg" style="object-position:30% 30%"></div>
+    <div class="card shadow" id="s6card" style="left:60px;width:560px;top:1140px;font-size:38px">La idea original de Putin<small>Usar la cumbre para hablar de esa guerra</small></div>
+  </div>
+
+  <!-- 7. BILATERALES -->
+  <div class="scene" id="s7">
+    <div class="chip">Reuniones aparte</div>
+    <div id="s7top" class="abs" style="left:40px;right:40px;top:350px;height:520px;background:var(--bg2);border-radius:24px">
+      <div class="portrait" style="left:70px;top:60px;width:240px;height:240px"><img src="assets/trump.jpg" style="object-position:50% 22%"></div>
+      <div class="portrait" style="left:690px;top:60px;width:240px;height:240px"><img src="assets/xi.jpg" style="object-position:50% 30%"></div>
+      <svg class="abs" style="left:300px;top:150px" width="400" height="260" viewBox="0 0 400 260">
+        <rect x="20" y="170" width="360" height="24" rx="8" fill="#7d573f"/><rect x="60" y="194" width="20" height="60" fill="#6b4a36"/><rect x="320" y="194" width="20" height="60" fill="#6b4a36"/>
+        <ellipse cx="120" cy="165" rx="70" ry="14" fill="#f4f5f7"/><ellipse cx="280" cy="165" rx="70" ry="14" fill="#f4f5f7"/>
+        <g id="steam" fill="none" stroke="#f4f5f7" stroke-width="6" stroke-linecap="round" opacity=".7">
+          <path id="sm1" d="M110,140 C95,115 125,100 110,75"/><path id="sm2" d="M290,140 C275,115 305,100 290,75"/>
+        </g>
+      </svg>
+      <div class="name" style="left:0;right:0;top:420px;font-size:44px">Trump almuerza con Xi</div>
+      <svg class="abs" id="check" style="left:430px;top:20px" width="140" height="140" viewBox="0 0 140 140"><circle cx="70" cy="70" r="64" fill="#2bb673"/><path d="M38,72 L60,94 L104,48" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div id="s7bot" class="abs" style="left:40px;right:40px;top:900px;height:520px;background:var(--bg2);border-radius:24px">
+      <div class="portrait" style="left:690px;top:60px;width:240px;height:240px"><img src="assets/putin.jpg" style="object-position:30% 30%"></div>
+      <svg class="abs" style="left:90px;top:40px" width="240" height="320" viewBox="0 0 240 320"><rect x="40" y="20" width="160" height="170" rx="22" fill="#3a4252" stroke="#11141a" stroke-width="5"/><rect x="25" y="180" width="190" height="40" rx="10" fill="#4a5466"/><rect x="40" y="220" width="16" height="90" fill="#4a5466"/><rect x="184" y="220" width="16" height="90" fill="#4a5466"/></svg>
+      <div class="name" style="left:0;right:0;top:420px;font-size:44px">Con Putin: sin reunión a solas</div>
+      <svg class="abs" id="xmark" style="left:430px;top:110px" width="140" height="140" viewBox="0 0 140 140"><circle cx="70" cy="70" r="64" fill="#d62839"/><path d="M45,45 L95,95 M95,45 L45,95" stroke="#fff" stroke-width="14" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- 8. EXPECTATIVAS -->
+  <div class="scene" id="s8">
+    <div class="chip">Expectativas</div>
+    <div class="title" id="s8title">No hay que esperar milagros</div>
+    <svg class="abs" style="left:80px;top:540px" width="260" height="860" viewBox="0 0 260 860">
+      <rect x="85" y="20" width="90" height="680" rx="45" fill="#2b3240" stroke="#f4f5f7" stroke-width="8"/>
+      <circle cx="130" cy="760" r="90" fill="#2b3240" stroke="#f4f5f7" stroke-width="8"/>
+      <circle cx="130" cy="760" r="72" fill="#d62839"/>
+      <rect id="merc" x="107" y="60" width="46" height="660" rx="23" fill="#d62839"/>
+      <g stroke="#f4f5f7" stroke-width="5"><line x1="185" y1="100" x2="225" y2="100"/><line x1="185" y1="250" x2="215" y2="250"/><line x1="185" y1="400" x2="225" y2="400"/><line x1="185" y1="550" x2="215" y2="550"/></g>
+    </svg>
+    <div class="abs" id="lvlhi" style="left:330px;top:610px;font-size:36px;font-weight:800;color:var(--muted)">ALTA</div>
+    <div class="abs" id="lvllo" style="left:330px;top:1065px;font-size:36px;font-weight:800;color:var(--gold)">BAJA</div>
+    <div class="card shadow" id="s8q" style="left:450px;right:60px;top:600px;font-size:52px;line-height:1.15;border-left-color:var(--gold)">“No prevemos ningún acuerdo”<small>Alto funcionario de EE.&nbsp;UU.</small></div>
+    <div class="card shadow" id="s8g" style="left:450px;right:60px;top:1000px;font-size:46px;border-left-color:var(--green)">Objetivo: solo abrir la conversación</div>
+  </div>
+
+  <!-- 8b. YALTA -->
+  <div class="scene" id="s8b">
+    <img class="full" id="yalta" src="assets/yalta.jpg" style="top:420px;height:900px;filter:grayscale(1) sepia(.35) contrast(1.05)">
+    <div class="abs" style="left:0;right:0;top:420px;height:900px;background:linear-gradient(180deg,var(--bg) 0%,rgba(27,30,37,.15) 20%,rgba(27,30,37,.15) 70%,var(--bg) 100%)"></div>
+    <div class="chip">Yalta, 1945</div>
+    <div class="title">El Kremlin rechaza la comparación</div>
+    <div class="stamp" id="st8" style="left:220px;top:780px">No es Yalta</div>
+    <div class="card shadow" id="s8bc" style="left:60px;right:60px;top:1150px">“Extremadamente significativa”<small>Así califica Moscú la cita</small></div>
+    <div class="abs" style="left:60px;top:1330px;font-size:24px;color:var(--muted)">Churchill, Roosevelt y Stalin · febrero de 1945</div>
+  </div>
+
+  <!-- 9. CIERRE -->
+  <div class="scene" id="s9">
+    <div class="title" id="s9title" style="top:260px;font-size:84px">¿Cumbre histórica o solo una foto?</div>
+    <div class="portrait shadow" id="p9a" style="left:70px;top:640px;width:260px;height:260px"><img src="assets/trump.jpg" style="object-position:50% 22%"></div>
+    <div class="portrait shadow" id="p9b" style="left:410px;top:600px;width:260px;height:260px"><img src="assets/xi.jpg" style="object-position:50% 30%"></div>
+    <div class="portrait shadow" id="p9c" style="left:750px;top:640px;width:260px;height:260px"><img src="assets/putin.jpg" style="object-position:30% 30%"></div>
+    <svg class="abs" style="left:0;top:880px" width="1080" height="560" viewBox="0 0 1080 560">
+      <ellipse cx="540" cy="200" rx="470" ry="120" fill="#6b4a36"/>
+      <ellipse cx="540" cy="190" rx="450" ry="106" fill="#7d573f"/>
+      <!-- reloj de arena -->
+      <g transform="translate(540,215) scale(.72)">
+        <rect x="-110" y="-150" width="220" height="24" rx="8" fill="#f2c14e"/>
+        <rect x="-110" y="226" width="220" height="24" rx="8" fill="#f2c14e"/>
+        <path d="M-90,-126 L90,-126 L10,50 L90,226 L-90,226 L-10,50Z" fill="rgba(244,245,247,.18)" stroke="#f4f5f7" stroke-width="6"/>
+        <clipPath id="topc"><path d="M-90,-126 L90,-126 L10,50 L-10,50Z"/></clipPath>
+        <clipPath id="botc"><path d="M-10,50 L10,50 L90,226 L-90,226Z"/></clipPath>
+        <rect id="sandtop" clip-path="url(#topc)" x="-100" y="-60" width="200" height="120" fill="#f2c14e"/>
+        <rect id="sandbot" clip-path="url(#botc)" x="-100" y="180" width="200" height="60" fill="#f2c14e"/>
+        <rect id="stream" x="-3" y="50" width="6" height="176" fill="#f2c14e"/>
+      </g>
+    </svg>
+    <div class="card shadow" id="s9date" style="left:60px;right:60px;top:1290px;text-align:center;font-size:64px;font-weight:900;border-left:none;border-top:10px solid var(--red)">19 NOV · SHENZHEN</div>
+    <div class="card shadow" id="s9cta" style="left:60px;right:60px;top:1290px;text-align:center;font-size:54px;font-weight:900;border-left:none;border-top:10px solid var(--gold);display:flex;align-items:center;justify-content:center;gap:24px">
+      <svg width="70" height="70" viewBox="0 0 70 70"><path d="M8,10 H62 V48 H30 L16,62 V48 H8Z" fill="#f2c14e"/></svg>Déjanos tu opinión
+    </div>
+  </div>
+
+  <div id="topbar"><div id="brand"><i></i>CUMBRE INÉDITA</div><div id="progress"><b></b></div></div>
+  <div id="captions"></div>
+  <div id="credit"></div>
+  <div id="fade"></div>
+</div>
+
+<script>
+const DUR = 77.1;
+const $ = id => document.getElementById(id);
+const clamp = (x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lin = (t,a,b)=>clamp((t-a)/(b-a));
+const easeOut = x=>1-Math.pow(1-x,3);
+const easeIn = x=>x*x*x;
+const easeInOut = x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const backOut = x=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+const bounce = x=>{const n1=7.5625,d1=2.75;if(x<1/d1)return n1*x*x;if(x<2/d1)return n1*(x-=1.5/d1)*x+.75;if(x<2.5/d1)return n1*(x-=2.25/d1)*x+.9375;return n1*(x-=2.625/d1)*x+.984375};
+const set=(el,o)=>{el=typeof el==='string'?$(el):el;for(const k in o){if(k==='o')el.style.opacity=o[k];else if(k==='tf')el.style.transform=o[k];else el.style[k]=o[k]}};
+
+// aparición "pop" de un elemento en el instante a
+function pop(id,t,a,d=.45,fromY=40){const p=lin(t,a,a+d);set(id,{o:clamp(p*2),tf:`translateY(${(1-easeOut(p))*fromY}px) scale(${.85+.15*backOut(p)})`})}
+// sello: cae desde grande con sacudida
+function stamp(id,t,a,rot=-8){const p=lin(t,a,a+.25);const shake=t>a+.25&&t<a+.55?Math.sin((t-a)*90)*6*(1-lin(t,a+.25,a+.55)):0;
+  set(id,{o:p>0?1:0,tf:`translate(${shake}px,0) rotate(${rot}deg) scale(${p<1?2.6-1.6*easeIn(p):1})`})}
+
+const scenes=[ // [id, inicio, fin]
+  ['s1',0,6.45],['s2',6.45,15.0],['s3',15.0,23.45],['s4',23.45,31.5],['s5',31.5,36.4],
+  ['s6',36.4,44.6],['s7',44.6,50.4],['s8',50.4,59.45],['s8b',59.45,68.45],['s9',68.45,DUR]];
+const XF=.35;
+
+const upd={
+ s1(t){
+  const z=1.06+t*.012; set('s1map',{tf:`scale(${z})`});
+  pop('s1chip',t,.1); pop('s1title',t,.35);
+  // banderas caen sobre las sillas (centros: 225, 540, 855; y silla ~ 1000)
+  const seats=[[225,1000,2.66],[540,920,3.84],[855,1000,4.34]];
+  seats.forEach(([x,y,a],i)=>{const p=lin(t,a-.1,a+.6);const yy=-300+(y-60+300)*bounce(p);
+    set('f'+(i+1),{left:(x-90)+'px',top:yy+'px',o:p>0?1:0,tf:`rotate(${(1-p)*-12}deg)`});
+    pop('n'+(i+1),t,a+.2,.4,20)});
+  set('s1spot',{o:.5+.5*Math.sin(t*2)*.3});
+ },
+ s2(t){
+  const a=lin(t,11.9,12.3); set('s2a',{o:1-a}); set('s2b',{o:a});
+  set('wh',{tf:`scale(${1+ (t-6.45)*.01}) translateY(${(1-easeOut(lin(t,6.45,7.2)))*60}px)`});
+  pop('s2t1',t,6.6); stamp('st1',t,7.54,-8); pop('s2c1',t,8.1);
+  set('s2moscu',{tf:`scale(${1.12-(t-12)*.02})`});
+  stamp('st2',t,14.0,6); pop('s2c2',t,12.4);
+ },
+ s3(t){
+  const b=lin(t,18.8,19.2); set('s3a',{o:1-b}); set('s3b',{o:b});
+  const z=1+1.6*easeInOut(lin(t,15.1,18.6)); set('s3zoom',{tf:`scale(${z})`});
+  const pp=((t*1.4)%1); set('pinpulse',{tf:`scale(${.6+pp*1.4})`,o:1-pp});
+  pop('cal',t,15.3);
+  const f=lin(t,16.0,16.35); $('calnum').textContent=f<.5?'18':'19'; $('calday').textContent=f<.5?'MIÉRCOLES':'JUEVES';
+  set('calnum',{tf:`rotateX(${f<.5?f*180:(1-f)*180}deg)`,color:f>=.5?'#d62839':'#1b1e25'});
+  set('s3img',{tf:`scale(${1.05+(t-19)*.02}) translateX(${-(t-19)*6}px)`});
+  pop('s3card',t,19.6);
+ },
+ s4(t){
+  ['p4a','p4b','p4c'].forEach((id,i)=>pop(id,t,23.5+i*.18));
+  const s=1-.55*easeInOut(lin(t,24.6,27.0));
+  ['w1','w2','w3'].forEach((id,i)=>{const x=[300,540,780][i];$(id).setAttribute('transform',`translate(${x},${340+ (1-s)*130}) scale(${s})`)});
+  const ar=lin(t,25.3,25.8); const bob=Math.sin(t*6)*8; set('arrow',{o:ar,tf:`translateY(${(1-ar)*-60+bob}px)`});
+  pop('s4title',t,23.7); pop('s4card',t,27.6);
+ },
+ s5(t){
+  set('s5zoom',{tf:`scale(${1.05+.35*easeOut(lin(t,31.5,35))})`});
+  set('irglow',{o:.45+.45*Math.abs(Math.sin(t*3))});
+  ['wa1','wa2','wa3'].forEach((id,i)=>{const on=t>32+i*.4;set(id,{o:on?(Math.sin(t*9+i)>-.3?1:.25):0,tf:`scale(${on?1:0})`})});
+  pop('s5flag',t,33.9); pop('s5card',t,31.8);
+ },
+ s6(t){
+  pop('s6q',t,36.45,.4,60);
+  const f=easeOut(lin(t,37.4,38.0)); set('folder',{tf:`translateX(${(1-f)*900}px) rotate(${(1-f)*10}deg)`,o:f>0?1:0});
+  stamp('st6',t,38.6,-10);
+  pop('p6',t,40.5); pop('s6card',t,40.7);
+  set($('p6').querySelector('img'),{tf:`scale(${1.1}) translateX(${Math.sin(t*1.5)*6}px)`});
+ },
+ s7(t){
+  pop('s7top',t,44.7,.5,60); pop('s7bot',t,47.0,.5,60);
+  stamp('check',t,45.4,0); stamp('xmark',t,48.6,0);
+  [$('sm1'),$('sm2')].forEach((e,i)=>{e.setAttribute('transform',`translate(0,${-((t*30+i*15)%30)})`);e.style.opacity=.3+.4*Math.abs(Math.sin(t*2+i))});
+ },
+ s8(t){
+  pop('s8title',t,50.6);
+  const lv=easeInOut(lin(t,50.9,52.6)); const top=60+lv*500; const m=$('merc'); m.setAttribute('y',top); m.setAttribute('height',720-top);
+  set('lvlhi',{o:lin(t,50.5,50.9)*(1-lv*.6)}); set('lvllo',{o:lv});
+  pop('s8q',t,54.6); pop('s8g',t,57.3);
+ },
+ s8b(t){
+  set('yalta',{tf:`scale(${1.15-(t-59.45)*.015})`});
+  stamp('st8',t,62.5,-6); pop('s8bc',t,65.0);
+ },
+ s9(t){
+  pop('s9title',t,68.6,.5,50);
+  ['p9a','p9b','p9c'].forEach((id,i)=>pop(id,t,68.9+i*.2));
+  const s=lin(t,68.5,77); $('sandtop').setAttribute('y',-60+120*s); $('sandbot').setAttribute('y',180-150*s);
+  pop('s9date',t,73.4); const c=lin(t,75.0,75.4); set('s9date',{o:Math.min(+$('s9date').style.opacity,1-c)}); pop('s9cta',t,75.1);
+  set('stage',{});
+ }
+};
+
+let WORDS=[],CHUNKS=[];
+window.setWords=function(segs){
+  const ws=[];segs.forEach(s=>s.w.forEach(([a,b,w])=>{w=w.trim();if(w.startsWith('-')&&ws.length){ws[ws.length-1].w+=w;ws[ws.length-1].b=b}else ws.push({a,b,w})}));
+  WORDS=ws; CHUNKS=[]; let cur=[];
+  ws.forEach((w,i)=>{cur.push(w);const end=/[.,?!]$/.test(w.w)||cur.length>=4||(ws[i+1]&&ws[i+1].a-w.b>.35);if(end){CHUNKS.push(cur);cur=[]}});
+  if(cur.length)CHUNKS.push(cur);
+};
+function captions(t){
+  const el=$('captions'); let ch=null;
+  for(let i=0;i<CHUNKS.length;i++){const c=CHUNKS[i];const a=c[0].a-.05,b=(CHUNKS[i+1]?Math.min(CHUNKS[i+1][0].a-.05,c[c.length-1].b+.6):c[c.length-1].b+.8);if(t>=a&&t<b){ch=c;break}}
+  if(!ch){el.innerHTML='';return}
+  el.innerHTML=ch.map(w=>`<span class="${t>=w.a?'on':''}">${w.w.replace(/[.,]$/,'')}</span>`).join(' ');
+}
+
+window.render=function(t){
+  scenes.forEach(([id,a,b],i)=>{
+    const fi=i===0?1:lin(t,a-XF/2,a+XF/2), fo=i===scenes.length-1?1:1-lin(t,b-XF/2,b+XF/2);
+    const o=Math.min(fi,fo); const el=$(id); el.style.opacity=o; el.style.display=o>0?'block':'none';
+    if(o>0) upd[id](t);
+  });
+  $('progress').firstElementChild.style.width=(t/DUR*100)+'%';
+  captions(t);
+  $('credit').textContent=(t>23.4&&t<31.6)||(t>44.5&&t<50.5)||t>68.4?'Fotos: Daniel Torok (dominio público) · Dati Bendo (CC BY 4.0)':(t>59.4&&t<68.5?'Foto: dominio público':'');
+  $('fade').style.opacity=lin(t,DUR-.6,DUR);
+};
+render(0);
+</script>
+</body>
+</html>
