@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root{--navy:#0b1f3a;--navy2:#071428;--navy3:#132c52;--gold:#c9a45c;--goldl:#ecd08f;--goldd:#8a6a2c;--silver:#c9ced6;--red:#b3161b;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--navy2)}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;font-family:'Oswald',sans-serif;color:#fff}
+.abs{position:absolute}
+.layer{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#bg{background:radial-gradient(ellipse 120% 70% at 50% 40%,#173462 0%,#0b1f3a 45%,#050e1d 100%)}
+#paper{opacity:.20;mix-blend-mode:overlay}
+#bglines{opacity:.07}
+.gold-text{background:linear-gradient(180deg,#fff1c9 0%,#ecd08f 30%,#c9a45c 60%,#8a6a2c 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.panel{position:absolute;overflow:hidden;border-radius:18px;border:3px solid var(--gold);box-shadow:0 30px 60px rgba(0,0,0,.55),0 0 0 8px rgba(201,164,92,.12)}
+.panel img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;transform-origin:50% 50%}
+.panel .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,14,29,0) 55%,rgba(5,14,29,.75) 100%)}
+.tagc{position:absolute;left:22px;top:22px;padding:8px 18px;background:rgba(7,20,40,.85);border:2px solid var(--gold);border-radius:8px;font-size:30px;letter-spacing:3px;color:var(--goldl)}
+/* frame */
+#frame .bord{position:absolute;left:22px;top:22px;right:22px;bottom:22px;border:2px solid rgba(201,164,92,.85);border-radius:22px}
+#frame .bord2{position:absolute;left:32px;top:32px;right:32px;bottom:32px;border:1.5px solid rgba(201,206,214,.35);border-radius:16px}
+.corner{position:absolute;width:74px;height:74px;border-color:var(--goldl);border-style:solid;border-width:0}
+#topbar{position:absolute;left:52px;right:52px;top:52px;height:96px;display:flex;align-items:center;gap:18px}
+#topbar .name{font-family:'Cinzel';font-weight:800;font-size:34px;letter-spacing:4px;line-height:1}
+#topbar .sub{font-family:'Oswald';font-size:20px;letter-spacing:6px;color:var(--silver);margin-top:6px}
+#live{margin-left:auto;display:flex;align-items:center;gap:12px;padding:10px 20px;border:2px solid var(--gold);border-radius:10px;background:rgba(7,20,40,.8);font-size:28px;letter-spacing:3px}
+#live .dot{width:16px;height:16px;border-radius:50%;background:#e0262c;box-shadow:0 0 12px #e0262c}
+#botbar{position:absolute;left:52px;right:52px;bottom:52px;height:84px;display:flex;align-items:center;border-top:2px solid rgba(201,164,92,.6);padding-top:10px}
+#handle{display:flex;align-items:center;gap:12px;font-size:34px;color:var(--goldl);letter-spacing:1px;padding-right:22px;border-right:2px solid rgba(201,164,92,.6);white-space:nowrap;background:linear-gradient(90deg,rgba(7,20,40,1),rgba(7,20,40,.95));z-index:2}
+#tickwrap{position:relative;flex:1;height:60px;overflow:hidden;margin-left:20px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+#ticker{position:absolute;top:8px;white-space:nowrap;font-size:30px;letter-spacing:3px;color:#dfe4ea}
+#ticker b{color:var(--gold);font-weight:700}
+/* subtitles */
+#subs{position:absolute;left:60px;right:60px;top:170px;height:270px;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:4px 30px;text-align:center}
+#subs span{display:inline-block;font-family:'Oswald';font-weight:700;font-size:82px;line-height:1.12;text-transform:uppercase;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.55),0 0 24px rgba(0,0,0,.8);-webkit-text-stroke:2px rgba(0,0,0,.35)}
+#subs span.on{color:var(--goldl);text-shadow:0 4px 0 rgba(0,0,0,.6),0 0 30px rgba(201,164,92,.55)}
+/* generic */
+.card{position:absolute;background:linear-gradient(180deg,rgba(19,44,82,.96),rgba(7,20,40,.96));border:3px solid var(--gold);border-radius:22px;box-shadow:0 30px 70px rgba(0,0,0,.6),inset 0 0 0 8px rgba(201,164,92,.08)}
+.ic{stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.row{position:absolute;left:60px;width:960px;height:196px;border-radius:18px;display:flex;align-items:center;gap:26px;padding:0 26px;background:rgba(7,20,40,.75);border:2px solid rgba(201,164,92,.35)}
+.row .ico{flex:none;width:132px;height:132px;border-radius:50%;border:4px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--goldl);position:relative;background:radial-gradient(circle,#1b3a69,#0b1f3a)}
+.row .num{position:absolute;right:-8px;top:-8px;width:52px;height:52px;border-radius:50%;background:linear-gradient(180deg,#ecd08f,#a8823e);color:#0b1f3a;font-weight:700;font-size:34px;display:flex;align-items:center;justify-content:center;border:3px solid #0b1f3a}
+.row .txt{font-size:50px;line-height:1.1;font-weight:500}
+.row .txt em{font-style:normal;position:relative;color:#0b1f3a;padding:0 10px;font-weight:700}
+.row .txt em i{position:absolute;inset:0 0 0 0;background:linear-gradient(180deg,#ecd08f,#c9a45c);border-radius:6px;z-index:-1;transform-origin:0 50%}
+.chips{display:flex;gap:10px;margin-top:12px}
+.chip{font-size:28px;padding:4px 14px;border:2px solid var(--gold);border-radius:30px;color:var(--goldl);background:rgba(201,164,92,.12);letter-spacing:1px}
+.rotulo{position:absolute;background:linear-gradient(180deg,#c81e24,#8f0f14);border:6px solid var(--gold);border-radius:14px;font-weight:700;color:#fff;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 0 3px #5a0a0d inset}
+.paper{position:absolute;background:#f6f1e4;border-radius:10px;box-shadow:0 30px 70px rgba(0,0,0,.6);color:#1d2533;font-family:'Playfair Display';overflow:hidden}
+.pl{height:16px;border-radius:8px;background:#c9c2b0;margin:14px 0}
+.pill{position:absolute;display:flex;align-items:center;gap:20px;padding:20px 34px;border-radius:80px;border:3px solid var(--gold);background:rgba(7,20,40,.9);font-size:52px;letter-spacing:2px}
+.btn{position:absolute;width:380px;height:160px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:96px;font-weight:700;overflow:hidden}
+#flash{background:linear-gradient(100deg,transparent 30%,rgba(255,236,190,.0) 38%,rgba(255,236,190,.55) 50%,rgba(255,236,190,0) 62%,transparent 70%);mix-blend-mode:screen}
+#vig{background:radial-gradient(ellipse 85% 70% at 50% 50%,transparent 55%,rgba(0,0,0,.65) 100%)}
+.gl{position:absolute;left:0;right:0;text-align:center}
+</style></head>
+<body><div id="stage">
+<div id="bg" class="layer"></div>
+<svg id="paper" class="layer" width="1080" height="1920"><filter id="pn"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 .9  0 0 0 0 .85  0 0 0 0 .75  0 0 0 1.4 -.35"/></filter><rect width="1080" height="1920" filter="url(#pn)"/></svg>
+<svg id="bglines" class="layer" width="1080" height="1920"><defs><pattern id="gp" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#c9a45c" stroke-width="1"/></pattern></defs><rect width="1080" height="1920" fill="url(#gp)"/></svg>
+<div id="dust" class="layer"></div>
+
+<!-- SCENE 1 -->
+<div id="s1" class="layer">
+  <img id="s1bg" class="abs" src="assets/congreso.jpg" style="left:-200px;top:0;width:1480px;height:1920px;object-fit:cover;filter:blur(22px) brightness(.4) saturate(.8)">
+  <div class="abs" style="left:0;top:330px;width:1080px;height:1100px;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18%,#000 80%,transparent 100%)">
+    <img id="s1img" class="abs" src="assets/congreso.jpg" style="left:-110px;top:80px;width:1300px;height:867px;object-fit:cover;filter:contrast(1.08) saturate(.9) brightness(.85)">
+  </div>
+  <div class="layer" style="background:linear-gradient(180deg,rgba(5,14,29,.2) 0%,rgba(5,14,29,0) 40%,rgba(5,14,29,.85) 78%,rgba(5,14,29,.95) 100%)"></div>
+  <div id="s1kick" class="gl" style="top:1290px;font-size:36px;letter-spacing:10px;color:var(--silver)">REPÚBLICA DOMINICANA</div>
+  <div id="s1title" class="gl" style="top:1350px;height:360px">
+    <div class="gl s1t" style="top:0;font-family:'Playfair Display';font-weight:900;font-size:168px;line-height:1.02"><span class="gold-text">¿NO ES<br>DELITO?</span></div>
+    <div class="gl s1t g1" style="top:0;font-family:'Playfair Display';font-weight:900;font-size:168px;line-height:1.02;color:#ff2a4a;mix-blend-mode:screen;opacity:0">¿NO ES<br>DELITO?</div>
+    <div class="gl s1t g2" style="top:0;font-family:'Playfair Display';font-weight:900;font-size:168px;line-height:1.02;color:#20e0ff;mix-blend-mode:screen;opacity:0">¿NO ES<br>DELITO?</div>
+  </div>
+</div>
+
+<!-- SCENE 2 -->
+<div id="s2" class="layer">
+  <div id="lawcard" class="card" style="left:110px;top:500px;width:860px;height:500px;text-align:center">
+    <svg class="ic abs" style="left:395px;top:-46px;width:70px;height:70px;color:var(--goldl);background:#0b1f3a;border-radius:50%;padding:10px;border:3px solid var(--gold)" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M5 7h14M12 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/></svg>
+    <div id="l1" class="gl" style="top:60px;font-family:'Cinzel';font-weight:800;font-size:76px;letter-spacing:6px;color:#fff">CÓDIGO PENAL</div>
+    <div id="l2" class="gl" style="top:170px;font-size:50px;letter-spacing:8px;color:var(--silver)">LEY 74-25</div>
+    <div id="l3line" class="abs" style="left:180px;width:500px;top:262px;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
+    <div id="l3" class="gl" style="top:290px;font-family:'Playfair Display';font-weight:900;font-size:126px"><span class="gold-text">Artículo 211</span></div>
+  </div>
+  <div id="counter" class="abs" style="left:0;top:1060px;width:1080px;height:700px">
+    <svg class="abs" style="left:340px;top:0" width="400" height="400" viewBox="0 0 400 400">
+      <defs><linearGradient id="sv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".35" stop-color="#9aa1aa"/><stop offset=".6" stop-color="#eef0f3"/><stop offset="1" stop-color="#6c727b"/></linearGradient></defs>
+      <circle cx="200" cy="200" r="180" fill="rgba(7,20,40,.85)" stroke="rgba(201,164,92,.25)" stroke-width="2"/>
+      <circle id="cring" cx="200" cy="200" r="180" fill="none" stroke="url(#sv)" stroke-width="14" stroke-dasharray="1131" stroke-dashoffset="1131" transform="rotate(-90 200 200)" stroke-linecap="round"/>
+    </svg>
+    <div id="cnum" class="gl" style="top:20px;font-family:'Playfair Display';font-weight:900;font-size:300px;line-height:1.1"><span class="gold-text" id="cnumv">1</span></div>
+    <div id="clabel" class="gl" style="top:430px;font-size:96px;font-weight:700;letter-spacing:12px">EXCEPCIONES</div>
+    <div id="cnote" class="gl" style="top:560px;font-size:42px;letter-spacing:2px;color:var(--silver)">que <b style="color:var(--goldl)">NO</b> se consideran difamación ni injuria</div>
+  </div>
+</div>
+
+<!-- SCENE 3 -->
+<div id="s3" class="layer">
+  <div class="panel" style="left:60px;top:470px;width:960px;height:540px">
+    <img id="s3i1" src="assets/camara-diputados.jpg">
+    <img id="s3i2" src="assets/documentos-oficiales.jpg">
+    <img id="s3i3" src="assets/prensa.jpg">
+    <div class="shade"></div>
+    <div class="tagc" id="s3tag">EXCEPCIÓN 1 / 4</div>
+  </div>
+  <div id="r1" class="row" style="top:1040px">
+    <div class="ico"><svg class="ic" width="78" height="78" viewBox="0 0 24 24"><path d="M3 21h18M4 10h16M12 3l9 5H3z"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8M4 18h16"/></svg><div class="num">1</div></div>
+    <div class="txt">Discursos en el Congreso</div>
+  </div>
+  <div id="r2" class="row" style="top:1252px">
+    <div class="ico"><svg class="ic" width="74" height="74" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg><div class="num">2</div></div>
+    <div><div class="txt">Documentos oficiales del Estado</div>
+    <div class="chips"><span class="chip" id="c1">Ejecutivo</span><span class="chip" id="c2">Congreso</span><span class="chip" id="c3">Justicia</span><span class="chip" id="c4">TC</span><span class="chip" id="c5">TSE</span></div></div>
+  </div>
+  <div id="r3" class="row" style="top:1464px">
+    <div class="ico"><svg class="ic" width="78" height="78" viewBox="0 0 24 24"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2M7 9h7M7 12h7M7 15h4"/></svg><div class="num">3</div></div>
+    <div class="txt">Prensa sobre sesiones <em><i id="pubhl"></i>PÚBLICAS</em><br>del Congreso</div>
+  </div>
+</div>
+
+<!-- SCENE 4 -->
+<div id="s4" class="layer">
+  <div class="panel" id="s4p" style="left:60px;top:470px;width:960px;height:640px">
+    <img id="s4i" src="assets/tribunal.jpg"><div class="shade"></div>
+    <div class="tagc">EXCEPCIÓN 4 / 4</div>
+  </div>
+  <div class="panel" id="s4m" style="left:470px;top:960px;width:550px;height:360px;border-width:4px">
+    <img id="s4mi" src="assets/mazo-juez.jpg">
+  </div>
+  <div id="four" class="abs" style="left:70px;top:1000px;width:330px;height:330px;border-radius:50%;background:radial-gradient(circle,#1b3a69,#071428);border:10px solid var(--gold);box-shadow:0 0 0 6px rgba(201,206,214,.6),0 25px 60px rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center">
+    <span class="gold-text" style="font-family:'Playfair Display';font-weight:900;font-size:250px;line-height:1;margin-top:-20px">4</span>
+  </div>
+  <div id="s4txt" class="abs" style="left:60px;width:960px;top:1400px;display:flex;align-items:center;gap:28px">
+    <svg class="ic" style="flex:none;color:var(--goldl)" width="120" height="120" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M5 7h14M12 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/></svg>
+    <div style="font-size:64px;line-height:1.1;font-weight:500">Lo que se <b style="color:var(--goldl)">dice</b> o <b style="color:var(--goldl)">escribe</b><br>ante los tribunales</div>
+  </div>
+</div>
+
+<!-- SCENE 5 -->
+<div id="s5" class="layer">
+  <div class="panel" id="s5p" style="left:60px;top:470px;width:960px;height:640px">
+    <img id="s5i" src="assets/escrito-legal.jpg"><div class="shade"></div>
+  </div>
+  <div id="paperw" class="abs" style="left:110px;top:830px;width:860px;height:720px">
+    <div class="paper" style="left:0;top:0;width:860px;height:720px;padding:46px 56px">
+      <div style="font-family:'Cinzel';font-weight:800;font-size:38px;letter-spacing:3px;text-align:center;color:#0b1f3a">ESCRITO DE CONCLUSIONES</div>
+      <div style="height:3px;background:#c9a45c;margin:16px 120px 22px"></div>
+      <div class="pl" style="width:100%"></div><div class="pl" style="width:94%"></div><div class="pl" style="width:97%"></div><div class="pl" style="width:60%"></div>
+      <div id="offp" style="position:relative;margin:26px 0;padding:14px 18px;background:rgba(179,22,27,.08);border-left:6px solid #b3161b;font-size:36px;line-height:1.35;color:#3a1c1c">
+        “…además, la contraparte es conocida por sus negocios turbios y su vida privada escandalosa…”
+        <div id="strike1" class="abs" style="left:18px;top:38px;height:5px;background:#b3161b;border-radius:3px"></div>
+        <div id="strike2" class="abs" style="left:18px;top:86px;height:5px;background:#b3161b;border-radius:3px"></div>
+        <div id="strike3" class="abs" style="left:18px;top:134px;height:5px;background:#b3161b;border-radius:3px"></div>
+        <div id="eraser" class="abs" style="top:0;bottom:0;width:60px;background:linear-gradient(90deg,rgba(246,241,228,0),#f6f1e4 60%);"></div>
+      </div>
+      <div class="pl" style="width:98%"></div><div class="pl" style="width:91%"></div><div class="pl" style="width:70%"></div>
+    </div>
+    <div id="supr" class="abs" style="left:400px;top:330px;padding:10px 26px;border:7px solid #b3161b;border-radius:10px;color:#b3161b;font-family:'Oswald';font-weight:700;font-size:64px;letter-spacing:6px;background:rgba(246,241,228,.4)">SUPRIMIDO</div>
+    <div id="judge" class="abs" style="left:-10px;top:-92px;display:flex;align-items:center;gap:14px;font-size:40px;color:var(--goldl);letter-spacing:1px">
+      <svg class="ic" width="60" height="60" viewBox="0 0 24 24"><path d="M4 20h9M14.5 3.5l6 6M12 6l6 6M13 5l-5 5 6 6 5-5M10.5 7.5L3 15"/></svg>El juez ordena suprimir el escrito</div>
+  </div>
+  <div id="rot1" class="rotulo" style="left:110px;top:1180px;width:860px;padding:26px 10px;font-size:84px;letter-spacing:2px;white-space:nowrap">NO ES CARTA BLANCA</div>
+  <div id="rot2" class="card" style="left:90px;top:1060px;width:900px;height:620px;text-align:center">
+    <div id="r2a" class="gl" style="top:50px;font-size:78px;font-weight:700;letter-spacing:2px">HECHOS AJENOS<br>AL CASO</div>
+    <div id="r2eq" class="gl" style="top:212px;font-family:'Playfair Display';font-weight:900;font-size:110px"><span class="gold-text">=</span></div>
+    <div id="r2b" class="gl" style="top:350px;font-size:78px;font-weight:700;letter-spacing:2px"><span class="gold-text">PUEDE HABER<br>QUERELLA</span></div>
+  </div>
+</div>
+
+<!-- SCENE 6 -->
+<div id="s6" class="layer">
+  <div class="panel" style="left:60px;top:470px;width:960px;height:600px">
+    <img id="s6i1" src="assets/edificio-empresa.jpg"><img id="s6i2" src="assets/medio-comunicacion.jpg"><div class="shade"></div>
+    <div class="tagc">PERSONAS JURÍDICAS</div>
+  </div>
+  <div id="c212" class="card" style="left:60px;top:1110px;width:960px;height:360px;text-align:center">
+    <div id="a212" class="gl" style="top:30px;font-family:'Playfair Display';font-weight:900;font-size:120px;line-height:1.1"><span class="gold-text">Artículo 212</span></div>
+    <div id="t212" class="gl" style="top:198px;font-size:56px;line-height:1.15">Las empresas <b style="color:var(--goldl)">también</b> responden<br>penalmente</div>
+  </div>
+  <div id="pe" class="pill" style="left:70px;top:1520px"><svg class="ic" style="color:var(--goldl)" width="74" height="74" viewBox="0 0 24 24"><path d="M4 21V4h10v17M14 9h6v12M3 21h18"/><path d="M7 7h1M10 7h1M7 10h1M10 10h1M7 13h1M10 13h1M7 16h1M10 16h1M17 12h0M17 15h0M17 18h0"/></svg>EMPRESAS</div>
+  <div id="pm" class="pill" style="left:580px;top:1520px"><svg class="ic" style="color:var(--goldl)" width="74" height="74" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 3l4 4 4-4M8 21h8"/></svg>MEDIOS</div>
+</div>
+
+<!-- SCENE 7 -->
+<div id="s7" class="layer">
+  <div id="poll" class="card" style="left:90px;top:500px;width:900px;height:560px;text-align:center">
+    <div class="gl" style="top:30px;font-size:30px;letter-spacing:8px;color:var(--silver)">ENCUESTA</div>
+    <div class="gl" style="top:80px;font-family:'Playfair Display';font-weight:900;font-size:104px"><span class="gold-text">¿Sabías esto?</span></div>
+    <div id="bsi" class="btn" style="left:50px;top:300px;background:linear-gradient(180deg,#ecd08f,#b58f45);color:#0b1f3a;box-shadow:0 12px 30px rgba(0,0,0,.5)">SÍ<div id="rip" class="abs" style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.6)"></div></div>
+    <div id="bno" class="btn" style="left:470px;top:300px;border:5px solid var(--silver);color:#fff;background:rgba(255,255,255,.04)">NO</div>
+  </div>
+  <div id="q1" class="gl" style="top:1200px;font-size:92px;font-weight:700">¿Te han <span style="color:var(--goldl)">difamado</span>?</div>
+  <div id="q2" class="pill" style="left:235px;top:1380px;background:linear-gradient(180deg,#ecd08f,#b58f45);color:#0b1f3a;font-weight:700;font-size:64px;border-color:#fff3d0">
+    <svg class="ic" style="stroke-width:2" width="80" height="80" viewBox="0 0 24 24"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/><path d="M8.5 11h7M8.5 14h4"/></svg>Escríbenos</div>
+  <div id="q3" class="gl" style="top:1580px;font-size:40px;letter-spacing:3px;color:var(--silver)">Te orientamos sobre tu caso</div>
+</div>
+
+<!-- LOGO END CARD -->
+<div id="s8" class="layer">
+  <div class="layer" style="background:radial-gradient(circle at 50% 46%,#1a3a6c 0%,#0a1b35 40%,#040b17 100%)"></div>
+  <div id="rays" class="layer" style="background:repeating-conic-gradient(from 0deg at 50% 46%,rgba(201,164,92,.06) 0deg 4deg,transparent 4deg 12deg);-webkit-mask-image:radial-gradient(circle at 50% 46%,#000 0,transparent 60%)"></div>
+  <svg id="logo" class="abs" style="left:140px;top:483px" width="800" height="800" viewBox="0 0 800 800">
+    <defs>
+      <linearGradient id="silv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".2" stop-color="#a7adb5"/><stop offset=".45" stop-color="#f2f4f6"/><stop offset=".7" stop-color="#7d838c"/><stop offset="1" stop-color="#e7eaee"/></linearGradient>
+      <linearGradient id="gld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0c4"/><stop offset=".35" stop-color="#e2c27c"/><stop offset=".65" stop-color="#c49a4e"/><stop offset="1" stop-color="#8a6a2c"/></linearGradient>
+      <radialGradient id="disc" cx=".5" cy=".4" r=".65"><stop offset="0" stop-color="#1c3560"/><stop offset=".6" stop-color="#0d1f3d"/><stop offset="1" stop-color="#071329"/></radialGradient>
+      <clipPath id="dclip"><circle cx="400" cy="400" r="352"/></clipPath>
+      <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff6dc" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    </defs>
+    <g id="lgdisc"><circle cx="400" cy="400" r="352" fill="url(#disc)"/></g>
+    <circle id="lgring" cx="400" cy="400" r="364" fill="none" stroke="url(#silv)" stroke-width="26" stroke-dasharray="2287" stroke-dashoffset="2287" transform="rotate(-90 400 400)"/>
+    <circle id="lgring2" cx="400" cy="400" r="345" fill="none" stroke="rgba(201,164,92,.55)" stroke-width="2"/>
+    <g id="lgcontent" clip-path="url(#dclip)">
+      <rect id="lgbox" x="285" y="95" width="230" height="230" fill="none" stroke="url(#gld)" stroke-width="9" stroke-dasharray="920" stroke-dashoffset="920"/>
+      <text id="lgS" x="400" y="290" text-anchor="middle" font-family="Playfair Display" font-weight="900" font-size="250" fill="url(#gld)">S</text>
+      <text id="lgName" x="400" y="455" text-anchor="middle" font-family="Playfair Display" font-weight="900" font-size="104" letter-spacing="2" fill="url(#gld)">SANDOVAL</text>
+      <g id="lgLegal"><line x1="90" y1="500" x2="270" y2="500" stroke="url(#gld)" stroke-width="3"/><line x1="530" y1="500" x2="710" y2="500" stroke="url(#gld)" stroke-width="3"/>
+      <text x="400" y="516" text-anchor="middle" font-family="Playfair Display" font-weight="700" font-size="50" letter-spacing="22" fill="url(#gld)">LEGAL</text></g>
+      <g id="lgScale" transform="translate(400 545)" stroke="url(#gld)" fill="none" stroke-width="5" stroke-linecap="round">
+        <path d="M0 0v95M-40 95h80M-80 22h160M-80 22l-30 55h60zM80 22l-30 55h60z" stroke="#d8b46a"/><path d="M-110 77a30 14 0 0 0 60 0M50 77a30 14 0 0 0 60 0" stroke="#d8b46a"/><circle cx="0" cy="-4" r="8" fill="#d8b46a" stroke="none"/>
+      </g>
+      <rect id="lgshine" x="-300" y="0" width="220" height="800" fill="url(#shine)" transform="skewX(-20)"/>
+    </g>
+  </svg>
+  <div id="flare" class="abs" style="left:0;top:0;width:300px;height:300px;background:radial-gradient(circle,rgba(255,244,210,.95) 0,rgba(236,208,143,.5) 12%,transparent 50%);mix-blend-mode:screen"></div>
+  <div id="lema" class="gl" style="top:1340px;font-family:'Playfair Display';font-weight:700;font-style:italic;font-size:54px;line-height:1.25">Sandoval Legal:<br><span class="gold-text">donde la ley se entiende</span></div>
+  <div id="ighandle" class="abs" style="left:0;width:1080px;top:1530px;display:flex;justify-content:center;align-items:center;gap:16px;font-size:58px;color:var(--goldl);letter-spacing:2px">
+    <svg class="ic" width="62" height="62" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8"/></svg>@sandoval_legal</div>
+</div>
+
+<div id="flash" class="layer"></div>
+<div id="vig" class="layer"></div>
+
+<!-- persistent frame -->
+<div id="frame" class="layer">
+  <div class="bord"></div><div class="bord2"></div>
+  <div class="corner" style="left:14px;top:14px;border-left-width:6px;border-top-width:6px;border-top-left-radius:24px"></div>
+  <div class="corner" style="right:14px;top:14px;border-right-width:6px;border-top-width:6px;border-top-right-radius:24px"></div>
+  <div class="corner" style="left:14px;bottom:14px;border-left-width:6px;border-bottom-width:6px;border-bottom-left-radius:24px"></div>
+  <div class="corner" style="right:14px;bottom:14px;border-right-width:6px;border-bottom-width:6px;border-bottom-right-radius:24px"></div>
+  <div id="topbar">
+    <svg width="88" height="88" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="url(#disc)"/><circle cx="50" cy="50" r="45" fill="none" stroke="url(#silv)" stroke-width="6"/><rect x="33" y="22" width="34" height="34" fill="none" stroke="#d8b46a" stroke-width="2.5"/><text x="50" y="50" text-anchor="middle" font-family="Playfair Display" font-weight="900" font-size="32" fill="#e2c27c">S</text><text x="50" y="72" text-anchor="middle" font-family="Playfair Display" font-weight="900" font-size="13" fill="#e2c27c">SANDOVAL</text></svg>
+    <div><div class="name gold-text">SANDOVAL LEGAL</div><div class="sub">DONDE LA LEY SE ENTIENDE</div></div>
+    <div id="live"><div class="dot" id="ldot"></div><span id="livetxt">LEY 74-25</span></div>
+  </div>
+  <div id="subs"></div>
+  <div id="botbar">
+    <div id="handle"><svg class="ic" width="40" height="40" viewBox="0 0 24 24" style="stroke-width:2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8"/></svg>@sandoval_legal</div>
+    <div id="tickwrap"><div id="ticker"><b>CÓDIGO PENAL</b> · LEY 74-25 · <b>ART. 211</b> · CUATRO EXCEPCIONES A LA DIFAMACIÓN E INJURIA · <b>ART. 212</b> · LAS EMPRESAS Y LOS MEDIOS TAMBIÉN RESPONDEN PENALMENTE · <b>SANDOVAL LEGAL</b> · DONDE LA LEY SE ENTIENDE · &nbsp;&nbsp;&nbsp;<b>CÓDIGO PENAL</b> · LEY 74-25 · <b>ART. 211</b> · CUATRO EXCEPCIONES A LA DIFAMACIÓN E INJURIA · <b>ART. 212</b> · LAS EMPRESAS Y LOS MEDIOS TAMBIÉN RESPONDEN PENALMENTE · <b>SANDOVAL LEGAL</b> · DONDE LA LEY SE ENTIENDE · </div></div>
+  </div>
+</div>
+<div id="fadeblack" class="layer" style="background:#000;opacity:0"></div>
+</div>
+<script src="words.js"></script>
+<script src="anim.js"></script>
+</body></html>
