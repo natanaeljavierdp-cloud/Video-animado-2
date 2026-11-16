@@ -1,0 +1,6 @@
+geo/
+out/p*.mp4
+out/*.log
+out/list.txt
+out/video_mudo.mp4
+build/*.wav
