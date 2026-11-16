@@ -11,7 +11,5 @@ Regenerar:
 
 Escenas y tiempos: `build/scenes.js`.
 
-## Crédito de música (obligatorio en la descripción del post)
-"Investigations" Kevin MacLeod (incompetech.com)
-Licensed under Creative Commons: By Attribution 4.0 License
-http://creativecommons.org/licenses/by/4.0/
+## Música
+`assets/musica/Creeping_Unease.mp3` (aportada por el usuario), a volumen bajo con ducking bajo la narración.
