@@ -763,20 +763,26 @@ scene(74.3, DURATION, (t) => {
   const r = eIO(P(t, 74.3, 74.75));
   X.fillStyle = RED; X.fillRect(0, 0, W, H);
   X.save(); X.beginPath(); X.arc(W / 2, H / 2, Math.hypot(W, H) * eIO(P(t, 74.45, 75.0)), 0, 7); X.clip();
-  const g = X.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#FFFFFF'); g.addColorStop(1, '#E7ECF5'); X.fillStyle = g; X.fillRect(0, 0, W, H);
-  // líneas decorativas
-  X.strokeStyle = 'rgba(10,29,61,.06)'; X.lineWidth = 2; for (let k = 0; k < 14; k++) { X.beginPath(); X.arc(W / 2, 860, 200 + k * 70 + ((t * 40) % 70), 0, 7); X.stroke(); }
+  const g = X.createRadialGradient(W / 2, 860, 60, W / 2, 860, H * .85); g.addColorStop(0, '#1B4A93'); g.addColorStop(.5, NAVY); g.addColorStop(1, NAVY2); X.fillStyle = g; X.fillRect(0, 0, W, H);
+  // ondas decorativas
+  X.strokeStyle = 'rgba(160,190,255,.08)'; X.lineWidth = 2; for (let k = 0; k < 14; k++) { X.beginPath(); X.arc(W / 2, 860, 200 + k * 70 + ((t * 40) % 70), 0, 7); X.stroke(); }
   const lp = P(t, 74.9, 76.2);
   const sc = 1 + .03 * Math.sin(t * 2);
-  X.save(); X.translate(W / 2, 860); X.scale(sc, sc); iconLupa(-30, -30, 520, NAVY, RED, RED, 1.05, lp); X.restore();
+  // logo: lupa azul marino con "?" rojo
+  const bp2 = eBack(P(t, 74.75, 75.2));
+  X.save(); X.translate(W / 2, 860); X.scale(sc * bp2, sc * bp2);
+  const dg = X.createLinearGradient(0, -330, 0, 330); dg.addColorStop(0, '#2C6BD6'); dg.addColorStop(1, '#174A9E');
+  shadow(60, 'rgba(0,0,0,.45)', 20); X.fillStyle = dg; X.beginPath(); X.arc(0, 0, 330, 0, 7); X.fill(); noShadow();
+  X.strokeStyle = RED; X.lineWidth = 10; X.beginPath(); X.arc(0, 0, 330, 0, 7); X.stroke();
+  iconLupa(-30, -30, 460, NAVY2, RED, RED, 1.15, lp); X.restore();
   const tp = eOut(P(t, 76.0, 76.5));
   withA(tp, () => {
-    txt('CAPITAL', W / 2 - 4, 1260 + (1 - tp) * 40, 130, NAVY, 'Anton', 'center', '', 10);
-    txt('CURIOSO', W / 2, 1390 + (1 - tp) * 40, 130, RED, 'Anton', 'center', '', 10);
+    txt('CAPITAL', W / 2 - 4, 1310 + (1 - tp) * 40, 130, '#fff', 'Anton', 'center', '', 10);
+    txt('CURIOSO', W / 2, 1440 + (1 - tp) * 40, 130, RED, 'Anton', 'center', '', 10);
   });
   const hp = eBack(P(t, 76.5, 76.9));
-  if (hp > 0) { X.save(); X.translate(W / 2, 1530); X.scale(hp, hp); X.fillStyle = NAVY; rr(-280, -50, 560, 100, 50); X.fill(); txt('@capitalcuriosoo', 0, 2, 54, '#fff', 'Oswald', 'center', '700', 1); X.restore(); }
-  withA(eOut(P(t, 77.0, 77.4)), () => txt('SÍGUENOS PARA MÁS', W / 2, 1640, 36, '#5A6886', 'Oswald', 'center', '600', 8));
+  if (hp > 0) { X.save(); X.translate(W / 2, 1580); X.scale(hp, hp); X.fillStyle = RED; rr(-280, -50, 560, 100, 50); X.fill(); txt('@capitalcuriosoo', 0, 2, 54, '#fff', 'Oswald', 'center', '700', 1); X.restore(); }
+  withA(eOut(P(t, 77.0, 77.4)), () => txt('SÍGUENOS PARA MÁS', W / 2, 1690, 36, SOFT, 'Oswald', 'center', '600', 8));
   X.restore();
   // fundido final
   const fo = P(t, 78.1, 78.5); if (fo > 0) { X.fillStyle = `rgba(0,0,0,${fo})`; X.fillRect(0, 0, W, H); }
