@@ -28,7 +28,7 @@ const camera = new THREE.PerspectiveCamera(40, WW / H, 0.03, 4000);
 const rt = new THREE.WebGLRenderTarget(WW, H, { type: THREE.HalfFloatType, samples: 4 });
 const composer = new EffectComposer(renderer, rt);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(WW, H), 0.85, 0.55, 1.0);
+const bloom = new UnrealBloomPass(new THREE.Vector2(WW, H), 0.6, 0.45, 1.0);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 const grain = new ShaderPass({
@@ -81,3 +81,9 @@ function renderAt(t) {
 window.renderFrame = (t, q = 0.93) => { renderAt(t); return out.toDataURL('image/jpeg', q); };
 window.renderOnly = (t) => { renderAt(t); return true; };
 window.ready = true;
+window.pick = (t, x, y) => {
+  renderAt(t);
+  const rc = new THREE.Raycaster(); rc.setFromCamera(new THREE.Vector2(x, y), camera);
+  return rc.intersectObjects(scene.children, true).filter((h) => h.object.visible && !h.object.userData.isOutline).slice(0, 4)
+    .map((h) => `${h.object.geometry.type} ${JSON.stringify(h.object.geometry.parameters || {}).slice(0, 120)} col=${h.object.material.color ? h.object.material.color.getHexString() : '-'} pos=${h.object.position.toArray().map((v) => v.toFixed(2))}`);
+};

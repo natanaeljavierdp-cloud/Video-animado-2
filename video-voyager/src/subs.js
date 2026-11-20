@@ -5,7 +5,7 @@ const FILLER = new Set(['a', 'al', 'con', 'de', 'del', 'e', 'el', 'en', 'es', 'e
 // frases clave (en minúsculas, sin puntuación) -> se pintan en rojo
 const KEYS = ['día entero', 'otro día', 'voyager 1', '1977', 'día luz', '26 mil millones', 'kilómetros', 'luz', 'más rápido', 'luna', 'un segundo', '24 horas',
   'paneles', 'pila nuclear', 'calor', 'electricidad', 'apagando instrumentos', 'antena', 'bombillo pequeño', 'radio', 'débil', 'antenas gigantes',
-  'estados unidos', 'españa', 'australia', 'tierra gira', 'muy despacio', 'internet', 'sistema solar', 'disco de oro', 'sonidos', 'imágenes', 'humanidad', 'mensajero'];
+  'estados unidos', 'españa', 'australia', 'tierra gira', 'muy despacio', 'despacio', 'lento', 'internet', 'sistema solar', 'disco de oro', 'sonidos', 'imágenes', 'humanidad', 'mensajero'];
 // grupos que no se deben partir
 const KEEP = ['voyager 1', 'día luz', 'pila nuclear', 'antenas gigantes', 'estados unidos', 'disco de oro', 'bombillo pequeño', '24 horas', 'un segundo', 'sistema solar', '26 mil millones', 'día entero'];
 

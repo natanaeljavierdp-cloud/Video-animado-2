@@ -38,12 +38,12 @@ export function makeEarth(land) {
   // nubes de caricatura
   const cc = canvas(1024, 512), cx = cc.getContext('2d'); const r = rng(11);
   cx.fillStyle = '#fff';
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < 34; i++) {
     const px = r() * 1024, py = 70 + r() * 372, s = 8 + r() * 18;
     for (let k = 0; k < 5; k++) { cx.beginPath(); cx.ellipse(px + (k - 2) * s * 0.9, py + (k % 2 ? -s * 0.3 : s * 0.15), s * (1.0 + (k == 2) * 0.4), s * 0.75, 0, 0, Math.PI * 2); cx.fill(); }
   }
   const ct = new THREE.CanvasTexture(cc);
-  const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.022, 64, 40), toon(0xffffff, { alphaMap: ct, transparent: true, depthWrite: false }));
+  const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.022, 64, 40), toon(0xffffff, { alphaMap: ct, transparent: true, opacity: 0.85, depthWrite: false }));
   clouds.userData.outline = false; clouds.castShadow = false;
   earth.add(clouds);
   // atmósfera (fresnel)
@@ -124,7 +124,7 @@ export function makeVoyager() {
   const mBus = toon(0x9C9A95), mDark = toon(0x55585F), mWhite = toon(0xF1EEE6), mBoom = toon(0x7E8088);
   const mInst = toon(0xD9D4C8), mGold = toon(0xE2B34A, { emissive: new THREE.Color(0x6A4A10), emissiveIntensity: 0.6 });
   // bus decagonal
-  const bus = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.3, 10), mBus); g.add(bus);
+  const bus = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.3, 10), mBus); bus.rotation.y = Math.PI / 10; g.add(bus);
   const busTop = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.46, 0.06, 10), mDark); busTop.position.y = 0.18; g.add(busTop);
   const busBot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.16, 10), mDark); busBot.position.y = -0.23; g.add(busBot);
   // plato (boresight +Y)
@@ -168,8 +168,8 @@ export function makeVoyager() {
     const cap2 = cap1.clone(); cap2.position.y = -0.18; u.add(cap2);
     for (let f = 0; f < 6; f++) {
       const a = f * Math.PI / 3;
-      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.32, 0.018), finMat);
-      fin.position.set(Math.cos(a) * 0.17, 0, Math.sin(a) * 0.17); fin.rotation.y = -a; u.add(fin);
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.3, 0.012), finMat);
+      fin.position.set(Math.cos(a) * 0.15, 0, Math.sin(a) * 0.15); fin.rotation.y = -a; u.add(fin);
     }
     const core = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.26, 16), coreMat); core.userData.outline = false; core.visible = false; u.add(core);
     g.add(u); rtgs.push({ u, core });
@@ -182,8 +182,8 @@ export function makeVoyager() {
   const sciCurve = new THREE.CatmullRomCurve3([V(0.0, 0.03, 0.12), V(-0.3, 0.05, 0.06), sciDir.clone().multiplyScalar(0.5).add(V(0, 0.06, 0.04)), sciDir.clone().multiplyScalar(1.2).add(V(0, 0.07, 0.03)), sciDir.clone().multiplyScalar(1.9).add(V(0, 0.07, 0.02))]);
   const sciCable = new THREE.Mesh(new THREE.TubeGeometry(sciCurve, 40, 0.014, 6), toon(0x3C4A63)); sciCable.userData.outlineK = 0.5; g.add(sciCable);
   // magnetómetro: brazo largo y fino
-  const magDir = V(-0.25, -0.35, 1).normalize();
-  g.add(rod(V(0, -0.1, 0.4), magDir.clone().multiplyScalar(4.6), 0.013, mBoom, 6));
+  const magDir = V(-0.35, -0.3, -1).normalize();
+  g.add(rod(V(-0.1, -0.1, -0.4), magDir.clone().multiplyScalar(4.6), 0.013, mBoom, 6));
   [1.6, 3.0, 4.55].forEach((d) => { const s = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.12, 10), mInst); s.position.copy(magDir.clone().multiplyScalar(d)); s.quaternion.setFromUnitVectors(V(0, 1, 0), magDir); g.add(s); });
   // antenas de radio en V
   g.add(rod(V(0.1, -0.3, -0.2), V(1.6, -2.6, -1.4), 0.008, mBoom, 5));
@@ -203,11 +203,11 @@ export function makeVoyager() {
   const glint = new THREE.Mesh(new THREE.CircleGeometry(0.17, 48), new THREE.ShaderMaterial({
     uniforms: { ph: { value: 0 }, op: { value: 1 } },
     vertexShader: 'varying vec2 vP; void main(){ vP = position.xy/0.17; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);} ',
-    fragmentShader: 'uniform float ph; uniform float op; varying vec2 vP; void main(){ float d = vP.x*0.8+vP.y*0.6 - ph; float b = exp(-d*d*28.0); float r = length(vP); float rings = 0.5+0.5*sin(r*90.0); gl_FragColor = vec4(vec3(1.0,0.9,0.6)*b*(0.7+0.3*rings)*2.2, b*op); }',
+    fragmentShader: 'uniform float ph; uniform float op; varying vec2 vP; void main(){ float d = vP.x*0.8+vP.y*0.6 - ph; float b = exp(-d*d*28.0); float r = length(vP); float rings = 0.5+0.5*sin(r*90.0); gl_FragColor = vec4(vec3(1.0,0.9,0.6)*b*(0.7+0.3*rings)*1.3, b*op); }',
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
   }));
   glint.position.z = 0.0115; glint.userData.outline = false; disk.add(glint);
-  disk.position.set(0, -0.01, 0.485);
+  disk.position.set(0, -0.01, 0.4875);
   g.add(disk);
   // panel solar "fantasma" (para la escena 4)
   outlineAll(g);

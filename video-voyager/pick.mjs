@@ -1,0 +1,10 @@
+import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path'; import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url); const { chromium } = require('playwright');
+const ROOT = path.dirname(new URL(import.meta.url).pathname);
+const srv = http.createServer((q, r) => { const p = path.join(ROOT, q.url.split('?')[0]); if (!fs.existsSync(p)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': p.endsWith('.js') ? 'text/javascript' : p.endsWith('.html') ? 'text/html' : 'application/octet-stream' }); fs.createReadStream(p).pipe(r); }).listen(0);
+const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const pg = await b.newPage(); await pg.goto(`http://localhost:${srv.address().port}/index.html`);
+await pg.waitForFunction('window.ready === true', null, { timeout: 120000 });
+const [t, x, y] = process.argv.slice(2).map(Number);
+console.log((await pg.evaluate(([t, x, y]) => window.pick(t, x, y), [t, x, y])).join('\n'));
+await b.close(); srv.close();

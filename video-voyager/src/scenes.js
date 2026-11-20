@@ -78,7 +78,7 @@ export function buildWorld(scene, camera, assets) {
   W.textHolder2 = add(new THREE.Group());
 
   // haz de luz (escena 3)
-  W.beam = add(new THREE.Mesh(new THREE.SphereGeometry(0.14, 20, 14), new THREE.MeshBasicMaterial({ color: hdr(0xFFF2B0, 8), toneMapped: false })));
+  W.beam = add(new THREE.Mesh(new THREE.SphereGeometry(0.14, 20, 14), new THREE.MeshBasicMaterial({ color: hdr(0xFFF2B0, 4), toneMapped: false })));
   W.beam.userData.outline = false;
 
   // tierra firme (escenas 6b-7)
@@ -247,22 +247,22 @@ function s1(W, t) {
     const p0 = V(2.4, 0.2, 4.9), l0 = V(1.0, 1.25, 0);
     const d = up1.getPointAt(clamp(u1));
     const tg = up1.getTangentAt(clamp(u1));
-    const fp = d.clone().add(V(2.0, -1.6, 3.6)).addScaledVector(tg, -1.0);
-    const fl = d.clone().addScaledVector(tg, 2.5);
+    const fp = d.clone().add(V(2.2, 0.9, 4.2)).addScaledVector(tg, -2.6);
+    const fl = d.clone().addScaledVector(tg, 0.6).add(V(0, -1.1, 0));
     const w = sm(lin(t, 0.9, 2.2));
     pos = p0.clone().lerp(fp, w); look = l0.clone().lerp(fl, w);
     // llegada: encuadra la sonda
     const a = sm(lin(t, 3.4, 4.35));
-    pos.lerp(W.PV.clone().add(V(2.6, -1.9, 3.8)), a); look.lerp(W.PV.clone().add(V(0, -0.6, 0)), a);
+    pos.lerp(W.PV.clone().add(V(3.6, -2.2, 5.6)), a); look.lerp(W.PV.clone().add(V(0, -0.6, 0)), a);
   } else {
-    const k0 = W.PV.clone().add(V(2.6, -1.9, 3.8));
-    pos = hermite([K(4.35, k0), K(6.0, wide), K(7.6, wide.clone().add(V(-1.5, 0.5, -3))), K(9.4, W.PV.clone().add(V(3.0, -1.3, 3.2)))], t);
+    const k0 = W.PV.clone().add(V(3.6, -2.2, 5.6));
+    pos = hermite([K(4.35, k0), K(6.0, wide), K(7.6, wide.clone().add(V(-1.5, 0.5, -3))), K(9.4, W.PV.clone().add(V(4.6, -1.8, 4.9)))], t);
     look = hermite([K(4.35, W.PV.clone().add(V(0, -0.6, 0))), K(6.0, wideL), K(7.6, wideL.clone().add(V(0, 1.5, 0))), K(9.4, W.PV)], t);
   }
   lookCam(cam, pos, look);
   // señales
-  if (t > 0.95 && t < 4.3) comet(W, up1, u1, 0.13, 0.08, 16, cam);
-  if (t > 4.45 && t < 6.7) comet(W, back, u2, 0.13, 0.08, 16, cam);
+  if (t > 0.95 && t < 4.3) comet(W, up1, u1, 0.09, 0.08, 16, cam);
+  if (t > 4.45 && t < 6.7) comet(W, back, u2, 0.09, 0.08, 16, cam);
   if (t > 4.1 && t < 4.7) { const f = lin(t, 4.1, 4.7); W.dots.add(dishPt, 0.25 + f * 0.4, GOLD, 5, 1 - f, cam); }
   if (t > 6.5 && t < 7.1) { const f = lin(t, 6.5, 7.1); W.dots.add(surf, 0.25 + f * 0.5, GOLD, 5, 1 - f, cam); }
   if (t > 7.0) {
@@ -295,20 +295,20 @@ function s2(W, t) {
   const P0 = W.PV;
   // órbita alrededor de la sonda
   const th = lerp(0.82, 3.5, eio(lin(t, 9.4, 18.6)) * 0.9 + lin(t, 9.4, 18.6) * 0.1);
-  const R = lerp(4.4, 3.3, sm(lin(t, 9.4, 12)));
-  const hh = lerp(-1.3, 0.5, sm(lin(t, 9.4, 18)));
+  const R = lerp(6.7, 5.6, sm(lin(t, 9.4, 12)));
+  const hh = lerp(-1.8, 0.8, sm(lin(t, 9.4, 18)));
   const orb = P0.clone().add(V(Math.cos(th) * R, hh, Math.sin(th) * R));
   const wide = V(11, 11, 40), wideL = V(0.8, 11.5, -3);
   const pos = orb.clone().lerp(wide, eio(lin(t, 18.3, 21.6)));
-  const look = P0.clone().lerp(wideL, eio(lin(t, 18.3, 21.6)));
+  const look = P0.clone().add(V(0, -0.7, 0)).lerp(wideL, eio(lin(t, 18.3, 21.6)));
   lookCam(cam, pos, look);
   // contador 1977 -> 2026
   const ck = pop(t, 11.45, 18.2);
   if (ck > 0.01) {
     const yr = Math.round(lerp(1977, 2026, eio(lin(t, 13.9, 16.1))));
-    setText(W, W.textHolder, String(yr), 0.62, W.textMat);
+    setText(W, W.textHolder, String(yr), 0.4, W.textMat);
     W.textHolder.visible = true;
-    W.textHolder.position.copy(camLocal(cam, 0, -1.55, -5.2));
+    W.textHolder.position.copy(camLocal(cam, 0, -1.25, -5.2));
     W.textHolder.quaternion.copy(cam.quaternion); W.textHolder.rotateY(Math.sin(t * 1.1) * 0.3); W.textHolder.rotateX(-0.15);
     W.textHolder.scale.setScalar(ck);
   }
@@ -327,7 +327,7 @@ function s2(W, t) {
   }
   const dk = pop(t, 21.75, 24.5);
   if (dk > 0.01) {
-    setText(W, W.textHolder2, '26.000.000.000 km', 0.36, W.textMatW);
+    setText(W, W.textHolder2, '26.000.000.000 km', 0.21, W.textMatW);
     W.textHolder2.visible = true;
     W.textHolder2.position.copy(camLocal(cam, 0, -2.05, -8));
     W.textHolder2.quaternion.copy(cam.quaternion); W.textHolder2.rotateY(Math.sin(t * 0.9) * 0.18); W.textHolder2.rotateX(-0.1);
@@ -344,7 +344,7 @@ function s3(W, t) {
   const pp = W.planetPos;
   if (!W._c3) {
     const start = pp.moon.clone().normalize().multiplyScalar(1.05);
-    const pts = [start, pp.moon.clone().add(V(0.45, -0.1, 0.35)), pp.mars.clone().add(V(0.9, 0.2, 0.6)), pp.jup.clone().add(V(-2.2, 0, 1.4)), pp.sat.clone().add(V(1.8, 0.3, 1.2)), W.PV.clone().addScaledVector(W.dE, 0.75)];
+    const pts = [start, pp.moon.clone().add(V(0.45, -0.1, 0.35)), pp.mars.clone().add(V(0.9, 0.2, 0.6)), pp.jup.clone().add(V(-3.0, 0, 2.4)), pp.sat.clone().add(V(3.3, 0.3, 2.6)), W.PV.clone().addScaledVector(W.dE, 0.75)];
     W._c3 = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
     // fracción de arco donde pasa la Luna
     let best = 0, bd = 1e9; for (let i = 0; i <= 400; i++) { const d = W._c3.getPointAt(i / 400).distanceTo(pts[1]); if (d < bd) { bd = d; best = i / 400; } }
@@ -361,9 +361,9 @@ function s3(W, t) {
   const p0 = V(-2.2, -1.2, 3.6), l0 = V(0.6, 1.4, 0);
   const pS = hermite([K(23.75, V(-2.6, -1.6, 4.2)), K(26.4, p0)], t);
   const side = V(1, 0, 0.4).normalize();
-  const chase = head.clone().addScaledVector(tg, -2.4).addScaledVector(side, 0.9).add(V(0, -0.2, 0.9));
-  const chaseL = head.clone().addScaledVector(tg, 2.2);
-  const settle = W.PV.clone().add(V(2.4, -2.4, 3.0)), settleL = W.PV.clone().add(V(0, -0.4, 0));
+  const chase = head.clone().addScaledVector(tg, -4.2).addScaledVector(side, 1.7).add(V(0, -0.3, 1.6));
+  const chaseL = head.clone().addScaledVector(tg, 1.2);
+  const settle = W.PV.clone().add(V(3.6, -2.8, 4.8)), settleL = W.PV.clone().add(V(0, -0.4, 0));
   const wc = sm(lin(t, 26.3, 27.1)), ws = sm(lin(t, 30.7, 31.8));
   const pos = pS.clone().lerp(chase, wc).lerp(settle, ws);
   const look = l0.clone().lerp(chaseL, wc).lerp(settleL, ws);
@@ -373,8 +373,8 @@ function s3(W, t) {
     if (t < 26.42) { const f = lin(t, 25.2, 26.42); W.dots.add(head, 0.06 + 0.1 * f + 0.02 * Math.sin(t * 20), 0xFFF2B0, 6, f, cam); }
     else {
       W.beam.visible = true; W.beam.position.copy(head);
-      W.beam.quaternion.setFromUnitVectors(UP, tg); W.beam.scale.set(1, 3.5, 1);
-      for (let i = 1; i <= 26; i++) { const uu = u - i * 0.0035; if (uu < 0) break; const f = 1 - i / 26; W.dots.add(c.getPointAt(uu), 0.09 * f + 0.02, 0xFFE59A, 5, f, cam); }
+      W.beam.quaternion.setFromUnitVectors(UP, tg); W.beam.scale.set(0.6, 2.4, 0.6);
+      for (let i = 1; i <= 26; i++) { const uu = u - i * 0.0035; if (uu < 0) break; const f = 1 - i / 26; W.dots.add(c.getPointAt(uu), 0.05 * f + 0.012, 0xFFE59A, 3, f, cam); }
     }
   }
   if (t > 31.3 && t < 32.2) { const f = lin(t, 31.3, 32.2); W.dots.add(c.getPointAt(1), 0.3 + f * 0.6, GOLD, 5, 1 - f, cam); }
@@ -397,17 +397,17 @@ function s4(W, t) {
   // eje perpendicular al brazo RTG en el mundo
   const rtgAxis = vu.rtgDir.clone().applyQuaternion(W.voy.quaternion);
   const perp = V(0, 0, 1).cross(rtgAxis).normalize();
-  const c0 = P0.clone().add(V(3.2, -1.0, 3.4)), l0 = P0.clone().add(V(-0.8, 0.9, -0.6));
-  const cR = rtgC.clone().addScaledVector(perp, 1.15).add(V(0.2, -0.3, 0.7)), lR = rtgC.clone();
-  const cB = rtgC.clone().lerp(busC, 0.6).add(V(0.4, -0.6, 1.4)), lB = rtgC.clone().lerp(busC, 0.65);
-  const cS = sciC.clone().add(V(0.6, -0.5, 1.6)), lS = sciC.clone().add(V(0.1, 0.1, 0));
+  const c0 = P0.clone().add(V(5.0, -1.4, 5.4)), l0 = P0.clone().add(V(-0.6, 0.5, -0.4));
+  const cR = rtgC.clone().addScaledVector(perp, 2.6).add(V(0.4, -0.7, 2.0)), lR = rtgC.clone();
+  const cB = rtgC.clone().lerp(busC, 0.6).add(V(0.6, -1.0, 2.4)), lB = rtgC.clone().lerp(busC, 0.65);
+  const cS = sciC.clone().add(V(0.9, -0.9, 2.6)), lS = sciC.clone().add(V(0.1, 0.1, 0));
   const pos = hermite([K(32.6, c0), K(35.4, c0.clone().add(V(-0.3, 0.2, -0.5))), K(37.8, cR), K(40.4, cR.clone().addScaledVector(perp, -0.15).add(V(0, 0.05, -0.12))), K(42.8, cB), K(45.2, cS), K(47.82, cS.clone().add(V(-0.4, 0.3, -0.3)))], t);
   const look = hermite([K(32.6, l0), K(35.4, l0), K(37.8, lR), K(40.4, lR), K(42.8, lB), K(45.2, lS), K(47.82, lS)], t);
   lookCam(cam, pos, look);
   // Sol lejano: arriba a la izquierda del encuadre inicial
   if (!W._sun4) {
     const tmp = new THREE.PerspectiveCamera(40, 1080 / 1920); tmp.position.copy(c0); tmp.lookAt(l0); tmp.updateMatrixWorld(true);
-    W._sun4 = V(-0.42, 0.62, -1).normalize().transformDirection(tmp.matrixWorld).multiplyScalar(160).add(c0);
+    W._sun4 = V(-0.12, 0.2, -1).normalize().transformDirection(tmp.matrixWorld).multiplyScalar(160).add(c0);
   }
   const sunP = W._sun4;
   W.sunStar.visible = true; W.sunStar.position.copy(sunP); W.sunStar.scale.setScalar(1.1);
@@ -434,7 +434,7 @@ function s4(W, t) {
     vu.finMat.transparent = true; vu.finMat.opacity = 1 - 0.6 * open;
   }
   vu.rtgShell.emissive.set(0xFF7A2E).multiplyScalar(0.35 * heat);
-  vu.finMat.emissive.set(0xFF7A2E).multiplyScalar(0.45 * heat);
+  vu.finMat.emissive.set(0xFF7A2E).multiplyScalar(0.22 * heat);
   vu.rtgs.forEach((r, i) => { r.core.visible = heat > 0.01; r.core.material.color.set(0xFF8A3D).multiplyScalar(0.5 + 2.6 * heat * (0.9 + 0.1 * Math.sin(t * 6 + i))); });
   // partículas de calor
   if (heat > 0.01 && t < 44.5) {
@@ -448,7 +448,7 @@ function s4(W, t) {
       }
     });
   }
-  showLabel(W.L.rtg, rtgMid.clone().add(V(0, 0.75, 0)), pop(t, 37.2, 40.3));
+  showLabel(W.L.rtg, camLocal(cam, 0, -1.5, -6), pop(t, 37.2, 40.3));
   // electricidad por los cables
   const elec = sm(lin(t, 40.5, 41.3));
   if (elec > 0.001) {
@@ -485,9 +485,9 @@ function s5(W, t) {
   const side = V(1, 0, 0).cross(d).normalize(); const up2 = d.clone().cross(side).normalize();
   const focus = P0.clone().addScaledVector(d, 0.75);
   // cámara
-  const c0 = P0.clone().addScaledVector(d, -2.6).addScaledVector(side, 1.6).addScaledVector(up2, 1.0);
+  const c0 = P0.clone().addScaledVector(d, -4.4).addScaledVector(side, 2.6).addScaledVector(up2, 1.6);
   const l0 = P0.clone().addScaledVector(d, 5).addScaledVector(side, -0.2);
-  const c1 = P0.clone().addScaledVector(d, -1.2).addScaledVector(side, 2.6).addScaledVector(up2, 0.4);
+  const c1 = P0.clone().addScaledVector(d, -2.8).addScaledVector(side, 5.0).addScaledVector(up2, 0.9);
   const l1 = P0.clone().addScaledVector(d, 1.5).addScaledVector(side, 0.9);
   let pos = hermite([K(47.82, c0), K(50.5, c0.clone().addScaledVector(side, 0.4)), K(53.0, c1), K(54.3, c1.clone().addScaledVector(d, 0.6))], t);
   let look = hermite([K(47.82, l0), K(50.5, l0), K(53.0, l1), K(54.3, l1.clone().addScaledVector(d, 1.5))], t);
@@ -517,7 +517,7 @@ function s5(W, t) {
     W.bulb.visible = true; W.bulb.position.copy(P0).addScaledVector(side, 1.15).addScaledVector(d, 0.55).addScaledVector(up2, -0.35);
     W.bulb.quaternion.copy(cam.quaternion); W.bulb.rotateZ(Math.PI + Math.sin(t * 2) * 0.12);
     W.bulb.scale.setScalar(0.42 * bk);
-    W.bulb.userData.glass.emissiveIntensity = 1.6 * sm(lin(t, 52.75, 53.1)) * (0.92 + 0.08 * Math.sin(t * 9));
+    W.bulb.userData.glass.emissiveIntensity = 0.75 * sm(lin(t, 52.75, 53.1)) * (0.92 + 0.08 * Math.sin(t * 9));
   }
   setSun(W, side.clone().add(up2).add(d.clone().multiplyScalar(-0.3)), P0, 3.5);
   return 'space';
@@ -579,12 +579,12 @@ function s6(W, t) {
     const a = sm(lin(t, 67.0, 67.6));
     let best = -1, bv = 0.12;
     for (let i = 0; i < 3; i++) { const v = wnor(i).dot(D); if (v > bv) { bv = v; best = i; } }
-    W.dsnSmall.forEach((d, i) => { d.userData.glowM.emissiveIntensity = i === best ? 1.2 * a : 0; });
+    W.dsnSmall.forEach((d, i) => { d.userData.glowM.emissiveIntensity = i === best ? 0.45 * a : 0; });
     if (best >= 0) {
       const tgt = wpos(best).addScaledVector(wnor(best), 0.14);
       const from = tgt.clone().addScaledVector(D, 7);
       for (let k = 0; k < 16; k++) { const ph = (t * 1.3 + k / 16) % 1; W.dots.add(from.clone().lerp(tgt, ph), 0.035, GOLD, 6, a * sm(ph * 5), cam); }
-      W.dots.add(tgt, 0.06 + 0.02 * Math.sin(t * 12), GOLD, 6, a, cam);
+      W.dots.add(tgt, 0.035 + 0.01 * Math.sin(t * 12), GOLD, 4, a, cam);
     }
   }
   setSun(W, V(0.6, 0.4, 0.9), V(0, 0, 0), 2);
@@ -611,7 +611,7 @@ function s7(W, t) {
   const monP = W.monitor.localToWorld(V(0, 1.05, 0));
   const fwd = W.deskG.localToWorld(V(0, 0, 1)).sub(W.deskG.localToWorld(V(0, 0, 0))).normalize();
   const rightD = V(0, 1, 0).cross(fwd).normalize();
-  const camModem = modemP.clone().addScaledVector(fwd, 3.0).addScaledVector(rightD, -0.6).add(V(0, 1.0, 0));
+  const camModem = modemP.clone().addScaledVector(fwd, 4.2).addScaledVector(rightD, -0.8).add(V(0, 1.2, 0));
   const camMon = monP.clone().addScaledVector(fwd, 3.4).addScaledVector(rightD, -0.8).add(V(0, 0.6, 0));
   const pos = hermite([K(70.6, L(3, 34, 12)), K(72.2, L(14, 13, 15)), K(73.6, L(16, 7, 2)), K(74.7, L(17, 5.5, 8.5)), K(76.0, camModem), K(78.3, camModem.clone().addScaledVector(rightD, 0.25).add(V(0, -0.15, 0)).addScaledVector(fwd, -0.3)), K(80.0, camMon.clone().addScaledVector(rightD, -2.0).addScaledVector(fwd, 1.2).add(V(0, 0.8, 0))), K(82.45, camMon)], t);
   const look = hermite([K(70.6, L(0, 5, 0)), K(72.2, dishC), K(73.6, dishC), K(74.7, dishC.clone().lerp(deskTop, 0.5)), K(76.0, modemP.clone().add(V(0, 0.45, 0))), K(78.3, modemP.clone().add(V(0, 0.45, 0))), K(80.0, monP.clone().lerp(dishC, 0.25)), K(82.45, monP)], t);
@@ -625,8 +625,8 @@ function s7(W, t) {
     const on = Math.sin(Math.floor(t * 7 + i * 3.7) * 12.9898) * 43758.5 % 1;
     l.material.color.set(l.userData.base).multiplyScalar(Math.abs(on) > 0.45 ? 3 : 0.25);
   });
-  W.modem.userData.fill.scale.x = 0.012 + 0.05 * lin(t, 75.0, 82.4);
-  showLabel(W.loadLabel, W.modem.localToWorld(V(0, 1.55, 0)), pop(t, 75.4, 78.6));
+  W.modem.userData.fill.scale.x = 0.04 + 0.08 * lin(t, 75.0, 82.4);
+  showLabel(W.loadLabel, camLocal(cam, 0, -2.0, -6.5), pop(t, 75.4, 78.6));
   // cable de datos -> monitor
   const dc = new THREE.CatmullRomCurve3(W.dataCurve.points.map((p) => p.clone().add(G)));
   if (!W._dcw) W._dcw = dc;
@@ -651,8 +651,8 @@ function s8(W, t, T) {
   // brillo que barre el disco
   vu.glint.material.uniforms.op.value = 1;
   vu.glint.material.uniforms.ph.value = ((t - 83.6) % 2.2) / 2.2 * 3.2 - 1.6;
-  const c0 = diskP.clone().addScaledVector(n, 1.0).addScaledVector(sideN, 0.35).addScaledVector(W.dE, -0.25);
-  const c1 = diskP.clone().addScaledVector(n, 0.62).addScaledVector(sideN, 0.12).addScaledVector(W.dE, -0.1);
+  const c0 = diskP.clone().addScaledVector(n, 1.4).addScaledVector(sideN, 0.35).addScaledVector(W.dE, -0.25);
+  const c1 = diskP.clone().addScaledVector(n, 0.85).addScaledVector(sideN, 0.12).addScaledVector(W.dE, -0.1);
   const c2 = P0.clone().addScaledVector(n, 5).addScaledVector(sideN, 1.5).addScaledVector(W.dE, -2.5);
   const c3 = P0.clone().addScaledVector(n, 16).addScaledVector(sideN, 4).addScaledVector(W.dE, -9);
   const c4 = c3.clone().addScaledVector(n, 3).addScaledVector(W.dE, -2);
@@ -668,7 +668,7 @@ function s8(W, t, T) {
     const a = i * 1.3 - 2.6;
     o.position.copy(diskP).addScaledVector(n, 0.1 + f * 0.9).addScaledVector(sideN, Math.cos(a) * f * 0.75).addScaledVector(W.dE, Math.sin(a) * f * 0.6 - f * 0.2);
     o.quaternion.copy(cam.quaternion); o.rotateY(Math.sin(t * 2 + i) * 0.5); o.rotateZ(Math.sin(t * 1.5 + i) * 0.3);
-    o.scale.setScalar(0.26 * eback(lin(t, t0, t0 + 0.4)) * (1 - sm(lin(f, 0.75, 1))));
+    o.scale.setScalar(0.19 * eback(lin(t, t0, t0 + 0.4)) * (1 - sm(lin(f, 0.75, 1))));
   });
   setSun(W, sideN.clone().add(n).add(W.dE.clone().multiplyScalar(-0.8)), P0, 3.5);
   return 'space';

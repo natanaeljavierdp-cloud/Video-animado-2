@@ -117,6 +117,7 @@ export function dishGeo(R, f, th = 0.04, seg = 48) {
   const d = R * R / (4 * f);
   pts.push(new THREE.Vector2(R + th * 0.6, d));
   for (let i = n; i >= 0; i--) { const r = Math.max(0.002, R * i / n); pts.push(new THREE.Vector2(r, r * r / (4 * f) - th)); }
+  pts.reverse();
   const g = new THREE.LatheGeometry(pts, seg);
   g.computeVertexNormals();
   return g;
@@ -162,7 +163,7 @@ export class Dots {
     this.halo = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }), max);
     this.halo.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(max * 3), 3);
     this.halo.frustumCulled = false; this.halo.userData.outline = false;
-    scene.add(this.halo);
+    this.halo.visible = false; scene.add(this.halo);
   }
   clear() { this.n = 0; }
   add(p, r, color = GOLD, k = 6, a = 1, cam = null) {

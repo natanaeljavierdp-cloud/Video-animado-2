@@ -1,0 +1,5 @@
+still 84.3 2053 ms
+[page] [.WebGL-0x3d64001c0400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+still 86 1137 ms
+[page] [.WebGL-0x3d64001c0400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+EXIT
