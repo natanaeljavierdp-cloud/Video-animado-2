@@ -1,0 +1,177 @@
+[
+ {
+  "inicio": 0.0,
+  "fin": 0.52,
+  "palabra": "Atención,"
+ },
+ {
+  "inicio": 0.66,
+  "fin": 0.92,
+  "palabra": "noticia"
+ },
+ {
+  "inicio": 0.92,
+  "fin": 1.04,
+  "palabra": "de"
+ },
+ {
+  "inicio": 1.04,
+  "fin": 1.32,
+  "palabra": "última"
+ },
+ {
+  "inicio": 1.32,
+  "fin": 1.68,
+  "palabra": "hora."
+ },
+ {
+  "inicio": 1.84,
+  "fin": 2.1,
+  "palabra": "Sandy"
+ },
+ {
+  "inicio": 2.1,
+  "fin": 2.38,
+  "palabra": "Brito"
+ },
+ {
+  "inicio": 2.38,
+  "fin": 2.5,
+  "palabra": "está"
+ },
+ {
+  "inicio": 2.5,
+  "fin": 2.82,
+  "palabra": "perdiendo"
+ },
+ {
+  "inicio": 2.82,
+  "fin": 2.92,
+  "palabra": "el"
+ },
+ {
+  "inicio": 2.92,
+  "fin": 3.14,
+  "palabra": "pelo"
+ },
+ {
+  "inicio": 3.14,
+  "fin": 3.42,
+  "palabra": "y"
+ },
+ {
+  "inicio": 3.42,
+  "fin": 3.72,
+  "palabra": "dicen"
+ },
+ {
+  "inicio": 3.72,
+  "fin": 3.92,
+  "palabra": "que"
+ },
+ {
+  "inicio": 3.92,
+  "fin": 4.02,
+  "palabra": "la"
+ },
+ {
+  "inicio": 4.02,
+  "fin": 4.2,
+  "palabra": "frente"
+ },
+ {
+  "inicio": 4.2,
+  "fin": 4.36,
+  "palabra": "le"
+ },
+ {
+  "inicio": 4.36,
+  "fin": 4.5,
+  "palabra": "está"
+ },
+ {
+  "inicio": 4.5,
+  "fin": 4.82,
+  "palabra": "creciendo"
+ },
+ {
+  "inicio": 4.82,
+  "fin": 4.98,
+  "palabra": "más"
+ },
+ {
+  "inicio": 4.98,
+  "fin": 5.18,
+  "palabra": "rápido"
+ },
+ {
+  "inicio": 5.18,
+  "fin": 5.32,
+  "palabra": "que"
+ },
+ {
+  "inicio": 5.32,
+  "fin": 5.4,
+  "palabra": "la"
+ },
+ {
+  "inicio": 5.4,
+  "fin": 5.72,
+  "palabra": "economía."
+ },
+ {
+  "inicio": 5.74,
+  "fin": 5.96,
+  "palabra": "Sandy,"
+ },
+ {
+  "inicio": 6.04,
+  "fin": 6.36,
+  "palabra": "tranquilo,"
+ },
+ {
+  "inicio": 6.38,
+  "fin": 6.44,
+  "palabra": "que"
+ },
+ {
+  "inicio": 6.44,
+  "fin": 6.5,
+  "palabra": "lo"
+ },
+ {
+  "inicio": 6.5,
+  "fin": 6.76,
+  "palabra": "importante"
+ },
+ {
+  "inicio": 6.76,
+  "fin": 6.92,
+  "palabra": "es"
+ },
+ {
+  "inicio": 6.92,
+  "fin": 7.06,
+  "palabra": "tener"
+ },
+ {
+  "inicio": 7.06,
+  "fin": 7.2,
+  "palabra": "la"
+ },
+ {
+  "inicio": 7.2,
+  "fin": 7.42,
+  "palabra": "cabeza"
+ },
+ {
+  "inicio": 7.42,
+  "fin": 7.58,
+  "palabra": "bien"
+ },
+ {
+  "inicio": 7.58,
+  "fin": 7.9,
+  "palabra": "puesta."
+ }
+]
