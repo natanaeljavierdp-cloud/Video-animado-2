@@ -145,7 +145,7 @@ v_rms = rms(voice)
 music *= (v_rms * 10 ** (-11 / 20)) / rms(music[: int(MAIN_LEN * SR)])   # music ~11 dB under the voice
 fx_st *= (v_rms * 10 ** (-8 / 20)) / np.sqrt(np.mean(fx_st[np.abs(fx_st) > 1e-3] ** 2))
 
-mix = voice_st + (music + fx_st) * gate
+mix = voice_st + music + fx_st * gate   # music keeps playing through the pauses
 mix = mix[: int(TOTAL * SR)]
 mix /= np.max(np.abs(mix)) / 0.89
 for name, arr in (("mix", mix), ("music_only", music[: int(TOTAL * SR)] * gate[: int(TOTAL * SR)])):
