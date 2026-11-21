@@ -1,0 +1,110 @@
+{
+  "project": "FRUTINOTICIASRD",
+  "criterio_de_orden": "orden de subida, no verificado por transcripción",
+  "clips": [
+    {
+      "orden": 1,
+      "archivo_original": "1000638912.mp4",
+      "archivo_en_carpeta": "01_Gancho_de_Apertura.mp4",
+      "titulo_de_guion": "Gancho de apertura",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "47f487a9f90d132962f44c1df1c801f991e132c7f072f61ca261baad5db09d1e"
+    },
+    {
+      "orden": 2,
+      "archivo_original": "1000638913.mp4",
+      "archivo_en_carpeta": "02_Presentacion_Dania_Frutoles.mp4",
+      "titulo_de_guion": "Presentación de Dania Frutoles",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "8b622495d9aaf119ee90cb80f960cd08c97cb029726e4b5e4d9f45a84d244de5"
+    },
+    {
+      "orden": 3,
+      "archivo_original": "1000638914.mp4",
+      "archivo_en_carpeta": "03_Concepto_FrutinoticiasRD.mp4",
+      "titulo_de_guion": "Concepto de FrutinoticiasRD",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "d953e8aa08059a4026da08485892536937095a3c780c65371698d06359b2a6a3"
+    },
+    {
+      "orden": 4,
+      "archivo_original": "1000638915.mp4",
+      "archivo_en_carpeta": "04_Apagones_y_Tapones.mp4",
+      "titulo_de_guion": "Apagones y tapones",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "51d63d572756297a8412e81629e5c6c3baa9c5e01b8ac65e32443edb1256257e"
+    },
+    {
+      "orden": 5,
+      "archivo_original": "1000638916.mp4",
+      "archivo_en_carpeta": "05_Promesas_Politicas.mp4",
+      "titulo_de_guion": "Promesas políticas",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "8314a66abce7933e24bb08c89e012a8579db99a9994d1bf6318e6a081121e28f"
+    },
+    {
+      "orden": 6,
+      "archivo_original": "1000638917.mp4",
+      "archivo_en_carpeta": "06_Frutas_Podridas.mp4",
+      "titulo_de_guion": "Frutas podridas",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "901f0b11d1e862541f5c8cbd98e98abebfb16df8eacd571ac8e5b0667952d455"
+    },
+    {
+      "orden": 7,
+      "archivo_original": "1000638918.mp4",
+      "archivo_en_carpeta": "07_Humor_Oscuro.mp4",
+      "titulo_de_guion": "Humor oscuro",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "ac00a1158b6996bf531ab7c234d4a641c2da9b960fa61936810e815799acf420"
+    },
+    {
+      "orden": 8,
+      "archivo_original": "1000638919.mp4",
+      "archivo_en_carpeta": "08_Despedida_Final.mp4",
+      "titulo_de_guion": "Despedida final",
+      "duracion_segundos": 7.93,
+      "ancho_px": 720,
+      "alto_px": 1280,
+      "fps": "24/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "sha256": "41a513b5b2841bd299b60f0d15953112ac98adf9f320bf85382e21525d2da590"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "_descripcion": "Lista de decisiones de edición (EDL) de FRUTINOTICIASRD. Editable: los scripts leen este archivo. Tiempos 'src' = segundos dentro del clip original. in/out en fotogramas (24 fps, out exclusivo).",
+  "fps": 24,
+  "salida": {"ancho": 1080, "alto": 1920},
+  "fuentes_dir": "../../01_ESCENAS_EN_ORDEN",
+  "end_card_frames": 62,
+  "clips": [
+    {"id": "01", "archivo": "01_Gancho_de_Apertura.mp4", "in": 0, "out": 190, "nota": "completo; el gancho empieza en el fotograma 0"},
+    {"id": "02", "archivo": "02_Presentacion_Dania_Frutoles.mp4", "in": 2, "out": 188, "nota": "silencio final recortado"},
+    {"id": "03", "archivo": "03_Concepto_FrutinoticiasRD.mp4", "in": 2, "out": 186, "nota": "se elimina el fotograma 189: destello de otro plano (defecto del original)"},
+    {"id": "04", "archivo": "04_Apagones_y_Tapones.mp4", "in": 3, "out": 183, "nota": "silencio inicial/final recortado"},
+    {"id": "05", "archivo": "05_Promesas_Politicas.mp4", "in": 3, "out": 190, "nota": "se conserva el sonido final tras 'pensión'"},
+    {"id": "06", "archivo": "06_Frutas_Podridas.mp4", "in": 5, "out": 190, "nota": "silencio inicial recortado"},
+    {"id": "07", "archivo": "07_Humor_Oscuro.mp4", "in": 2, "out": 179, "nota": "silencio final recortado"},
+    {"id": "08", "archivo": "08_Despedida_Final.mp4", "in": 3, "out": 180, "limpiar_texto": [600, 1722, 1068, 1826], "nota": "se retira por inpainting el texto incrustado 'Dania Frut:16' (zona del escritorio, coordenadas de salida); se evita el fundido a gris final del original"}
+  ],
+  "subtitulos": {
+    "_formato": "n = número de palabras de la transcripción que consume la línea; *texto* = resaltado rojo; {texto} = resaltado azul; \\n = salto de línea",
+    "01": [[2, "Señores, *atención.*"], [3, "Llegó el noticiero"], [6, "que no promete\narreglar el país"], [5, "y por eso\n*empezamos bien.*"]],
+    "02": [[6, "Yo soy {Dania Frutoles,}\nsu presentadora."], [4, "Soy una *fresa*, sí,"], [5, "pero aquí no nos tragamos"], [2, "*cualquier cuento.*"]],
+    "03": [[4, "Bienvenidos a {FrutinoticiasRD,}"], [4, "noticias dominicanas,\nhechos verificados"], [5, "y comentarios\ncon más *picante*"], [4, "que un *ají caribe.*"]],
+    "04": [[4, "*Tapones, apagones*\ny paciencia."], [3, "Tres cosas dominicanas."], [3, "Bueno, la *paciencia*"], [4, "se nos *acaba primero.*"]],
+    "05": [[5, "También hablaremos de\n{promesas políticas.}"], [4, "Algunas tienen\ntanta experiencia hoy"], [4, "que ya deberían"], [3, "estar *cobrando pensión.*"]],
+    "06": [[6, "Y si una historia\nhuele raro,"], [2, "{investigamos primero.}"], [3, "Que *frutas podridas*"], [4, "ya tiene el *colmado.*"]],
+    "07": [[4, "El humor viene *oscuro,*"], [5, "pero las fuentes\n{bien claras.}"], [3, "Porque inventar noticias,"], [4, "eso sí da *vergüenza.*"]],
+    "08": [[3, "Soy {Dania Frutoles,}"], [4, "esto es {FrutinoticiasRD.}"], [3, "Exprimimos las noticias,"], [3, "*no la verdad.*"], [2, "Nos vemos."]]
+  },
+  "graficos": {
+    "_descripcion": "Eventos gráficos con tiempos relativos al clip original (src, segundos).",
+    "intro": {"clip": "01", "desde": 0.0, "hasta": 4.6},
+    "mapa_superior": [
+      {"clip": "01", "desde": 0.35, "hasta": 4.4, "ciudades": ["Santo Domingo", "Santiago"]},
+      {"clip": "03", "desde": 2.1, "hasta": 7.2, "ciudades": ["Santo Domingo", "Santiago", "Puerto Plata", "Punta Cana"]}
+    ],
+    "rotulo_presentadora": {"clip": "02", "desde": 0.5, "hasta": 4.9, "nombre": "DANIA FRUTOLES", "cargo": "PRESENTADORA | FRUTINOTICIASRD"},
+    "titulares": [
+      {"clip": "03", "desde": 2.1, "hasta": 7.3, "texto": "NOTICIAS CON SABOR", "sub": "DOMINICANO", "chip": "SÁTIRA"},
+      {"clip": "04", "desde": 0.15, "hasta": 4.8, "texto": "APAGONES Y TAPONES", "chip": "SÁTIRA", "parpadeo": [0.9, 1.7]},
+      {"clip": "05", "desde": 0.2, "hasta": 2.25, "texto": "PROMESAS POLÍTICAS", "chip": "SÁTIRA"},
+      {"clip": "06", "desde": 1.9, "hasta": 3.75, "texto": "INVESTIGAMOS PRIMERO", "chip": "VERIFICACIÓN", "serio": true},
+      {"clip": "07", "desde": 0.15, "hasta": 3.65, "texto": "HUMOR SIN FILTROS", "chip": "SÁTIRA", "barrido_en": 2.82},
+      {"clip": "08", "desde": 1.4, "hasta": 6.3, "texto": "ESTRENO OFICIAL", "chip": "FRUTINOTICIASRD"}
+    ],
+    "bateria_paciencia": {"clip": "04", "desde": 4.9, "hasta": 7.5, "drena": [5.5, 7.0]},
+    "carga_promesa": {"clip": "05", "desde": 2.3, "hasta": 7.75, "atasco": 6.6},
+    "verificacion": {"clip": "06", "desde": 1.95, "hasta": 3.75, "checks": [[2.1, "FUENTES"], [2.6, "CONTEXTO"], [3.05, "DATOS"]]},
+    "lineas_datos": {"clip": "06", "desde": 0.2, "hasta": 3.8},
+    "ticker": [
+      {"desde": ["03", 0.9], "hasta": ["05", 7.7]},
+      {"desde": ["08", 0.2], "hasta": ["08", 7.3]}
+    ],
+    "ticker_texto": "FRUTINOTICIASRD | NOTICIAS CON SABOR DOMINICANO   •   SÁTIRA, ACTUALIDAD Y HUMOR   •   REPÚBLICA DOMINICANA   •   ",
+    "end_card": {"lema": "EXPRIMIMOS LAS NOTICIAS, NO LA VERDAD", "pie": "SÁTIRA Y HUMOR · REPÚBLICA DOMINICANA"}
+  },
+  "audio": {
+    "voz_objetivo_lufs_por_clip": -17.0,
+    "pausas_dramaticas": [["04", 4.75, 5.0], ["05", 2.05, 2.35], ["06", 3.35, 3.95], ["07", 3.55, 3.85]],
+    "mezcla_final_lufs": -14.0,
+    "true_peak_db": -1.5
+  }
+}

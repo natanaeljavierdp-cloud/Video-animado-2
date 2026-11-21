@@ -1,0 +1,16 @@
+{
+ "palabras_esperadas": 126,
+ "coinciden_en_orden": 126,
+ "diferencias": [
+  [
+   "extra",
+   [
+    "frutinoticias",
+    "rd"
+   ]
+  ]
+ ],
+ "desfase_medio_s": 0.018,
+ "desfase_max_abs_s": 0.43,
+ "nota": "La 'diferencia' extra ('frutinoticias rd') es una repetición de Whisper en un límite de segmento: al transcribir aisladamente 53.5–61.5 s la frase aparece una sola vez."
+}
