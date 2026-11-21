@@ -46,156 +46,90 @@ voice = np.concatenate(parts)
 voice = hp(voice, 70)
 voice_st = np.zeros((N, 2)); voice_st[: len(voice)] = voice[:, None]
 
-# ------------------------------------------------------------------ intensity curve
-q = ws(191)  # "¿quién controla el mundo?"
-key = [(0, 0.30), (4.3, 0.38), (18.0, 0.45), (23.0, 0.42), (38.5, 0.62), (43.5, 0.62),
-       (58.5, 0.72), (74.7, 1.0), (q, 1.0), (we(200) + 0.2, 1.0), (ws(201) + 0.4, 0.42), (MAIN_LEN, 0.5), (TOTAL, 0.2)]
-I = np.interp(t_all, [k[0] for k in key], [k[1] for k in key])
 
+# ------------------------------------------------------------------ music: "Creeping Unease"
+MUSIC = IN.replace("/in", "/in2") + "/music.mp3"
+OFFSET = 160.0 - TOTAL          # the track's natural ending lands on the closing animation
+mraw = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{OFFSET:.3f}", "-i", MUSIC, "-ac", "2", "-ar", str(SR),
+                       "-f", "f32le", "-"], capture_output=True).stdout
+m = np.frombuffer(mraw, np.float32).astype(np.float64).reshape(-1, 2)
+music = np.zeros((N, 2)); music[: min(N, len(m))] = m[:N]
+q = ws(191)
+ramp = np.interp(t_all, [0, 20, 58, q, we(200) + 0.3, ws(201) + 0.6, TOTAL],
+                 [-4.0, -3.0, -1.5, 1.0, 1.0, -2.0, -1.0])
+music *= (10 ** (ramp / 20))[:, None]
+music[: int(0.25 * SR)] *= np.linspace(0, 1, int(0.25 * SR))[:, None]
 
-def saw(freq, n_harm=18, phase0=0.0):
-    ph = 2 * np.pi * np.cumsum(np.broadcast_to(freq, (N,))) / SR + phase0
-    out = np.zeros(N)
-    for k in range(1, n_harm + 1):
-        out += np.sin(k * ph) / k
-    return out
-
-
-# drone: D1 + D2 detuned saws, low-passed
-drone = sum(saw(f * d, 12, rng.uniform(0, 6)) for f in (36.71, 73.42) for d in (0.997, 1.0, 1.003))
-drone = lp(drone, 260, 2) * 0.35
-drone_hi = lp(sum(saw(f * d, 14, rng.uniform(0, 6)) for f in (146.83, 220.0) for d in (0.996, 1.004)), 900) * 0.12
-drone_mix = drone * (0.6 + 0.4 * I) + drone_hi * np.clip((I - 0.4) * 1.6, 0, 1)
-
-# heartbeat pulse, accelerating with intensity
-hb = np.zeros(N)
-def kick(f0=110, f1=42, dur=0.35, amp=1.0):
-    n = int(dur * SR); tt = np.arange(n) / SR
-    f = f1 + (f0 - f1) * np.exp(-tt * 28)
-    s = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 9) * amp
-    return np.tanh(s * 1.6)
-k_lub, k_dub = kick(), kick(95, 40, 0.3, 0.65)
-tb = 0.15
-while tb < MAIN_LEN:
-    bpm = 56 + 44 * np.interp(tb, t_all[::100], I[::100]) ** 1.3
-    i = int(tb * SR)
-    for kk, off in ((k_lub, 0), (k_dub, int(0.19 * SR))):
-        j = i + off; hb[j: j + len(kk)] += kk[: max(0, min(len(kk), N - j))]
-    tb += 60 / bpm
-hb = lp(hb, 180) * 0.9 * (0.55 + 0.45 * I)
-
-# tense strings: tremolo clusters entering in layers, plus rising glissando at the end
-def string_layer(freqs, start, fade=4.0, trem=9.0, cutoff=2400):
-    out = np.zeros(N)
-    for f in freqs:
-        vib = 1 + 0.004 * np.sin(2 * np.pi * 5.2 * t_all + rng.uniform(0, 6))
-        out += saw(f * vib, 16, rng.uniform(0, 6))
-    out = lp(out, cutoff, 2)
-    tremolo = 0.55 + 0.45 * np.abs(np.sin(np.pi * trem * t_all))
-    env = np.clip((t_all - start) / fade, 0, 1)
-    return out * tremolo * env
-
-s1 = string_layer([146.83, 220.0], 4.3) * 0.10                      # D3 A3
-s2 = string_layer([293.66, 311.13, 349.23], 23.0, 6) * 0.07          # D4 Eb4 F4 cluster
-s3 = string_layer([587.33, 622.25], 43.5, 8, 11, 3500) * 0.045      # D5 Eb5 high tension
-# rising glissando from 58.5 to the question (semitone every ~2.5 s)
-g_start, g_end = 58.5, ws(191)
-semis = np.clip((t_all - g_start) / (g_end - g_start), 0, 1) * 7
-gl = np.zeros(N)
-for base in (293.66, 440.0, 587.33):
-    gl += saw(base * 2 ** (semis / 12), 14, rng.uniform(0, 6))
-gl = lp(gl, 3000) * (0.55 + 0.45 * np.abs(np.sin(np.pi * 12 * t_all)))
-gl *= np.clip((t_all - g_start) / 6, 0, 1) * (t_all < g_end + 3.2) * 0.05
-strings = (s1 + s2 + s3) * (0.4 + 0.6 * I) + gl
-strings_st = reverb(strings, 2.8, 2.6, 0.45, 3)
-
-# climax hold after the question, then a soft dark pad under the CTA
-music = np.stack([drone_mix, drone_mix], 1) * 0.9 + np.stack([hb, hb], 1) + strings_st
-cta = ws(201)
-fade_cta = np.clip(1 - (t_all - (cta - 0.3)) / 1.2, 0.45, 1)[:, None]
-music *= fade_cta
-music[t_all >= MAIN_LEN + 0.05] *= np.exp(-(t_all[t_all >= MAIN_LEN + 0.05] - MAIN_LEN) * 1.4)[:, None]
-
-# ------------------------------------------------------------------ SFX
-def env_exp(n, d):
-    return np.exp(-np.arange(n) / SR * d)
+# ------------------------------------------------------------------ cinematic SFX (no synth beeps)
+def nz(n): return rng.standard_normal(n)
 
 def mk_boom():
-    n = int(2.2 * SR); tt = np.arange(n) / SR
-    f = 32 + 70 * np.exp(-tt * 6)
-    sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 2.2)
-    noise = lp(rng.standard_normal(n), 400) * np.exp(-tt * 9) * 0.8
-    crack = hp(rng.standard_normal(n), 2000) * np.exp(-tt * 60) * 0.25
-    return np.tanh((sub * 1.3 + noise + crack) * 1.4)
+    """trailer impact: sub drop + low body + distant hall tail"""
+    n = int(3.0 * SR); tt = np.arange(n) / SR
+    f = 28 + 34 * np.exp(-tt * 4.5)
+    sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 1.6)
+    body = lp(nz(n), 160, 4) * np.exp(-tt * 7) * 2.2
+    air = bp(nz(n), 200, 1800, 2) * np.exp(-tt * 14) * 0.25
+    att = np.minimum(1, tt / 0.004)
+    return np.tanh((sub * 1.1 + body + air) * att * 1.1) * 0.9
 
 def mk_hit():
+    n = int(2.0 * SR); tt = np.arange(n) / SR
+    f = 34 + 24 * np.exp(-tt * 6)
+    return (np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 2.5) * 0.6 + lp(nz(n), 140, 4) * np.exp(-tt * 10) * 1.2) * np.minimum(1, tt / 0.006)
+
+def mk_swish():
+    """smooth air pass-by centred on the cut (replaces the 8-bit glitch)"""
+    n = int(0.7 * SR); x = nz(n); out = np.zeros(n); k = 28; seg = n // k
+    for i in range(k):
+        c = 300 + 2200 * np.sin(np.pi * i / k) ** 2
+        out[i * seg:(i + 1) * seg] = bp(x[i * seg:(i + 1) * seg], c * 0.6, c * 1.6, 1)
+    out = lp(out, 3000, 2)
+    env = np.sin(np.linspace(0, np.pi, n)) ** 3
+    return out * env * 0.55
+
+def mk_riser():
+    """reverse swell into a reveal"""
     n = int(1.2 * SR); tt = np.arange(n) / SR
-    f = 50 + 60 * np.exp(-tt * 15)
-    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 5) * 0.7 + lp(rng.standard_normal(n), 900) * np.exp(-tt * 25) * 0.3
-
-def mk_glitch():
-    n = int(0.28 * SR); out = np.zeros(n); i = 0
-    while i < n:
-        L = int(rng.uniform(0.008, 0.04) * SR)
-        kind = rng.integers(3)
-        tt = np.arange(L) / SR
-        if kind == 0: seg = np.sign(np.sin(2 * np.pi * rng.uniform(200, 3000) * tt))
-        elif kind == 1: seg = rng.standard_normal(L)
-        else: seg = np.round(rng.standard_normal(L) * 3) / 3
-        out[i:i + L] = seg[: max(0, min(L, n - i))] * rng.uniform(0.3, 1); i += L
-    out = hp(out, 300) * np.linspace(1, 0.3, n)
-    return out * 0.45
-
-def mk_static(d=0.9):
-    n = int(d * SR); x = bp(rng.standard_normal(n), 800, 9000)
-    crackle = (rng.random(n) > 0.997) * rng.standard_normal(n) * 3
-    env = np.minimum(1, np.arange(n) / (0.02 * SR)) * np.linspace(1, 0, n) ** 0.7
-    return (x * 0.35 + crackle * 0.3) * env
+    x = lp(nz(n), 2500, 2) * np.exp(-tt[::-1] * 0) * (tt / tt[-1]) ** 3
+    return x * 0.5
 
 def mk_stamp():
-    n = int(0.6 * SR); tt = np.arange(n) / SR
-    thud = np.sin(2 * np.pi * np.cumsum(140 * np.exp(-tt * 10) + 55) / SR) * np.exp(-tt * 18)
-    click = hp(rng.standard_normal(n), 1500) * np.exp(-tt * 120) * 0.8
-    slap = bp(rng.standard_normal(n), 300, 2500) * np.exp(-tt * 40) * 0.6
-    return np.tanh((thud + click + slap) * 1.5) * 0.9
+    n = int(0.9 * SR); tt = np.arange(n) / SR
+    thud = lp(nz(n), 220, 4) * np.exp(-tt * 22) * 3.0
+    low = np.sin(2 * np.pi * np.cumsum(70 + 40 * np.exp(-tt * 30)) / SR) * np.exp(-tt * 12) * 0.8
+    slap = bp(nz(n), 600, 3000, 2) * np.exp(-tt * 70) * 0.35
+    return np.tanh((thud + low + slap) * 1.2) * 0.85
 
 def mk_gavel():
-    n = int(1.0 * SR); tt = np.arange(n) / SR; out = np.zeros(n)
-    for f, d, a in ((620, 38, 0.7), (1130, 50, 0.5), (1870, 70, 0.35), (2900, 90, 0.2), (180, 25, 0.6)):
-        out += np.sin(2 * np.pi * f * tt) * np.exp(-tt * d) * a
-    out += hp(rng.standard_normal(n), 2500) * np.exp(-tt * 150) * 0.6
-    return np.tanh(out * 1.4)
+    n = int(1.2 * SR); tt = np.arange(n) / SR
+    knock = bp(nz(n), 350, 1400, 2) * np.exp(-tt * 45) * 1.6
+    body = np.sin(2 * np.pi * 190 * tt) * np.exp(-tt * 28) * 0.7 + lp(nz(n), 200, 4) * np.exp(-tt * 20) * 1.5
+    return np.tanh((knock + body) * 1.3) * 0.9
 
 def mk_tick(hi=True):
-    n = int(0.09 * SR); tt = np.arange(n) / SR
-    f = 3200 if hi else 2500
-    return (np.sin(2 * np.pi * f * tt) * 0.6 + bp(rng.standard_normal(n), 1500, 7000) * 0.5) * np.exp(-tt * 140)
+    """mechanical clock tick: filtered transient, no tone"""
+    n = int(0.06 * SR); tt = np.arange(n) / SR
+    lo, hi_f = (2500, 7000) if hi else (1800, 5000)
+    return bp(nz(n), lo, hi_f, 2) * np.exp(-tt * 260) * 0.8 + lp(nz(n), 600) * np.exp(-tt * 150) * 0.4
 
-def mk_type():
-    n = int(0.05 * SR); tt = np.arange(n) / SR
-    return bp(rng.standard_normal(n), 1200, 6000) * np.exp(-tt * 200) * 0.7 + np.sin(2 * np.pi * 180 * tt) * np.exp(-tt * 120) * 0.3
-
-def mk_whoosh():
-    n = int(0.9 * SR); x = rng.standard_normal(n); out = np.zeros(n); seg = n // 20
-    for k in range(20):
-        lo = 200 + 4000 * (k / 20) ** 2
-        out[k * seg:(k + 1) * seg] = bp(x[k * seg:(k + 1) * seg], lo, lo * 2.5)
-    return out * np.sin(np.linspace(0, np.pi, n)) ** 2 * 0.5
-
-bank = {"boom": mk_boom(), "hit": mk_hit(), "stamp": mk_stamp(), "gavel": mk_gavel(),
-        "type": None, "tick": None, "glitch": None, "static": None, "whoosh": mk_whoosh()}
+bank = {"boom": mk_boom(), "hit": mk_hit(), "stamp": mk_stamp(), "gavel": mk_gavel()}
 fx = np.zeros(N)
 tick_hi = True
 for t0, kind, g in SFX:
-    if kind == "glitch": s = mk_glitch()
-    elif kind == "static": s = mk_static()
-    elif kind == "type": s = mk_type()
-    elif kind == "tick": s = mk_tick(tick_hi); tick_hi = not tick_hi
-    else: s = bank[kind]
-    if kind == "whoosh": t0 = t0 - 0.6
+    if kind in ("type", "static"):
+        continue
+    if kind == "glitch":
+        s = mk_swish(); t0 -= 0.35; g *= 0.6
+    elif kind == "whoosh":
+        s = mk_riser(); t0 -= 1.2
+    elif kind == "tick":
+        s = mk_tick(tick_hi); tick_hi = not tick_hi
+    else:
+        s = bank[kind]
     i = max(0, int(t0 * SR)); L = min(len(s), N - i)
     fx[i:i + L] += s[:L] * g
-fx_st = reverb(fx, 2.0, 3.2, 0.28, 5)
+fx_st = reverb(fx, 3.2, 1.9, 0.32, 5)
 
 # ------------------------------------------------------------------ silence windows (music + sfx)
 gate = np.ones(N)
@@ -208,8 +142,8 @@ def rms(x):
     return np.sqrt(np.mean(x[np.abs(x) > 1e-4] ** 2))
 
 v_rms = rms(voice)
-music *= (v_rms * 10 ** (-10 / 20)) / rms(music[: int(MAIN_LEN * SR)])   # music ~10 dB under the voice
-fx_st *= (v_rms * 10 ** (-4 / 20)) / np.sqrt(np.mean(fx_st[np.abs(fx_st) > 1e-3] ** 2))
+music *= (v_rms * 10 ** (-11 / 20)) / rms(music[: int(MAIN_LEN * SR)])   # music ~11 dB under the voice
+fx_st *= (v_rms * 10 ** (-8 / 20)) / np.sqrt(np.mean(fx_st[np.abs(fx_st) > 1e-3] ** 2))
 
 mix = voice_st + (music + fx_st) * gate
 mix = mix[: int(TOTAL * SR)]
