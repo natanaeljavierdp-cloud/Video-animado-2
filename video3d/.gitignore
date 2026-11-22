@@ -7,3 +7,5 @@ logs/
 __pycache__/
 *.wav
 *.mp3
+video3d/video_sin_audio.mp4
+video3d/chk/
