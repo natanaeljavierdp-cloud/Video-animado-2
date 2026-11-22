@@ -1,0 +1,9 @@
+frames/
+prev/
+prev2/
+tf/
+out/
+logs/
+__pycache__/
+*.wav
+*.mp3
