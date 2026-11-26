@@ -2,3 +2,4 @@ frames/
 test/
 logs/
 *.wav
+__pycache__/
