@@ -63,7 +63,7 @@ LABELS = [
 FLOATS = [
     (0.25, 4.35, [[('¿QUÉ PASA ', 0), ('ADENTRO', 1), ('?', 0)]], 1560, 104),
     (41.35, 43.7, [[('ENJUAGUE', 1)]], 1620, 120),
-    (49.2, 51.95, [[('+', 0), ('1,000', 1)], [('VUELTAS POR MINUTO', 0)]], 1500, 130),
+    (49.2, 51.95, [[('+', 0), ('1,000', 1)], [('VUELTAS POR MINUTO', 0)]], 1640, 130),
     (65.3, 69.95, [[('NO LA LLENES ', 0), ('DE MÁS', 1)]], 1600, 96),
     (70.15, 72.7, [[('Síguenos para ver', 0)], [('más cosas… ', 0), ('por dentro.', 1)]], 1520, 82),
 ]
@@ -146,7 +146,7 @@ def draw_label(base, d, anchor, parts, dx, dy, t, t0, t1):
     if a < 0.02: return
     pop = ease_back(clamp((t - t0) / 0.3))
     lx, ly = ax + dx, ay + dy
-    blk = cached_block(('lab',) + tuple(parts), [parts], 54, WHITEC, BLACK, 6, max_w=960)
+    blk = cached_block(('lab',) + tuple(parts), [parts], 68, WHITEC, BLACK, 8, max_w=980)
     lx = clamp(lx, blk.width / 2 + 30, W - blk.width / 2 - 30)
     ly = clamp(ly, 440, H - 160)
     # linea fina hacia la pieza
